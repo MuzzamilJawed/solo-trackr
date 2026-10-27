@@ -65,6 +65,7 @@
 
     function fail() {
       document.body.classList.add("failed");
+      try { window.SoloSplash.hide(); } catch (e) { /* no native splash to hide */ }
       msg.textContent = navigator.onLine ? "Can't reach SoloTrackr" : "You're offline";
     }
 

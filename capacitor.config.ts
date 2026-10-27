@@ -37,22 +37,13 @@ const config: CapacitorConfig = {
     contentInset: 'always',
   },
   plugins: {
-    // One splash, and it is this native one — visible from the tap, unlike the
-    // in-app splash which can only appear once the remote page has loaded. It
-    // shows the same logo the launch window animates to, then hides as soon as
-    // the app has painted. launchShowDuration is the backstop for an unreachable
-    // server. <Splash> renders nothing on native so this is never doubled up.
+    // The launch splash is drawn by MainActivity (a full-size animated overlay, from
+    // android/app/src/main/res/drawable/splash_web_launch.xml) because Capacitor's plugin
+    // can't show it large on Android 12+. The web <Splash> takes over once painted and
+    // removes it through window.SoloSplash.hide(). So the plugin splash stays off.
     SplashScreen: {
-      launchShowDuration: 3000,
-      launchAutoHide: true,
-      // The web <Splash> (ring, wordmark, S badge) redrawn as an animated vector: the S
-      // orbits the ring, the ring turns and the glow breathes, like the web one. Drawn at
-      // its own 288dp size in the middle of the screen. CENTER, not FIT_XY: stretching it
-      // to the screen distorted the artwork on tall phones. Regenerate the drawables with
-      // scripts/gen-android-splash.py.
-      androidSplashResourceName: 'splash_web_anim',
+      launchShowDuration: 0,
       backgroundColor: '#050505',
-      androidScaleType: 'CENTER',
       showSpinner: false,
     },
     // Initial value only — <SafeArea> re-applies the style at runtime to match

@@ -17,16 +17,14 @@
 
 
     <!--
-      The native launch screen is now the only splash: it is on screen from the
-      moment the icon is tapped, so there is never a blank frame waiting for the
-      remote page. The in-app splash is skipped on native for the same reason.
+      Launch window: just the background colour (empty icon). Android 12+ clips a launch
+      icon to a small circle, which made the splash tiny, so MainActivity draws the real
+      splash as a full-size overlay from its first frame and the web <Splash> hands over to it.
     -->
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_background</item>
-        <!-- Pop-in + wordmark rise (the web's intro). It ends in the static pose that the
-             Capacitor overlay's looping animation (splash_web_anim) starts from. -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_web_intro</item>
-        <item name="windowSplashScreenAnimationDuration">700</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon_none</item>
+        <item name="windowSplashScreenAnimationDuration">0</item>
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>
