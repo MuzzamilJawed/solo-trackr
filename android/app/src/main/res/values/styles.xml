@@ -23,7 +23,10 @@
     -->
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_web_icon</item>
+        <!-- Pop-in + wordmark rise (the web's intro). It ends in the static pose that the
+             Capacitor overlay's looping animation (splash_web_anim) starts from. -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_web_intro</item>
+        <item name="windowSplashScreenAnimationDuration">700</item>
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>

@@ -45,9 +45,14 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 3000,
       launchAutoHide: true,
-      androidSplashResourceName: 'splash_brand',
+      // The web <Splash> (ring, wordmark, S badge) redrawn as an animated vector: the S
+      // orbits the ring, the ring turns and the glow breathes, like the web one. Drawn at
+      // its own 288dp size in the middle of the screen. CENTER, not FIT_XY: stretching it
+      // to the screen distorted the artwork on tall phones. Regenerate the drawables with
+      // scripts/gen-android-splash.py.
+      androidSplashResourceName: 'splash_web_anim',
       backgroundColor: '#050505',
-      androidScaleType: 'FIT_XY',
+      androidScaleType: 'CENTER',
       showSpinner: false,
     },
     // Initial value only — <SafeArea> re-applies the style at runtime to match
