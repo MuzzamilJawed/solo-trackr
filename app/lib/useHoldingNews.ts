@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchNews, matchSymbols, type NewsItem, type StockRef } from "./news";
 import { usePullRefresh } from "./pullRefresh";
+import { getPsxStocks } from "./psxStocksCache";
 
 export interface HoldingNewsItem extends NewsItem {
     symbols: string[]; // only symbols you hold
@@ -38,9 +39,8 @@ export function useHoldingNews(heldSymbols: string[]) {
     useEffect(() => {
         if (!key) return;
         let cancelled = false;
-        fetch("/api/psx-stocks")
-            .then(r => r.json())
-            .then(j => { if (!cancelled && Array.isArray(j?.data)) setStocks(j.data.map((s: StockRef) => ({ symbol: s.symbol, name: s.name }))); })
+        getPsxStocks()
+            .then(list => { if (!cancelled) setStocks(list.map(s => ({ symbol: s.symbol, name: s.name }))); })
             .catch(() => { /* ticker-only matching still works */ });
         return () => { cancelled = true; };
     }, [key]);

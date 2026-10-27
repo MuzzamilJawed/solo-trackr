@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 
-export async function GET() {
+async function fetchMarketSummary(): Promise<NextResponse> {
   try {
     // We use the main PSX website for market summary
     const response = await fetch('https://www.psx.com.pk/market-summary', {
@@ -304,4 +304,27 @@ export async function GET() {
       note: 'Using mock data due to scraping error'
     });
   }
+}
+
+// The scrape above takes ~5 s. Several callers hit it at once on every page (dashboard,
+// command palette, holding notifier, news matching), so keep the last good answer for
+// 20 s and share one in-flight request. Fallback/mock responses are never cached.
+let cached: { at: number; body: unknown } | null = null;
+let inflight: Promise<NextResponse> | null = null;
+const TTL_MS = 20_000;
+
+export async function GET() {
+  if (cached && Date.now() - cached.at < TTL_MS) return NextResponse.json(cached.body);
+  if (!inflight) {
+    inflight = fetchMarketSummary()
+      .then(async (res) => {
+        try {
+          const body = await res.clone().json();
+          if (res.ok && Array.isArray(body?.data) && body.data.length > 20 && !body.note) cached = { at: Date.now(), body };
+        } catch { /* leave the cache alone */ }
+        return res;
+      })
+      .finally(() => { inflight = null; });
+  }
+  return (await inflight).clone();
 }

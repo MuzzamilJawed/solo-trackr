@@ -172,11 +172,11 @@ export default function Sidebar() {
         role={isOpen ? "dialog" : undefined}
         aria-modal={isOpen ? true : undefined}
         aria-label="Navigation menu"
-        className={`fixed left-0 top-0 h-screen h-dvh w-[min(16rem,85vw)] ${collapsed ? "lg:w-20" : "lg:w-64"} bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-lg overflow-hidden flex flex-col border-r border-zinc-200 dark:border-zinc-800 transition-[transform,width] duration-300 z-[95]
+        className={`fixed left-0 top-0 h-screen h-dvh w-[min(18rem,88vw)] ${collapsed ? "lg:w-20" : "lg:w-64"} bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-lg overflow-hidden flex flex-col border-r border-zinc-200 dark:border-zinc-800 transition-[transform,width] duration-300 z-[95]
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
 
-        <div className={`pl-6 pr-2 py-6 pt-[calc(1.5rem_+_var(--sa-top))] ${collapsed ? "lg:pl-2 lg:pr-1 lg:py-3" : ""} border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center gap-2`}>
-          <a className="flex items-center gap-3 min-w-0" href="/">
+        <div className={`pl-5 sm:pl-6 pr-2 py-6 pt-[calc(1.5rem_+_var(--sa-top))] ${collapsed ? "lg:pl-2 lg:pr-1 lg:py-3" : ""} border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center gap-2`}>
+          <Link className="flex items-center gap-3 min-w-0" href="/">
             <div className={`w-9 h-9 ${collapsed ? "lg:w-8 lg:h-8" : ""} shrink-0 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-600/25`}>
               <span className="text-white font-black text-xl italic leading-none">S</span>
             </div>
@@ -184,13 +184,7 @@ export default function Sidebar() {
               <h1 className="text-base font-black tracking-tighter italic uppercase leading-none whitespace-nowrap">Solo<span className="text-blue-500">Trackr</span></h1>
               <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase font-bold tracking-widest whitespace-nowrap">All Markets · One Place</p>
             </div>
-          </a>
-          <button
-            type="button"
-            onClick={() => { setIsOpen(false); window.dispatchEvent(new Event("open-search")); }}
-            aria-label="Search"
-            className="lg:hidden shrink-0 w-10 h-10 flex items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-90 transition-all"
-          ><Search className="w-5 h-5" strokeWidth={2.5} /></button>
+          </Link>
           <button onClick={() => setIsOpen(false)} aria-label="Close menu" className="lg:hidden shrink-0 w-10 h-10 -mr-1 flex items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-90 transition-all"><X className="w-5 h-5" strokeWidth={2.5} /></button>
           {/* Desktop collapse / expand toggle — same row as logo, on the right */}
           <button
@@ -200,6 +194,22 @@ export default function Sidebar() {
             className={`hidden lg:flex shrink-0 items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all ${collapsed ? "w-6 h-8" : "w-8 h-8"}`}
           >
             {collapsed ? <ChevronsRight className="w-4 h-4" strokeWidth={2.5} /> : <ChevronsLeft className="w-4 h-4" strokeWidth={2.5} />}
+          </button>
+        </div>
+
+        {/* Search: its own full-width row (it used to be an icon squeezed into the header,
+            colliding with the tagline). Opens the same palette as Ctrl/Cmd+K. */}
+        <div className={`px-4 pt-3 ${collapsed ? "lg:px-2" : ""}`}>
+          <button
+            type="button"
+            onClick={() => { setIsOpen(false); window.dispatchEvent(new Event("open-search")); }}
+            aria-label="Search stocks"
+            title="Search stocks (Ctrl+K)"
+            className={`w-full min-h-11 flex items-center gap-3 px-3.5 rounded-xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 active:scale-[0.98] transition-all ${collapsed ? "lg:justify-center lg:px-0" : ""}`}
+          >
+            <Search className="w-4 h-4 shrink-0" strokeWidth={2.5} aria-hidden />
+            <span className={`flex-1 text-left truncate ${collapsed ? "lg:hidden" : ""}`}>Search stocks…</span>
+            <kbd className={`hidden lg:inline text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-200/70 dark:bg-white/10 ${collapsed ? "lg:hidden" : ""}`}>Ctrl K</kbd>
           </button>
         </div>
 

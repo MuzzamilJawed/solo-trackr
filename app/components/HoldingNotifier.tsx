@@ -8,6 +8,7 @@ import { useSettings } from "../context/SettingsContext";
 import { computeHoldings, fetchTxns, type Txn } from "../lib/portfolio";
 import { daysBetween, entitlementDate, entitlementFor, fetchActions, todayStr, type CorporateAction } from "../lib/corporateActions";
 import { useHoldingNews } from "../lib/useHoldingNews";
+import { getPsxStocks } from "../lib/psxStocksCache";
 import { loadSeen, saveSeen } from "../lib/news";
 import { loadRules, DEFAULT_RULES, type HoldingAlertRules } from "../lib/holdingAlertRules";
 
@@ -90,9 +91,9 @@ export default function HoldingNotifier() {
     // Live PSX prices for what you hold — one request, every 5 minutes.
     const loadPrices = useCallback(async () => {
         try {
-            const j = await (await fetch("/api/psx-stocks")).json();
+            const list = await getPsxStocks(60_000);
             const map: Record<string, PriceInfo> = {};
-            (j?.data || []).forEach((s: { symbol?: string; currentPrice?: number; changePercent?: number }) => {
+            list.forEach(s => {
                 if (s?.symbol && Number.isFinite(s.currentPrice)) map[s.symbol.toUpperCase()] = { price: s.currentPrice as number, day: Number(s.changePercent) || 0 };
             });
             setPrices(map);

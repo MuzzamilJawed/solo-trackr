@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Fuel, BarChart3, Gem, ArrowRightLeft } from "lucide-react";
 import { useBackHandler } from "../lib/backStack";
+import { getPsxStocks } from "../lib/psxStocksCache";
+import { cleanPsxName } from "../lib/psxName";
 
 export default function CommandPalette() {
     const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +13,7 @@ export default function CommandPalette() {
     const [stocks, setStocks] = useState<any[]>([]);
     const [filteredResults, setFilteredResults] = useState<any[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [loadState, setLoadState] = useState<"idle" | "loading" | "ok" | "failed">("idle");
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogRef = useRef<HTMLDivElement>(null);
@@ -46,12 +49,15 @@ export default function CommandPalette() {
     }, [isOpen]);
 
     const fetchStocks = async () => {
+        setLoadState(s => (s === "ok" ? s : "loading"));
         try {
-            const res = await fetch('/api/psx-stocks');
-            const json = await res.json();
-            if (json.success) setStocks(json.data);
+            // (The old code required json.success, which /api/psx-stocks never sends,
+            // so the list stayed empty and search never returned anything.)
+            setStocks(await getPsxStocks());
+            setLoadState("ok");
         } catch (err) {
             console.error('Failed to load stocks for search', err);
+            setLoadState("failed");
         }
     };
 
@@ -157,7 +163,7 @@ export default function CommandPalette() {
                                                 {stock.symbol}
                                             </p>
                                             <p className={`text-[11px] font-bold uppercase tracking-widest truncate ${i === selectedIndex ? "text-blue-100" : "text-zinc-500"}`}>
-                                                {stock.name}
+                                                {cleanPsxName(stock.name)}
                                             </p>
                                         </div>
                                     </div>
@@ -166,7 +172,7 @@ export default function CommandPalette() {
                                             Rs.{(stock.currentPrice ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </p>
                                         <p className={`text-[11px] font-black ${stock.change >= 0 ? (i === selectedIndex ? 'text-green-200' : 'text-green-500') : (i === selectedIndex ? 'text-red-200' : 'text-red-500')}`}>
-                                            {stock.change >= 0 ? '▲' : '▼'}{Math.abs(stock.changePercent)}%
+                                            {stock.change >= 0 ? '▲' : '▼'}{Math.abs(Number(stock.changePercent) || 0).toFixed(2)}%
                                         </p>
                                     </div>
                                 </button>
@@ -174,7 +180,11 @@ export default function CommandPalette() {
                         </div>
                     ) : query.trim() !== "" ? (
                         <div className="p-12 text-center" role="status">
-                            <p className="text-zinc-500 font-black uppercase tracking-widest text-xs italic">No footprint found for "{query}"</p>
+                            <p className="text-zinc-500 font-bold text-sm">
+                                {loadState === "loading" ? "Loading stocks…"
+                                    : loadState === "failed" ? "Couldn't load the stock list. Check your connection and try again."
+                                        : <>No stock matches &ldquo;{query}&rdquo;.</>}
+                            </p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-4 p-4">
