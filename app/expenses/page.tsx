@@ -1,26 +1,25 @@
 "use client";
 
-import { Wallet, Pencil, Plus, PieChart as PieChartIcon, LineChart as LineChartIcon, CreditCard, ClipboardList, Inbox } from "lucide-react";
+import { Wallet, Pencil, Plus, PieChart as PieChartIcon, LineChart as LineChartIcon, CreditCard, ClipboardList, Inbox, Download } from "lucide-react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useToast } from "../context/ToastContext";
-
-interface Expense {
-  id: string;
-  description: string;
-  amount: number;
-  category: string;
-  date: string;
-  paymentMethod: "cash" | "card" | "transfer" | "other";
-  notes?: string;
-}
+import { useConfirm } from "../context/ConfirmContext";
+import BudgetPanel from "../components/BudgetPanel";
+import LoadErrorBanner from "../components/LoadErrorBanner";
+import { usePullRefresh } from "../lib/pullRefresh";
+import {
+  fetchExpenses, addExpense, updateExpense, deleteExpense, migrateLegacyExpenses,
+  type Expense,
+} from "../lib/expenses";
 
 const CATEGORIES = ["Food", "Transport", "Entertainment", "Utilities", "Healthcare", "Shopping", "Education", "Other"];
 const COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2"];
 
 export default function ExpensesPage() {
   const { success, error, info } = useToast();
+  const confirm = useConfirm();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [formData, setFormData] = useState({
     description: "",
@@ -34,49 +33,66 @@ export default function ExpensesPage() {
   const [timeRange, setTimeRange] = useState("month"); // day, week, month, year
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Load expenses from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("expenses");
-    if (saved) {
-      setExpenses(JSON.parse(saved));
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Expenses live in the account. The first load after this change also moves any
+  // expenses still sitting in this browser's localStorage up to the account.
+  const load = useCallback(async () => {
+    let res = await fetchExpenses();
+    if (!res.failed && res.data.length === 0 && (await migrateLegacyExpenses()) > 0) {
+      res = await fetchExpenses();
+      if (!res.failed) info(`Moved ${res.data.length} expenses from this device to your account`);
     }
-  }, []);
+    setLoadFailed(res.failed);
+    if (!res.failed) setExpenses(res.data);
+  }, [info]);
 
-  // Save expenses to localStorage
   useEffect(() => {
-    localStorage.setItem("expenses", JSON.stringify(expenses));
-  }, [expenses]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+  }, [load]);
+  usePullRefresh(load);
 
-  const handleAddExpense = (e: React.FormEvent) => {
+  const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
 
-    if (!formData.description || !formData.amount) {
+    if (!formData.description.trim() || !formData.amount) {
       error("Please fill in description and amount");
       return;
     }
+    const amountNum = parseFloat(formData.amount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      error("Enter an amount greater than zero");
+      return;
+    }
+
+    const input = {
+      description: formData.description.trim(),
+      amount: amountNum,
+      category: formData.category,
+      date: formData.date,
+      paymentMethod: formData.paymentMethod,
+      notes: formData.notes.trim() || undefined,
+    };
+
+    setSaving(true);
+    const res = editingId ? await updateExpense(editingId, input) : await addExpense(input);
+    setSaving(false);
+    if (res.error || !res.expense) {
+      error(res.error || "Couldn't save the expense");
+      return; // keep the form filled so nothing typed is lost
+    }
+    const saved = res.expense;
 
     if (editingId) {
-      setExpenses(
-        expenses.map((exp) =>
-          exp.id === editingId
-            ? { ...exp, ...formData, amount: parseFloat(formData.amount) }
-            : exp
-        )
-      );
+      setExpenses(expenses.map((exp) => (exp.id === editingId ? saved : exp)));
       setEditingId(null);
-      success(`"${formData.description}" updated`);
+      success(`"${saved.description}" updated`);
     } else {
-      const newExpense: Expense = {
-        id: Date.now().toString(),
-        description: formData.description,
-        amount: parseFloat(formData.amount),
-        category: formData.category,
-        date: formData.date,
-        paymentMethod: formData.paymentMethod,
-        notes: formData.notes,
-      };
-      setExpenses([newExpense, ...expenses]);
-      success(`Expense added — PKR ${parseFloat(formData.amount).toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
+      setExpenses([saved, ...expenses]);
+      success(`Expense added — PKR ${amountNum.toLocaleString(undefined, { maximumFractionDigits: 0 })}`);
     }
 
     setFormData({
@@ -101,9 +117,14 @@ export default function ExpensesPage() {
     });
   };
 
-  const handleDeleteExpense = (id: string) => {
-    if (!confirm("Are you sure you want to delete this expense?")) return;
+  const handleDeleteExpense = async (id: string) => {
     const removed = expenses.find((exp) => exp.id === id);
+    if (!(await confirm({
+      title: "Delete this expense?",
+      message: removed ? `"${removed.description}" will be removed.` : undefined,
+      destructive: true,
+    }))) return;
+    if (!(await deleteExpense(id))) { error("Couldn't delete that expense"); return; }
     setExpenses(expenses.filter((exp) => exp.id !== id));
     info(`"${removed?.description ?? 'Expense'}" deleted`);
   };
@@ -169,11 +190,29 @@ export default function ExpensesPage() {
       .reduce((sum, exp) => sum + exp.amount, 0),
   })).filter((item) => item.value > 0);
 
+  const exportCsv = () => {
+    const q = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+    const rows = [["Date", "Description", "Category", "Amount", "Payment method", "Notes"], ...[...filteredExpenses]
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map(e => [e.date, e.description, e.category, e.amount, e.paymentMethod, e.notes ?? ""])];
+    // BOM so Excel reads UTF-8 correctly.
+    const blob = new Blob([String.fromCharCode(0xFEFF) + rows.map(r => r.map(q).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `expenses-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    success(`Exported ${filteredExpenses.length} expense${filteredExpenses.length === 1 ? "" : "s"}`);
+  };
+
   const inputClass = "w-full px-3 py-2.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-white text-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all";
   const labelClass = "block text-xs font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1.5";
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white selection:bg-blue-500/30">
+    <div className="min-h-screen bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white selection:bg-blue-500/30">
       {/* Dynamic Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/5 dark:bg-blue-600/10 blur-[120px] rounded-full"></div>
@@ -186,27 +225,32 @@ export default function ExpensesPage() {
           <h1 className="text-xl sm:text-3xl font-black tracking-tighter italic uppercase text-zinc-900 dark:text-white leading-none flex flex-wrap items-center gap-x-2.5 gap-y-1">
             <Wallet className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2} /> Expense <span className="text-blue-500 text-xl sm:text-2xl">Tracker</span>
           </h1>
-          <p className="text-zinc-500 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] mt-1">
+          <p className="text-zinc-500 text-[11px] sm:text-xs font-black uppercase tracking-[0.2em] mt-1">
             Spending Intelligence & Analysis
           </p>
         </div>
       </header>
 
       <main className="page-shell mx-auto p-4 sm:p-8 relative z-10">
+        {loadFailed && (
+          <div className="mb-6">
+            <LoadErrorBanner hasData={expenses.length > 0} what="your expenses" onRetry={load} />
+          </div>
+        )}
         {/* Stats Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
-          <div className="bg-white dark:bg-zinc-900/60 rounded-[1.5rem] border border-zinc-200 dark:border-white/5 p-5 sm:p-6 shadow-sm">
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">Total Expenses</p>
+          <div className="card p-5 sm:p-6">
+            <p className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">Total Expenses</p>
             <p className="text-2xl sm:text-3xl font-black font-mono tracking-tighter text-zinc-900 dark:text-white break-words min-w-0">PKR {totalExpenses.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
             <p className="text-xs font-bold text-zinc-400 mt-1">{filteredExpenses.length} transactions</p>
           </div>
-          <div className="bg-white dark:bg-zinc-900/60 rounded-[1.5rem] border border-zinc-200 dark:border-white/5 p-5 sm:p-6 shadow-sm">
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">Average Expense</p>
+          <div className="card p-5 sm:p-6">
+            <p className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">Average Expense</p>
             <p className="text-2xl sm:text-3xl font-black font-mono tracking-tighter text-zinc-900 dark:text-white break-words min-w-0">PKR {avgExpense.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
             <p className="text-xs font-bold text-zinc-400 mt-1">Per transaction</p>
           </div>
-          <div className="bg-white dark:bg-zinc-900/60 rounded-[1.5rem] border border-zinc-200 dark:border-white/5 p-5 sm:p-6 shadow-sm flex flex-col justify-between">
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">Time Period</p>
+          <div className="card p-5 sm:p-6 flex flex-col justify-between">
+            <p className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">Time Period</p>
             <select value={timeRange} onChange={(e) => setTimeRange(e.target.value)} className={inputClass}>
               <option value="day">Last Day</option>
               <option value="week">Last Week</option>
@@ -218,7 +262,7 @@ export default function ExpensesPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
           {/* Add Expense Form */}
-          <div className="lg:col-span-1 bg-white dark:bg-zinc-900/60 backdrop-blur-sm rounded-[2rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-sm">
+          <div className="card lg:col-span-1 backdrop-blur-sm overflow-hidden">
             <div className="px-6 py-5 border-b border-zinc-100 dark:border-white/5">
               <h2 className="text-base font-black uppercase tracking-tighter italic text-zinc-900 dark:text-white flex items-center gap-2">
                 {editingId ? (
@@ -260,7 +304,7 @@ export default function ExpensesPage() {
                 <label className={labelClass}>Notes (Optional)</label>
                 <textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder="Add any notes..." className={inputClass + " resize-none"} rows={2} />
               </div>
-              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-xl transition-all uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-600/20">
+              <button type="submit" disabled={saving} className="w-full disabled:opacity-60 bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-xl transition-all uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-600/20">
                 {editingId ? "Update Expense" : "Add Expense"}
               </button>
               {editingId && (
@@ -275,7 +319,7 @@ export default function ExpensesPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Category Breakdown */}
             {categoryData.length > 0 && (
-              <div className="bg-white dark:bg-zinc-900/60 rounded-[2rem] border border-zinc-200 dark:border-white/5 p-4 sm:p-6 shadow-sm">
+              <div className="card p-4 sm:p-6">
                 <h2 className="text-base font-black uppercase tracking-tighter italic text-zinc-900 dark:text-white mb-4 flex items-center gap-2"><PieChartIcon className="w-4 h-4 shrink-0" strokeWidth={2} /> Spending by Category</h2>
                 <ResponsiveContainer width="100%" height={260}>
                   <PieChart>
@@ -290,7 +334,7 @@ export default function ExpensesPage() {
 
             {/* Daily Trend */}
             {lineChartData.length > 0 && (
-              <div className="bg-white dark:bg-zinc-900/60 rounded-[2rem] border border-zinc-200 dark:border-white/5 p-4 sm:p-6 shadow-sm">
+              <div className="card p-4 sm:p-6">
                 <h2 className="text-base font-black uppercase tracking-tighter italic text-zinc-900 dark:text-white mb-4 flex items-center gap-2"><LineChartIcon className="w-4 h-4 shrink-0" strokeWidth={2} /> Daily Trend</h2>
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={lineChartData}>
@@ -306,7 +350,7 @@ export default function ExpensesPage() {
 
             {/* Payment Method */}
             {paymentMethodData.length > 0 && (
-              <div className="bg-white dark:bg-zinc-900/60 rounded-[2rem] border border-zinc-200 dark:border-white/5 p-4 sm:p-6 shadow-sm">
+              <div className="card p-4 sm:p-6">
                 <h2 className="text-base font-black uppercase tracking-tighter italic text-zinc-900 dark:text-white mb-4 flex items-center gap-2"><CreditCard className="w-4 h-4 shrink-0" strokeWidth={2} /> By Payment Method</h2>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={paymentMethodData}>
@@ -338,10 +382,15 @@ export default function ExpensesPage() {
           })}
         </div>
 
+        <BudgetPanel expenses={expenses} categories={CATEGORIES} />
+
         {/* Expenses Table */}
-        <div className="bg-white dark:bg-zinc-900/60 rounded-[2rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-sm">
-          <div className="px-6 sm:px-8 py-5 border-b border-zinc-100 dark:border-white/5">
+        <div className="card overflow-hidden">
+          <div className="px-6 sm:px-8 py-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between gap-3">
             <h2 className="text-base font-black uppercase tracking-tighter italic text-zinc-900 dark:text-white flex items-center gap-2"><ClipboardList className="w-4 h-4 shrink-0" strokeWidth={2} /> Recent Expenses</h2>
+            <button type="button" onClick={exportCsv} disabled={filteredExpenses.length === 0} className="shrink-0 min-h-10 px-3 inline-flex items-center gap-1.5 rounded-xl bg-zinc-100 dark:bg-white/5 text-xs font-bold text-zinc-700 dark:text-zinc-300 disabled:opacity-40">
+              <Download className="w-4 h-4" aria-hidden /> Export CSV
+            </button>
           </div>
           {filteredExpenses.length === 0 ? (
             <div className="py-16 text-center">
@@ -353,21 +402,21 @@ export default function ExpensesPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-zinc-100 dark:border-white/5">
-                    <th className="px-4 sm:px-6 py-4 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Description</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] hidden sm:table-cell">Category</th>
-                    <th className="px-4 sm:px-6 py-4 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] text-right">Amount</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] hidden sm:table-cell">Date</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] hidden md:table-cell">Method</th>
-                    <th className="px-4 sm:px-6 py-4 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] text-center">Actions</th>
+                    <th className="px-4 sm:px-6 py-4 text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em]">Description</th>
+                    <th className="px-6 py-4 text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em] hidden sm:table-cell">Category</th>
+                    <th className="px-4 sm:px-6 py-4 text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em] text-right">Amount</th>
+                    <th className="px-6 py-4 text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em] hidden sm:table-cell">Date</th>
+                    <th className="px-6 py-4 text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em] hidden md:table-cell">Method</th>
+                    <th className="px-4 sm:px-6 py-4 text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em] text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100 dark:divide-white/5">
-                  {filteredExpenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((exp) => (
+                  {[...filteredExpenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((exp) => (
                     <tr key={exp.id} className="hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors">
                       <td className="px-4 sm:px-6 py-4">
                         <p className="text-sm font-bold text-zinc-900 dark:text-zinc-50 truncate max-w-[160px] sm:max-w-none">{exp.description}</p>
                         {/* Category + date fold under description on mobile */}
-                        <p className="sm:hidden text-[10px] font-bold text-zinc-400 uppercase tracking-wide mt-0.5">{exp.category} · {new Date(exp.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
+                        <p className="sm:hidden text-[11px] font-bold text-zinc-400 uppercase tracking-wide mt-0.5">{exp.category} · {new Date(exp.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
                       </td>
                       <td className="px-6 py-4 hidden sm:table-cell">
                         <span className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-black text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">{exp.category}</span>
@@ -379,8 +428,8 @@ export default function ExpensesPage() {
                       </td>
                       <td className="px-4 sm:px-6 py-4">
                         <div className="flex gap-2 justify-center">
-                          <button onClick={() => handleEditExpense(exp)} className="px-2 py-2 text-xs font-black text-blue-500 hover:text-blue-600 transition-colors uppercase tracking-wide">Edit</button>
-                          <button onClick={() => handleDeleteExpense(exp.id)} className="px-2 py-2 text-xs font-black text-red-500 hover:text-red-600 transition-colors uppercase tracking-wide">Delete</button>
+                          <button onClick={() => handleEditExpense(exp)} className="px-3 min-h-10 text-xs font-black text-blue-500 hover:text-blue-600 transition-colors uppercase tracking-wide">Edit</button>
+                          <button onClick={() => handleDeleteExpense(exp.id)} className="px-3 min-h-10 text-xs font-black text-red-500 hover:text-red-600 transition-colors uppercase tracking-wide">Delete</button>
                         </div>
                       </td>
                     </tr>
