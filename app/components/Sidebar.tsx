@@ -9,11 +9,12 @@ import { useSettings } from "../context/SettingsContext";
 import { useAuth } from "../context/AuthContext";
 import { isModuleEnabled } from "../lib/modules";
 import UserMenu from "./UserMenu";
+import { useBackHandler } from "../lib/backStack";
 import {
   LayoutDashboard, TrendingUp, Globe, ArrowRightLeft, Bitcoin, Gem, Fuel,
   Briefcase, Star, Wallet, Settings, ChevronsLeft, ChevronsRight, X,
   Sun, Moon, Monitor, CandlestickChart, LineChart, ChevronDown, ListFilter,
-  UserCircle, Users, ClipboardList,
+  UserCircle, Users, ClipboardList, Search, Newspaper, Activity, CalendarClock,
 } from "lucide-react";
 
 const navigationGroups = [
@@ -31,6 +32,8 @@ const navigationGroups = [
         children: [
           { name: "Opportunity Desk", href: "/stocks/opportunities", icon: ListFilter },
           { name: "Trade Analytics", href: "/stocks/terminal", icon: CandlestickChart },
+          { name: "Technical Analysis", href: "/stocks/analysis", icon: Activity },
+          { name: "Market News", href: "/stocks/news", icon: Newspaper },
         ],
       },
       { name: "NASDAQ Stocks", href: "/nasdaq", icon: Globe, module: "nasdaq" },
@@ -62,6 +65,7 @@ const navigationGroups = [
         name: "Portfolio", href: "/portfolio", icon: Briefcase, module: "portfolio",
         children: [
           { name: "Reports", href: "/portfolio/reports", icon: ClipboardList },
+          { name: "Dividends & Book Closures", href: "/portfolio/dividends", icon: CalendarClock },
         ],
       },
       { name: "Watchlist", href: "/watchlist", icon: Star, module: "watchlist" },
@@ -90,11 +94,13 @@ export default function Sidebar() {
   const [mounted, setMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
   const { theme, setTheme } = useTheme();
-  const { collapsed, toggleCollapsed } = useSidebar();
+  const { collapsed, toggleCollapsed, mobileOpen: isOpen, setMobileOpen: setIsOpen } = useSidebar();
   const { settings } = useSettings();
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+
+  // Android Back closes the mobile drawer instead of leaving the screen.
+  useBackHandler(isOpen, () => setIsOpen(false));
 
   const toggleMenu = (href: string) =>
     setOpenMenus((prev) => ({ ...prev, [href]: !prev[href] }));
@@ -162,7 +168,11 @@ export default function Sidebar() {
 
       {/* The nav scrolls on its own so the account + theme footer stays pinned
           to the bottom instead of being pushed off short screens. */}
-      <aside className={`fixed left-0 top-0 h-screen h-dvh w-[min(16rem,85vw)] ${collapsed ? "lg:w-20" : "lg:w-64"} bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-lg overflow-hidden flex flex-col border-r border-zinc-200 dark:border-zinc-800 transition-[transform,width] duration-300 z-[95]
+      <aside
+        role={isOpen ? "dialog" : undefined}
+        aria-modal={isOpen ? true : undefined}
+        aria-label="Navigation menu"
+        className={`fixed left-0 top-0 h-screen h-dvh w-[min(16rem,85vw)] ${collapsed ? "lg:w-20" : "lg:w-64"} bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-lg overflow-hidden flex flex-col border-r border-zinc-200 dark:border-zinc-800 transition-[transform,width] duration-300 z-[95]
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
 
         <div className={`pl-6 pr-2 py-6 pt-[calc(1.5rem_+_var(--sa-top))] ${collapsed ? "lg:pl-2 lg:pr-1 lg:py-3" : ""} border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center gap-2`}>
@@ -172,9 +182,15 @@ export default function Sidebar() {
             </div>
             <div className={`min-w-0 ${collapsed ? "lg:hidden" : ""}`}>
               <h1 className="text-base font-black tracking-tighter italic uppercase leading-none whitespace-nowrap">Solo<span className="text-blue-500">Trackr</span></h1>
-              <p className="text-[9px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase font-bold tracking-widest whitespace-nowrap">All Markets · One Place</p>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase font-bold tracking-widest whitespace-nowrap">All Markets · One Place</p>
             </div>
           </a>
+          <button
+            type="button"
+            onClick={() => { setIsOpen(false); window.dispatchEvent(new Event("open-search")); }}
+            aria-label="Search"
+            className="lg:hidden shrink-0 w-10 h-10 flex items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-90 transition-all"
+          ><Search className="w-5 h-5" strokeWidth={2.5} /></button>
           <button onClick={() => setIsOpen(false)} aria-label="Close menu" className="lg:hidden shrink-0 w-10 h-10 -mr-1 flex items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-90 transition-all"><X className="w-5 h-5" strokeWidth={2.5} /></button>
           {/* Desktop collapse / expand toggle — same row as logo, on the right */}
           <button
@@ -190,7 +206,7 @@ export default function Sidebar() {
         <nav className="p-4 space-y-6 flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
           {visibleGroups.map((group) => (
             <div key={group.title} className="space-y-2">
-              <h2 className={`text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 px-4 mb-2 ${collapsed ? "lg:hidden" : ""}`}>
+              <h2 className={`text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 px-4 mb-2 ${collapsed ? "lg:hidden" : ""}`}>
                 {group.title}
               </h2>
               <div className="space-y-1">

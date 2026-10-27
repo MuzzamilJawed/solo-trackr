@@ -5,12 +5,15 @@ import AppShell from "./components/AppShell";
 import CommandPalette from "./components/CommandPalette";
 import Splash from "./components/Splash";
 import SafeArea from "./components/SafeArea";
+import BackButtonHandler from "./components/BackButtonHandler";
+import DeepLinkHandler from "./components/DeepLinkHandler";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider } from "./context/AuthContext";
 import { SettingsProvider } from "./context/SettingsContext";
 import { CurrencyProvider } from "./context/CurrencyContext";
 import { SidebarProvider } from "./context/SidebarContext";
 import { ToastProvider } from "./context/ToastContext";
+import { ConfirmProvider } from "./context/ConfirmContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,7 +61,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50 dark:bg-black`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50 dark:bg-app-dark`}
       >
         <AuthProvider>
           <SettingsProvider>
@@ -71,10 +74,14 @@ export default function RootLayout({
               >
                 <SidebarProvider>
                   <ToastProvider>
-                    <SafeArea />
-                    <AppShell>{children}</AppShell>
-                    <CommandPalette />
-                    <Splash />
+                    <ConfirmProvider>
+                      <SafeArea />
+                      <BackButtonHandler />
+                      <DeepLinkHandler />
+                      <AppShell>{children}</AppShell>
+                      <CommandPalette />
+                      <Splash />
+                    </ConfirmProvider>
                   </ToastProvider>
                 </SidebarProvider>
               </ThemeProvider>

@@ -3,6 +3,9 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
+import BottomNav from "./BottomNav";
+import PullToRefresh from "./PullToRefresh";
+import HoldingNotifier from "./HoldingNotifier";
 import { useSidebar } from "../context/SidebarContext";
 import { useSettings } from "../context/SettingsContext";
 import { useAuth } from "../context/AuthContext";
@@ -47,17 +50,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     // dashboard must not flash its data before the redirect to /login.
     if (authLoading || !user) {
         return (
-            <div className="min-h-screen h-dvh flex items-center justify-center bg-zinc-50 dark:bg-[#050505]">
+            <div className="min-h-screen h-dvh flex items-center justify-center bg-zinc-50 dark:bg-app-dark">
                 <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600" />
             </div>
         );
     }
 
     return (
-        <div className="flex bg-zinc-50 dark:bg-[#050505]">
+        <div className="flex bg-zinc-50 dark:bg-app-dark">
             <Sidebar />
+            <BottomNav />
+            <PullToRefresh />
+            <HoldingNotifier />
             <main
-                className={`flex-1 min-w-0 overflow-x-clip transition-[margin] duration-300 ease-in-out pb-[env(safe-area-inset-bottom)] ${collapsed ? "lg:ml-20" : "lg:ml-64"}`}
+                className={`flex-1 min-w-0 overflow-x-clip transition-[margin] duration-300 ease-in-out pb-[max(env(safe-area-inset-bottom),var(--tabbar-h))] ${collapsed ? "lg:ml-20" : "lg:ml-64"}`}
             >
                 {blocked || forbidden ? (
                     <div className="min-h-screen flex items-center justify-center px-6 text-center">
