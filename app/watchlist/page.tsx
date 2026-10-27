@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import StockCard from "../components/StockCard";
 import PriceCard from "../components/PriceCard";
 import { useToast } from "../context/ToastContext";
+import { useConfirm } from "../context/ConfirmContext";
 import { useSettings } from "../context/SettingsContext";
 import CurrencyToggle from "../components/CurrencyToggle";
 import { MARKET_CURRENCY } from "../lib/currency";
@@ -20,6 +21,7 @@ const TYPE_OPTIONS: AssetType[] = ["PSX", "NASDAQ", "CRYPTO", "FOREX", "COMMODIT
 
 export default function WatchlistPage() {
   const { success, error } = useToast();
+  const confirm = useConfirm();
   const { settings } = useSettings();
   const [watchlists, setWatchlists] = useState<any[]>([]);
   const [selectedWlId, setSelectedWlId] = useState<string | null>(null);
@@ -156,7 +158,11 @@ export default function WatchlistPage() {
 
   const handleDeleteWatchlist = async (id: string) => {
     const target = watchlists.find(w => w._id === id);
-    if (!confirm("Are you sure you want to delete this watchlist?")) return;
+    if (!(await confirm({
+      title: `Delete watchlist${target?.name ? ` "${target.name}"` : ""}?`,
+      message: "Its saved symbols will be removed too.",
+      destructive: true,
+    }))) return;
     try {
       const res = await fetch(`/api/watchlists/${id}`, { method: 'DELETE' });
       const json = await res.json();
@@ -207,7 +213,7 @@ export default function WatchlistPage() {
   if (loading && stocksData.length === 0) return <PageSkeleton variant="cards" />;
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white">
+    <div className="min-h-screen bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white">
       {/* Header */}
       <header className="safe-top sticky top-0 z-50 bg-white/80 dark:bg-black/50 backdrop-blur-md border-b border-zinc-200 dark:border-white/5">
         {/* One row at every width — the currency pill sits beside the heading on
@@ -217,7 +223,7 @@ export default function WatchlistPage() {
             <h1 className="text-xl sm:text-3xl font-black tracking-tighter italic uppercase text-zinc-900 dark:text-white leading-none flex items-center gap-2 sm:gap-2.5">
               <Star className="w-5 h-5 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2} /> My <span className="text-blue-500">Watchlists</span>
             </h1>
-            <p className="text-zinc-500 dark:text-zinc-500 text-[9px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] mt-1 leading-relaxed">
+            <p className="text-zinc-500 dark:text-zinc-500 text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] mt-1 leading-relaxed">
               Personalized Asset Monitoring Engine
             </p>
           </div>
@@ -238,10 +244,10 @@ export default function WatchlistPage() {
               }`}
           >
             <Folder className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> {wl.name}
-            <span className={`px-1 py-0.5 rounded text-[8px] uppercase tracking-wider ${selectedWlId === wl._id ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-500'}`}>
+            <span className={`px-1 py-0.5 rounded text-[10px] uppercase tracking-wider ${selectedWlId === wl._id ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-500'}`}>
               {wl.type || 'PSX'}
             </span>
-            <span className={`px-1.5 py-0.5 rounded-md text-[10px] ${selectedWlId === wl._id ? 'bg-white/20' : 'bg-zinc-100 dark:bg-zinc-800'}`}>
+            <span className={`px-1.5 py-0.5 rounded-md text-[11px] ${selectedWlId === wl._id ? 'bg-white/20' : 'bg-zinc-100 dark:bg-zinc-800'}`}>
               {wl.symbols?.length || 0}
             </span>
           </button>
@@ -267,7 +273,7 @@ export default function WatchlistPage() {
       {showCreate && (
         <div className="bg-white dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-white/5 px-4 sm:px-8 py-3">
           <div className="page-shell mx-auto flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest shrink-0">New Category</span>
+            <span className="text-[11px] font-black text-zinc-400 uppercase tracking-widest shrink-0">New Category</span>
             <input
               value={newName}
               onChange={e => setNewName(e.target.value)}
@@ -279,7 +285,7 @@ export default function WatchlistPage() {
             <select value={newType} onChange={e => setNewType(e.target.value as AssetType)} className="px-3 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm font-black text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 shrink-0" title="Market type for this category">
               {TYPE_OPTIONS.map(t => <option key={t} value={t}>{TYPE_LABEL[t]}</option>)}
             </select>
-            <button onClick={handleCreateWatchlist} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shrink-0">Create</button>
+            <button onClick={handleCreateWatchlist} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-all shrink-0">Create</button>
             <button onClick={() => { setShowCreate(false); setNewName(""); }} className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 shrink-0" title="Cancel"><X className="w-4 h-4" strokeWidth={2} /></button>
           </div>
         </div>
@@ -304,7 +310,7 @@ export default function WatchlistPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
         ) : watchlists.length === 0 ? (
-          <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] shadow-xl p-8 sm:p-16 text-center border border-zinc-200 dark:border-zinc-800">
+          <div className="card p-8 sm:p-16 text-center">
             <Star className="w-10 h-10 mx-auto mb-6 text-zinc-400" strokeWidth={1.5} />
             <h2 className="text-xl sm:text-3xl font-black text-zinc-900 dark:text-zinc-50 mb-3 uppercase tracking-tighter">
               No Categories Yet
@@ -367,15 +373,15 @@ export default function WatchlistPage() {
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
               <div className="bg-zinc-100 dark:bg-white/5 p-4 sm:p-8 rounded-[2rem] border border-zinc-200 dark:border-white/5 group hover:bg-zinc-200 dark:hover:bg-white/[0.08] transition-all">
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-3">Active Monitors</p>
+                <p className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-3">Active Monitors</p>
                 <div className="flex items-end gap-2">
                   <p className="text-3xl sm:text-5xl font-black text-zinc-900 dark:text-white tracking-tighter italic">{watchlistItems.length}</p>
-                  <p className="text-[10px] font-black text-zinc-500 pb-2 uppercase tracking-widest">Assets</p>
+                  <p className="text-[11px] font-black text-zinc-500 pb-2 uppercase tracking-widest">Assets</p>
                 </div>
               </div>
 
               <div className="bg-zinc-100 dark:bg-white/5 p-4 sm:p-8 rounded-[2rem] border border-zinc-200 dark:border-white/5 group hover:bg-zinc-200 dark:hover:bg-white/[0.08] transition-all">
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-3">Session Alpha</p>
+                <p className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-3">Session Alpha</p>
                 <div className="flex items-end gap-1">
                   <p className={`text-3xl sm:text-5xl font-black tracking-tighter italic ${avgChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                     {avgChange >= 0 ? '+' : ''}{avgChange.toFixed(2)}%
@@ -385,7 +391,7 @@ export default function WatchlistPage() {
 
               {bestPerformer && (
                 <div className="bg-green-500/5 p-4 sm:p-8 rounded-[2rem] border border-green-500/10 group hover:bg-green-500/10 transition-all">
-                  <p className="text-[10px] font-black text-green-500/70 uppercase tracking-[0.2em] mb-3">Alpha Leader</p>
+                  <p className="text-[11px] font-black text-green-500/70 uppercase tracking-[0.2em] mb-3">Alpha Leader</p>
                   <p className="text-2xl font-black text-green-400 truncate tracking-tight uppercase italic">{bestPerformer.symbol}</p>
                   <p className="text-lg font-black text-green-500 font-mono mt-1">+{bestPerformer.changePercent?.toFixed(2)}%</p>
                 </div>
@@ -393,7 +399,7 @@ export default function WatchlistPage() {
 
               {worstPerformer && (
                 <div className="bg-red-500/5 p-4 sm:p-8 rounded-[2rem] border border-red-500/10 group hover:bg-red-500/10 transition-all">
-                  <p className="text-[10px] font-black text-red-500/70 uppercase tracking-[0.2em] mb-3">Session Laggard</p>
+                  <p className="text-[11px] font-black text-red-500/70 uppercase tracking-[0.2em] mb-3">Session Laggard</p>
                   <p className="text-2xl font-black text-red-400 truncate tracking-tight uppercase italic">{worstPerformer.symbol}</p>
                   <p className="text-lg font-black text-red-500 font-mono mt-1">{worstPerformer.changePercent?.toFixed(2)}%</p>
                 </div>

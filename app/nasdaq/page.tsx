@@ -3,6 +3,8 @@
 import { Globe, Search, SearchX, FolderOpen, SlidersHorizontal, X } from "lucide-react";
 
 import PageSkeleton from "../components/PageSkeleton";
+import { usePullRefresh } from "../lib/pullRefresh";
+import LoadErrorBanner from "../components/LoadErrorBanner";
 import StockCard from "../components/StockCard";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from 'next/navigation';
@@ -47,6 +49,7 @@ export default function NasdaqPage() {
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [sectors, setSectors] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(false);
     const [exchangeRate, setExchangeRate] = useState(280);
     const [indices, setIndices] = useState<Index[]>([
         { name: "NASDAQ 100", value: 18235.45, change: 124.5, changePercent: 0.68 },
@@ -116,8 +119,10 @@ export default function NasdaqPage() {
             }
 
             const res = await fetch('/api/nasdaq-stocks');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const json = await res.json();
             const rawData: Stock[] = json?.data || [];
+            setLoadError(false);
 
             const data = rawData
                 .filter(s => s && s.symbol)
@@ -135,10 +140,13 @@ export default function NasdaqPage() {
             setSectors(['All', ...allSectorsArr]);
         } catch (err) {
             console.error('Failed to load NASDAQ stocks', err);
+            setLoadError(true);
         } finally {
             if (isManual) setLoading(false);
         }
     };
+
+    usePullRefresh(() => load(false));
 
     const fetchWatchlists = async () => {
         try {
@@ -303,7 +311,7 @@ export default function NasdaqPage() {
     if (loading && stocks.length === 0) return <PageSkeleton variant="explorer" />;
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white selection:bg-blue-500/30">
+        <div className="min-h-screen bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white selection:bg-blue-500/30">
             {/* Real-time Loading Indicator */}
             {loading && (
                 <div className="fixed top-[var(--sa-top)] left-0 w-full h-1 z-[100] bg-blue-600/10">
@@ -317,15 +325,16 @@ export default function NasdaqPage() {
                         <h1 className="text-xl sm:text-3xl font-black tracking-tighter italic uppercase text-zinc-900 dark:text-white flex items-center gap-2.5">
                             <Globe className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2} /> NASDAQ <span className="text-blue-500">Terminal</span>
                         </h1>
-                        <p className="hidden sm:block text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Global Tech Hub • High Fidelity Real-Time Hub</p>
+                        <p className="hidden sm:block text-zinc-500 text-[11px] font-black uppercase tracking-[0.3em] mt-1">Global Tech Hub • High Fidelity Real-Time Hub</p>
                     </div>
                 </div>
             </header>
 
             <main className="page-shell mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12">
+                {loadError && <LoadErrorBanner hasData={stocks.length > 0} what="NASDAQ stocks" onRetry={() => load(true)} />}
 
                 {/* Market Intelligence Ribbon */}
-                <div className="bg-white dark:bg-zinc-900 rounded-[1.5rem] sm:rounded-[2.5rem] border border-zinc-200 dark:border-white/5 shadow-2xl p-5 sm:p-8 space-y-6 sm:space-y-8 relative overflow-hidden group">
+                <div className="card p-5 sm:p-8 space-y-6 sm:space-y-8 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
                         <span className="text-[10rem] font-black italic text-blue-600 uppercase">USA</span>
                     </div>
@@ -345,7 +354,7 @@ export default function NasdaqPage() {
                             </div>
                             <button
                                 onClick={() => setShowFilters(v => !v)}
-                                className={`lg:hidden shrink-0 flex items-center gap-2 px-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${showFilters ? 'bg-blue-600 text-white border-blue-600' : 'bg-zinc-50 dark:bg-white/5 border-zinc-200 dark:border-white/10 text-zinc-500'}`}
+                                className={`lg:hidden shrink-0 flex items-center gap-2 px-4 rounded-2xl border text-[11px] font-black uppercase tracking-widest transition-all ${showFilters ? 'bg-blue-600 text-white border-blue-600' : 'bg-zinc-50 dark:bg-white/5 border-zinc-200 dark:border-white/10 text-zinc-500'}`}
                             >
                                 <SlidersHorizontal className="w-4 h-4" strokeWidth={2.5} /> Filters
                             </button>
@@ -359,26 +368,26 @@ export default function NasdaqPage() {
                                     <select
                                         value={categoryFilter}
                                         onChange={(e) => setCategoryFilter(e.target.value)}
-                                        className="w-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-2xl px-5 py-3.5 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-black uppercase tracking-widest appearance-none outline-none focus:ring-2 focus:ring-blue-600 transition-all cursor-pointer sm:min-w-[180px]"
+                                        className="w-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-2xl px-5 py-3.5 sm:px-6 sm:py-4 text-[11px] sm:text-xs font-black uppercase tracking-widest appearance-none outline-none focus:ring-2 focus:ring-blue-600 transition-all cursor-pointer sm:min-w-[180px]"
                                     >
                                         <option value="all">Pipeline: General</option>
                                         <option value="gainers">Top Velocity</option>
                                         <option value="active">High Liquidity</option>
                                         <option value="losers">Market Decliners</option>
                                     </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 group-hover/select:translate-y-[2px] transition-transform text-[10px]">▼</div>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 group-hover/select:translate-y-[2px] transition-transform text-[11px]">▼</div>
                                 </div>
 
                                 <div className="relative group/select w-full sm:w-auto">
                                     <select
                                         value={filter}
                                         onChange={(e) => setFilter(e.target.value)}
-                                        className="w-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-2xl px-5 py-3.5 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-black uppercase tracking-widest appearance-none outline-none focus:ring-2 focus:ring-blue-600 transition-all cursor-pointer sm:min-w-[180px]"
+                                        className="w-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-2xl px-5 py-3.5 sm:px-6 sm:py-4 text-[11px] sm:text-xs font-black uppercase tracking-widest appearance-none outline-none focus:ring-2 focus:ring-blue-600 transition-all cursor-pointer sm:min-w-[180px]"
                                     >
                                         <option value="all">Sector: Total</option>
                                         {sectors.filter(s => s !== 'All').map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 group-hover/select:translate-y-[2px] transition-transform text-[10px]">▼</div>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 group-hover/select:translate-y-[2px] transition-transform text-[11px]">▼</div>
                                 </div>
                             </div>
 
@@ -386,13 +395,13 @@ export default function NasdaqPage() {
                             <div className="flex w-full sm:w-auto bg-zinc-100 dark:bg-white/10 p-1 rounded-2xl border border-zinc-200 dark:border-white/5 shadow-inner">
                                 <button
                                     onClick={() => setViewType('card')}
-                                    className={`flex-1 sm:flex-none px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${viewType === 'card' ? 'bg-blue-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                    className={`flex-1 sm:flex-none px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-widest transition-all ${viewType === 'card' ? 'bg-blue-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
                                 >
                                     Cards
                                 </button>
                                 <button
                                     onClick={() => setViewType('table')}
-                                    className={`flex-1 sm:flex-none px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${viewType === 'table' ? 'bg-blue-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                    className={`flex-1 sm:flex-none px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-widest transition-all ${viewType === 'table' ? 'bg-blue-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
                                 >
                                     Table
                                 </button>
@@ -403,10 +412,10 @@ export default function NasdaqPage() {
                     {/* Integrated Watchlist Bar — collapsible on mobile, always shown on desktop */}
                     <div className={`${showFilters ? 'flex' : 'hidden'} lg:flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-zinc-100 dark:border-white/5`}>
                         <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2 w-full lg:w-auto">
-                            <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em] whitespace-nowrap">Watchlist Monitor:</span>
+                            <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em] whitespace-nowrap">Watchlist Monitor:</span>
                             <button
                                 onClick={() => setActiveWatchlistId(null)}
-                                className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!activeWatchlistId ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-blue-500'}`}
+                                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!activeWatchlistId ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-blue-500'}`}
                             >
                                 US Total Market
                             </button>
@@ -414,14 +423,14 @@ export default function NasdaqPage() {
                                 <button
                                     key={wl._id}
                                     onClick={() => setActiveWatchlistId(wl._id)}
-                                    className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeWatchlistId === wl._id ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-blue-500'}`}
+                                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeWatchlistId === wl._id ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-blue-500'}`}
                                 >
                                     <FolderOpen className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> {wl.name}
                                 </button>
                             ))}
                             <button
                                 onClick={() => setIsCreatingWatchlist(!isCreatingWatchlist)}
-                                className="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border border-dashed border-zinc-300 dark:border-white/10 text-zinc-400 hover:border-blue-500 hover:text-blue-500 transition-all shrink-0"
+                                className="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-dashed border-zinc-300 dark:border-white/10 text-zinc-400 hover:border-blue-500 hover:text-blue-500 transition-all shrink-0"
                             >
                                 + New List
                             </button>
@@ -430,7 +439,7 @@ export default function NasdaqPage() {
                         {/* <div className="flex items-center gap-4 shrink-0">
                             <button
                                 onClick={() => { setFilter('all'); setCategoryFilter('all'); setSelectedIndex(null); setSearchTerm(""); setActiveWatchlistId(null); }}
-                                className="text-[9px] font-black text-blue-600 hover:text-red-500 uppercase tracking-widest transition-colors flex items-center gap-2"
+                                className="text-[10px] font-black text-blue-600 hover:text-red-500 uppercase tracking-widest transition-colors flex items-center gap-2"
                             >
                                 ↺ Reset Analytics
                             </button>
@@ -449,7 +458,7 @@ export default function NasdaqPage() {
                             />
                             <div className="flex gap-2">
                                 <button onClick={handleCreateWatchlist} className="flex-1 sm:flex-none bg-white text-blue-600 px-8 py-3 rounded-2xl text-xs font-black hover:bg-zinc-100 transition-all uppercase tracking-widest">Execute</button>
-                                <button onClick={() => setIsCreatingWatchlist(false)} className="px-6 py-3 text-white/80 hover:text-white border border-white/20 rounded-2xl uppercase text-[10px] font-black">Cancel</button>
+                                <button onClick={() => setIsCreatingWatchlist(false)} className="px-6 py-3 text-white/80 hover:text-white border border-white/20 rounded-2xl uppercase text-[11px] font-black">Cancel</button>
                             </div>
                         </div>
                     )}
@@ -468,14 +477,14 @@ export default function NasdaqPage() {
                             >
                                 <div className="flex justify-between items-start mb-4 relative z-10">
                                     <div className="text-left">
-                                        <p className={`text-[8px] sm:text-[10px] font-black uppercase tracking-widest mb-1 ${isSelected ? 'text-white/70' : 'text-zinc-500'}`}>{idx.name}</p>
+                                        <p className={`text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-1 ${isSelected ? 'text-white/70' : 'text-zinc-500'}`}>{idx.name}</p>
                                         <h3 className="text-xl sm:text-2xl font-black font-mono tracking-tighter">{idx.value.toLocaleString()}</h3>
                                     </div>
-                                    <div className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl text-[8px] sm:text-[10px] font-black ${isSelected ? 'bg-white/20 text-white' : (isPos ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500')}`}>
+                                    <div className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black ${isSelected ? 'bg-white/20 text-white' : (isPos ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500')}`}>
                                         {isPos ? '▲' : '▼'}{Math.abs(idx.changePercent).toFixed(1)}%
                                     </div>
                                 </div>
-                                <div className={`text-[8px] sm:text-[10px] font-black uppercase tracking-widest relative z-10 text-left ${isSelected ? 'text-white/50' : 'text-zinc-400'}`}>
+                                <div className={`text-[10px] sm:text-[11px] font-black uppercase tracking-widest relative z-10 text-left ${isSelected ? 'text-white/50' : 'text-zinc-400'}`}>
                                     {isPos ? 'BULLISH SENTIMENT' : 'BEARISH PRESSURE'}
                                 </div>
                             </button>
@@ -491,11 +500,11 @@ export default function NasdaqPage() {
                                 <div>
                                     <div className="flex items-center gap-3 sm:gap-4 mb-2">
                                         <h2 className="text-2xl sm:text-4xl font-black text-zinc-900 dark:text-white uppercase italic tracking-tighter leading-none">{selectedIndex.name}</h2>
-                                        <span className={`px-3 py-0.5 sm:px-4 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-widest ${selectedIndex.change >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                                        <span className={`px-3 py-0.5 sm:px-4 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-widest ${selectedIndex.change >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                                             Live
                                         </span>
                                     </div>
-                                    <p className="text-zinc-500 text-[9px] sm:text-[11px] font-black uppercase tracking-[0.3em]">Master Market Benchmark • US Execution Profile</p>
+                                    <p className="text-zinc-500 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.3em]">Master Market Benchmark • US Execution Profile</p>
                                 </div>
                                 <button onClick={() => setSelectedIndex(null)} aria-label="Close index details" className="absolute top-0 right-0 sm:relative text-zinc-400 hover:text-white transition-colors"><X className="w-5 h-5" strokeWidth={2.5} /></button>
                             </div>
@@ -537,7 +546,7 @@ export default function NasdaqPage() {
                                     />
                                 ))}
                                 {!loading && filteredStocks.length === 0 && (
-                                    <div className="col-span-full py-48 text-center bg-white dark:bg-white/5 rounded-[3.5rem] border border-dashed border-zinc-200 dark:border-white/10">
+                                    <div className="card-empty col-span-full py-48 text-center">
                                         <SearchX className="w-10 h-10 mx-auto mb-6 text-zinc-400" strokeWidth={1.5} />
                                         <p className="text-zinc-500 font-black uppercase tracking-[0.3em] text-xs px-12">Universal market scan complete: No matching footprints detected</p>
                                     </div>
@@ -547,7 +556,7 @@ export default function NasdaqPage() {
                             {/* Card Pagination */}
                             {filteredStocks.length > itemsPerPage && (
                                 <div className="flex flex-col sm:flex-row justify-between items-center gap-8 pt-12 border-t border-zinc-200 dark:border-white/5">
-                                    <div className="text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em] italic">
+                                    <div className="text-[11px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em] italic">
                                         Vault Entry {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredStocks.length)} of {filteredStocks.length} Global Assets
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -556,7 +565,7 @@ export default function NasdaqPage() {
                                                 key={i}
                                                 onClick={() => typeof p === 'number' && (setCurrentPage(p), window.scrollTo({ top: 800, behavior: 'smooth' }))}
                                                 disabled={p === '...' || p === currentPage}
-                                                className={`min-w-[45px] h-[45px] rounded-xl text-[10px] font-black transition-all ${p === currentPage ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/20' : p === '...' ? 'cursor-default text-zinc-400' : 'bg-white dark:bg-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-white/5'}`}
+                                                className={`min-w-[45px] h-[45px] rounded-xl text-[11px] font-black transition-all ${p === currentPage ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/20' : p === '...' ? 'cursor-default text-zinc-400' : 'bg-white dark:bg-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-white/5'}`}
                                             >
                                                 {p}
                                             </button>
@@ -566,14 +575,14 @@ export default function NasdaqPage() {
                             )}
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-zinc-900 rounded-[1.5rem] sm:rounded-[3.5rem] border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-2xl animate-in fade-in duration-500">
+                        <div className="card overflow-hidden animate-in fade-in duration-500">
                             <div className="px-6 sm:px-10 py-6 sm:py-8 border-b border-zinc-100 dark:border-white/5 bg-zinc-50/50 dark:bg-black/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
                                 <div>
                                     <h2 className="text-xs sm:text-sm font-black uppercase tracking-[0.3em]">Institutional Asset Analytics</h2>
-                                    <p className="text-[8px] sm:text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Multi-Vector Valuation Matrix</p>
+                                    <p className="text-[10px] sm:text-[11px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Multi-Vector Valuation Matrix</p>
                                 </div>
                                 <div className="flex items-center gap-6">
-                                    <span className="text-[8px] sm:text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-600/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-blue-500/20">
+                                    <span className="text-[10px] sm:text-[11px] font-black text-blue-600 uppercase tracking-widest bg-blue-600/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-blue-500/20">
                                         Live Feed
                                     </span>
                                 </div>
@@ -597,7 +606,7 @@ export default function NasdaqPage() {
                                                         <span className="w-fit px-2.5 py-1 sm:px-4 sm:py-2 bg-zinc-100 dark:bg-white/5 rounded-xl font-black group-hover:text-blue-600 group-hover:scale-105 transition-all shadow-sm">
                                                             {stock.symbol}
                                                         </span>
-                                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-tight truncate max-w-[130px] sm:max-w-[190px]" title={stock.name}>{stock.name}</span>
+                                                        <span className="text-[10px] sm:text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-tight truncate max-w-[130px] sm:max-w-[190px]" title={stock.name}>{stock.name}</span>
                                                     </div>
                                                 </td>
                                                                                                 <td className="p-3 sm:p-8 font-mono font-black text-right text-sm">
@@ -610,7 +619,7 @@ export default function NasdaqPage() {
                                                 </td>
                                                 <td className="p-3 sm:p-8 font-mono text-zinc-400 text-right font-black uppercase hidden md:table-cell">{stock.volume}</td>
                                                 <td className="p-3 sm:p-8 text-center hidden lg:table-cell">
-                                                    <button onClick={(e) => { e.stopPropagation(); router.push(`/nasdaq/${stock.symbol.toLowerCase()}`); }} className="text-[9px] font-black uppercase tracking-widest bg-blue-600 text-white px-6 py-3 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-600/30">Detailed Audit</button>
+                                                    <button onClick={(e) => { e.stopPropagation(); router.push(`/nasdaq/${stock.symbol.toLowerCase()}`); }} className="text-[10px] font-black uppercase tracking-widest bg-blue-600 text-white px-6 py-3 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-600/30">Detailed Audit</button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -620,15 +629,15 @@ export default function NasdaqPage() {
 
                             {/* Table Pagination */}
                             {filteredStocks.length > itemsPerPage && (
-                                <div className="px-10 py-8 bg-zinc-50 dark:bg-black/40 border-t border-zinc-100 dark:border-white/5 flex flex-col sm:flex-row justify-between items-center gap-8">
-                                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                                <div className="px-10 py-8 bg-zinc-50 dark:bg-app-dark/40 border-t border-zinc-100 dark:border-white/5 flex flex-col sm:flex-row justify-between items-center gap-8">
+                                    <span className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">
                                         Matrix Segment: {startIndex + 1} TO {Math.min(startIndex + itemsPerPage, filteredStocks.length)} | Total: {filteredStocks.length}
                                     </span>
                                     <div className="flex gap-2">
                                         <button
                                             disabled={currentPage === 1}
                                             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                            className="px-6 py-3 rounded-[1.2rem] bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 hover:border-blue-500 transition-all"
+                                            className="px-6 py-3 rounded-[1.2rem] bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-[11px] font-black uppercase tracking-widest disabled:opacity-30 hover:border-blue-500 transition-all"
                                         >
                                             Prev
                                         </button>
@@ -638,7 +647,7 @@ export default function NasdaqPage() {
                                         <button
                                             disabled={currentPage === Math.ceil(filteredStocks.length / itemsPerPage)}
                                             onClick={() => setCurrentPage(prev => Math.min(Math.ceil(filteredStocks.length / itemsPerPage), prev + 1))}
-                                            className="px-6 py-3 rounded-[1.2rem] bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 hover:border-blue-500 transition-all"
+                                            className="px-6 py-3 rounded-[1.2rem] bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-[11px] font-black uppercase tracking-widest disabled:opacity-30 hover:border-blue-500 transition-all"
                                         >
                                             Next
                                         </button>

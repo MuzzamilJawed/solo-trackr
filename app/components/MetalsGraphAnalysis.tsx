@@ -101,7 +101,7 @@ export default function MetalsGraphAnalysis() {
     ];
 
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-[3.5rem] p-4 sm:p-10 border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden relative group">
+        <div className="card p-4 sm:p-10 overflow-hidden relative group">
             <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
                 <span className="text-[12rem] font-black italic text-amber-500 uppercase select-none">{metal}</span>
             </div>
@@ -109,13 +109,13 @@ export default function MetalsGraphAnalysis() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-12 gap-8 relative z-10">
                 <div>
                     <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 uppercase italic tracking-tighter">Velocity Terminal</h2>
-                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-1">Global Sentiment Explorer: {metal}</p>
+                    <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest mt-1">Global Sentiment Explorer: {metal}</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                     <CurrencyToggle />
                     <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1 shadow-inner h-fit">
-                        <button onClick={() => setMetal("gold")} className={`px-4 py-2 text-[10px] font-black rounded-lg transition-all uppercase tracking-widest ${metal === "gold" ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20" : "text-zinc-500"}`}>Gold</button>
-                        <button onClick={() => setMetal("silver")} className={`px-4 py-2 text-[10px] font-black rounded-lg transition-all uppercase tracking-widest ${metal === "silver" ? "bg-zinc-500 text-white shadow-lg shadow-zinc-500/20" : "text-zinc-500"}`}>Silver</button>
+                        <button onClick={() => setMetal("gold")} className={`px-4 py-2 text-[11px] font-black rounded-lg transition-all uppercase tracking-widest ${metal === "gold" ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20" : "text-zinc-500"}`}>Gold</button>
+                        <button onClick={() => setMetal("silver")} className={`px-4 py-2 text-[11px] font-black rounded-lg transition-all uppercase tracking-widest ${metal === "silver" ? "bg-zinc-500 text-white shadow-lg shadow-zinc-500/20" : "text-zinc-500"}`}>Silver</button>
                     </div>
                 </div>
             </div>
@@ -135,14 +135,14 @@ export default function MetalsGraphAnalysis() {
             {metalLevels && (
                 <div className="mt-6 pt-6 border-t border-zinc-100 dark:border-white/5 relative z-10">
                     <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
-                        <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Pivot Levels · Support / Resistance ({activeTF})</div>
+                        <div className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Pivot Levels · Support / Resistance ({activeTF})</div>
                         <div className="flex items-center gap-4 sm:gap-6">
                             <div>
-                                <span className="text-[8px] font-black text-green-600/80 dark:text-green-400/80 uppercase tracking-widest mr-1.5">Next Support</span>
+                                <span className="text-[10px] font-black text-green-600/80 dark:text-green-400/80 uppercase tracking-widest mr-1.5">Next Support</span>
                                 <span className="text-xs font-mono font-black text-green-600 dark:text-green-400 tabular-nums">{fmtLvl(metalNext.nextSupport)}</span>
                             </div>
                             <div>
-                                <span className="text-[8px] font-black text-red-600/80 dark:text-red-400/80 uppercase tracking-widest mr-1.5">Next Resistance</span>
+                                <span className="text-[10px] font-black text-red-600/80 dark:text-red-400/80 uppercase tracking-widest mr-1.5">Next Resistance</span>
                                 <span className="text-xs font-mono font-black text-red-600 dark:text-red-400 tabular-nums">{fmtLvl(metalNext.nextResistance)}</span>
                             </div>
                         </div>
@@ -157,9 +157,9 @@ export default function MetalsGraphAnalysis() {
                             { label: "R2", val: metalLevels.r2, tone: "text-red-600 dark:text-red-400" },
                             { label: "R3", val: metalLevels.r3, tone: "text-red-600 dark:text-red-400" },
                         ].map(lvl => (
-                            <div key={lvl.label} title={fmtLvl(lvl.val)} className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/5 rounded-xl px-2 py-2 text-center">
-                                <div className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">{lvl.label}</div>
-                                <div className={`text-[10px] sm:text-xs font-mono font-black tabular-nums ${lvl.tone}`}>{fmtCompact(lvl.val)}</div>
+                            <div key={lvl.label} title={fmtLvl(lvl.val)} className="card-inset px-2 py-2 text-center">
+                                <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">{lvl.label}</div>
+                                <div className={`text-[11px] sm:text-xs font-mono font-black tabular-nums ${lvl.tone}`}>{fmtCompact(lvl.val)}</div>
                             </div>
                         ))}
                     </div>

@@ -156,7 +156,7 @@ export default function ForexPage() {
     if (loading && forexRates.length === 0) return <PageSkeleton variant="table" />;
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white selection:bg-blue-500/30">
+        <div className="min-h-screen bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white selection:bg-blue-500/30">
             {/* Dynamic Background */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/5 dark:bg-blue-600/10 blur-[120px] rounded-full"></div>
@@ -172,13 +172,13 @@ export default function ForexPage() {
                                 <FitText className="min-w-0 flex-1">Forex Terminal</FitText>
                             </h1>
                             <div className="hidden sm:block px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
-                                <span className="text-[10px] text-green-500 font-black uppercase tracking-widest animate-pulse">Syncing</span>
+                                <span className="text-[11px] text-green-500 font-black uppercase tracking-widest animate-pulse">Syncing</span>
                             </div>
                         </div>
-                        <p className="text-zinc-500 dark:text-zinc-500 text-[10px] sm:text-sm font-bold tracking-tight">Real-time cross-currency velocity & volatility synthesis</p>
+                        <p className="text-zinc-500 dark:text-zinc-500 text-[11px] sm:text-sm font-bold tracking-tight">Real-time cross-currency velocity & volatility synthesis</p>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                        <span className="hidden sm:block text-[9px] font-black text-zinc-400 uppercase tracking-widest">Quoted in</span>
+                        <span className="hidden sm:block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Quoted in</span>
                         <CurrencyToggle />
                     </div>
                 </header>
@@ -194,11 +194,11 @@ export default function ForexPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-12">
                     {/* Market Watch Table Sidebar — matches the chart column height, scrolls inside */}
                     <div className="lg:col-span-1 lg:relative">
-                        <div className="max-h-[400px] lg:max-h-none lg:absolute lg:inset-0 bg-white dark:bg-zinc-900/40 rounded-[1.5rem] sm:rounded-[2.5rem] border border-zinc-200 dark:border-white/5 overflow-hidden flex flex-col shadow-2xl">
+                        <div className="card max-h-[400px] lg:max-h-none lg:absolute lg:inset-0 overflow-hidden flex flex-col">
                             <div className="p-3 sm:p-4 border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 shrink-0 space-y-2.5">
                                 <div className="flex items-center justify-between gap-2">
-                                    <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Market Watch</h2>
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 tabular-nums">
+                                    <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500">Market Watch</h2>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 tabular-nums">
                                         {forexRates.length}{total ? `/${total}` : ''}
                                     </span>
                                 </div>
@@ -228,9 +228,9 @@ export default function ForexPage() {
                                 <table className="w-full text-left border-collapse">
                                     <thead className="sticky top-0 z-20 bg-zinc-50/90 dark:bg-zinc-900/90 backdrop-blur-md">
                                         <tr className="border-b border-zinc-200 dark:border-white/5">
-                                            <th className="pl-4 pr-2 py-3 text-[9px] font-black uppercase text-zinc-400 tracking-widest">Asset</th>
-                                            <th className="px-2 py-3 text-[9px] font-black uppercase text-zinc-400 tracking-widest text-right">Price</th>
-                                            <th className="pl-2 pr-4 py-3 text-[9px] font-black uppercase text-zinc-400 tracking-widest text-right">24h%</th>
+                                            <th className="pl-4 pr-2 py-3 text-[10px] font-black uppercase text-zinc-400 tracking-widest">Asset</th>
+                                            <th className="px-2 py-3 text-[10px] font-black uppercase text-zinc-400 tracking-widest text-right">Price</th>
+                                            <th className="pl-2 pr-4 py-3 text-[10px] font-black uppercase text-zinc-400 tracking-widest text-right">24h%</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-zinc-100 dark:divide-white/5">
@@ -239,7 +239,7 @@ export default function ForexPage() {
                                                 <td colSpan={3} className="px-6 py-16 text-center">
                                                     <div className="flex flex-col items-center gap-3">
                                                         <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                                                        <p className="text-zinc-500 font-black uppercase text-[9px] tracking-widest">{LOADING_CAPTION}</p>
+                                                        <p className="text-zinc-500 font-black uppercase text-[10px] tracking-widest">{LOADING_CAPTION}</p>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -247,7 +247,7 @@ export default function ForexPage() {
                                         {!loading && forexRates.length === 0 && (
                                             <tr>
                                                 <td colSpan={3} className="px-6 py-16 text-center">
-                                                    <p className="text-zinc-500 font-black uppercase text-[9px] tracking-widest">
+                                                    <p className="text-zinc-500 font-black uppercase text-[10px] tracking-widest">
                                                         {search ? `No currency matches “${search}”` : 'No currencies available'}
                                                     </p>
                                                 </td>
@@ -267,14 +267,14 @@ export default function ForexPage() {
                                                         <div className={`w-1 h-1 shrink-0 rounded-full ${selectedPair?.code === rate.code ? 'bg-blue-500 animate-pulse' : 'bg-transparent'}`}></div>
                                                         <div className="min-w-0">
                                                             <div className={`text-xs sm:text-sm font-black tracking-tighter uppercase italic ${selectedPair?.code === rate.code ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-white'}`}>{rate.code}</div>
-                                                            <div className="text-[8px] font-bold text-zinc-500 uppercase tracking-wider truncate max-w-[58px]" title={rate.name}>{rate.name}</div>
+                                                            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider truncate max-w-[58px]" title={rate.name}>{rate.name}</div>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className={`px-2 py-3.5 text-right font-mono text-xs font-black tracking-tighter tabular-nums whitespace-nowrap ${selectedPair?.code === rate.code ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-white'}`}>
                                                     {(conv(rate.usdPrice, rate.pkrPrice) ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: (conv(rate.usdPrice, rate.pkrPrice) ?? 0) >= 10 ? 2 : 4 })}
                                                 </td>
-                                                <td className={`pl-2 pr-4 py-3.5 text-right text-[9px] font-black tabular-nums whitespace-nowrap ${rate.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                                <td className={`pl-2 pr-4 py-3.5 text-right text-[10px] font-black tabular-nums whitespace-nowrap ${rate.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                                     {rate.changePercent >= 0 ? '▲' : '▼'}{Math.abs(rate.changePercent).toFixed(2)}%
                                                 </td>
                                             </tr>
@@ -287,11 +287,11 @@ export default function ForexPage() {
                                 {loadingMore && (
                                     <div className="py-4 flex items-center justify-center gap-2">
                                         <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Loading more…</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Loading more…</span>
                                     </div>
                                 )}
                                 {!hasMore && forexRates.length > 0 && (
-                                    <div className="py-4 text-center text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                                    <div className="py-4 text-center text-[10px] font-black uppercase tracking-widest text-zinc-400">
                                         — All {forexRates.length} currencies —
                                     </div>
                                 )}
@@ -321,11 +321,11 @@ export default function ForexPage() {
                                 { label: 'Spread', val: '0.0001 pts', color: 'text-indigo-500', icon: BarChart3 },
                                 { label: 'Liquidity', val: '99.9% Depth', color: 'text-purple-500', icon: Droplet },
                             ].map(item => (
-                                <div key={item.label} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] flex items-center gap-3 sm:gap-4 hover:shadow-xl transition-all duration-500">
+                                <div key={item.label} className="card p-4 sm:p-6 flex items-center gap-3 sm:gap-4 hover:shadow-xl transition-all duration-500">
                                     <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-zinc-50 dark:bg-white/5 flex items-center justify-center"><item.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.color}`} strokeWidth={2} /></div>
                                     <div className="min-w-0">
-                                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5 sm:mb-1 truncate">{item.label}</p>
-                                        <p className={`text-[10px] sm:text-xs font-black uppercase tracking-tighter ${item.color} truncate`}>{item.val}</p>
+                                        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5 sm:mb-1 truncate">{item.label}</p>
+                                        <p className={`text-[11px] sm:text-xs font-black uppercase tracking-tighter ${item.color} truncate`}>{item.val}</p>
                                     </div>
                                 </div>
                             ))}

@@ -164,7 +164,7 @@ export default function CryptoPage() {
     if (loading && cryptoData.length === 0) return <PageSkeleton variant="cards" />;
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white selection:bg-blue-500/30">
+        <div className="min-h-screen bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white selection:bg-blue-500/30">
             {/* Dynamic Background */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-600/5 dark:bg-orange-600/8 blur-[120px] rounded-full"></div>
@@ -178,9 +178,9 @@ export default function CryptoPage() {
                         <h1 className="text-lg sm:text-3xl font-black tracking-tighter italic uppercase text-zinc-900 dark:text-white leading-none flex items-center gap-2 min-w-0">
                             <Bitcoin className="w-5 h-5 sm:w-7 sm:h-7 text-orange-500 shrink-0" strokeWidth={2} />
                             <FitText className="min-w-0 flex-1">Crypto <span className="text-orange-500">Hub</span></FitText>
-                            <span className="hidden sm:inline-block bg-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest animate-pulse shrink-0">Live</span>
+                            <span className="hidden sm:inline-block bg-orange-500 text-white text-[11px] font-black px-2 py-0.5 rounded uppercase tracking-widest animate-pulse shrink-0">Live</span>
                         </h1>
-                        <p className="text-zinc-500 dark:text-zinc-400 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] mt-1">Global Digital Asset Pulse</p>
+                        <p className="text-zinc-500 dark:text-zinc-400 text-[11px] sm:text-xs font-black uppercase tracking-[0.2em] mt-1">Global Digital Asset Pulse</p>
                     </div>
                     <div className="shrink-0"><CurrencyToggle /></div>
                 </div>
@@ -198,31 +198,31 @@ export default function CryptoPage() {
                 {loading && cryptoData.length === 0 && (
                     <div className="py-24 flex flex-col items-center justify-center gap-4">
                         <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-zinc-500 font-black uppercase text-[10px] tracking-widest">{LOADING_CAPTION}</p>
+                        <p className="text-zinc-500 font-black uppercase text-[11px] tracking-widest">{LOADING_CAPTION}</p>
                     </div>
                 )}
 
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 mb-8">
                     {cryptoData.slice(0, 5).map((coin) => (
                         <div key={coin.id} onClick={() => setSelectedCoin(coin)} className="cursor-pointer group">
-                            <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl border transition-all ${selectedCoin?.id === coin.id ? 'bg-white dark:bg-zinc-900 border-orange-500/50 shadow-xl' : 'bg-white/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-700'}`}>
+                            <div className={`card p-4 sm:p-5 transition-all ${selectedCoin?.id === coin.id ? 'border-orange-500/50 shadow-xl' : 'hover:border-zinc-400 dark:hover:border-white/20'}`}>
                                 <div className="flex justify-between items-center mb-2 sm:mb-3">
                                     <span className="font-black text-zinc-900 dark:text-zinc-50 text-xs sm:text-sm tracking-tighter uppercase italic">{coin.symbol}</span>
-                                    <span className={`text-[10px] font-black ${coin.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                    <span className={`text-[11px] font-black ${coin.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                         {coin.changePercent >= 0 ? '+' : ''}{(coin.changePercent ?? 0).toFixed(1)}%
                                     </span>
                                 </div>
                                 <div className="text-lg sm:text-2xl font-mono font-black text-zinc-900 dark:text-white tracking-tighter italic">
                                     {sym}{(conv(coin.usdPrice, coin.pkrPrice) ?? 0).toLocaleString(undefined, { maximumFractionDigits: (coin.usdPrice ?? 0) > 1 ? 2 : 4 })}
                                 </div>
-                                <div className="text-[10px] sm:text-xs font-black text-zinc-500 uppercase tracking-widest mt-1 sm:mt-2 truncate">{coin.name}</div>
+                                <div className="text-[11px] sm:text-xs font-black text-zinc-500 uppercase tracking-widest mt-1 sm:mt-2 truncate">{coin.name}</div>
                             </div>
                         </div>
                     ))}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
-                    <div className="lg:col-span-3 bg-white dark:bg-zinc-900 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden">
+                    <div className="card lg:col-span-3 p-6 sm:p-10 relative overflow-hidden">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                             <div>
                                 <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-zinc-50 uppercase italic tracking-tighter">
@@ -240,11 +240,11 @@ export default function CryptoPage() {
                             {/* Next support / resistance (pivot levels from real 24h H/L/C) */}
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <div className="px-3 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-left min-w-[92px]">
-                                    <div className="text-[8px] font-black text-green-600/80 dark:text-green-400/80 uppercase tracking-[0.15em] mb-0.5">Next Support</div>
+                                    <div className="text-[10px] font-black text-green-600/80 dark:text-green-400/80 uppercase tracking-[0.15em] mb-0.5">Next Support</div>
                                     <div className="text-sm font-mono font-black text-green-600 dark:text-green-400 leading-none tabular-nums">{fmtLevel(nl.nextSupport)}</div>
                                 </div>
                                 <div className="px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-left min-w-[92px]">
-                                    <div className="text-[8px] font-black text-red-600/80 dark:text-red-400/80 uppercase tracking-[0.15em] mb-0.5">Next Resistance</div>
+                                    <div className="text-[10px] font-black text-red-600/80 dark:text-red-400/80 uppercase tracking-[0.15em] mb-0.5">Next Resistance</div>
                                     <div className="text-sm font-mono font-black text-red-600 dark:text-red-400 leading-none tabular-nums">{fmtLevel(nl.nextResistance)}</div>
                                 </div>
                             </div>
@@ -259,7 +259,7 @@ export default function CryptoPage() {
                             {!chartLoading && displayTrend.length === 0 ? (
                                 <div className="h-full flex flex-col items-center justify-center gap-2 text-center">
                                     <TrendingDown className="w-8 h-8 text-zinc-400" strokeWidth={2} />
-                                    <p className="text-zinc-500 font-black uppercase text-[10px] tracking-widest">No chart data for this coin</p>
+                                    <p className="text-zinc-500 font-black uppercase text-[11px] tracking-widest">No chart data for this coin</p>
                                 </div>
                             ) : (
                                 <TradingChart
@@ -277,7 +277,7 @@ export default function CryptoPage() {
                         {/* Full pivot level ladder */}
                         {levels && (
                             <div className="mt-6 pt-6 border-t border-zinc-100 dark:border-white/5">
-                                <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-3">Pivot Levels · Support / Resistance (24h)</div>
+                                <div className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-3">Pivot Levels · Support / Resistance (24h)</div>
                                 <div className="grid grid-cols-3 sm:grid-cols-7 gap-2">
                                     {[
                                         { label: 'S3', val: levels.s3, tone: 'text-green-600 dark:text-green-400' },
@@ -288,9 +288,9 @@ export default function CryptoPage() {
                                         { label: 'R2', val: levels.r2, tone: 'text-red-600 dark:text-red-400' },
                                         { label: 'R3', val: levels.r3, tone: 'text-red-600 dark:text-red-400' },
                                     ].map(lvl => (
-                                        <div key={lvl.label} title={fmtLevel(lvl.val)} className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-100 dark:border-white/5 rounded-xl px-2 py-2 text-center">
-                                            <div className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">{lvl.label}</div>
-                                            <div className={`text-[10px] sm:text-xs font-mono font-black tabular-nums ${lvl.tone}`}>{fmtCompact(lvl.val)}</div>
+                                        <div key={lvl.label} title={fmtLevel(lvl.val)} className="card-inset px-2 py-2 text-center">
+                                            <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">{lvl.label}</div>
+                                            <div className={`text-[11px] sm:text-xs font-mono font-black tabular-nums ${lvl.tone}`}>{fmtCompact(lvl.val)}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -298,10 +298,10 @@ export default function CryptoPage() {
                         )}
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900 rounded-[2rem] sm:rounded-[3rem] border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden h-fit">
+                    <div className="card overflow-hidden h-fit">
                         <div className="p-5 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 flex items-center justify-between gap-2">
-                            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Market Surveillance</h2>
-                            <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 tabular-nums">{cryptoData.length} coins</span>
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500">Market Surveillance</h2>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 tabular-nums">{cryptoData.length} coins</span>
                         </div>
                         <div ref={listRef} className="divide-y divide-zinc-100 dark:divide-zinc-800 max-h-[520px] lg:max-h-[760px] overflow-y-auto custom-scrollbar">
                             {cryptoData.map((coin) => (
@@ -311,19 +311,19 @@ export default function CryptoPage() {
                                     className={`p-4 sm:p-5 cursor-pointer hover:bg-white/[0.02] transition-all flex justify-between items-center gap-2 ${selectedCoin?.id === coin.id ? 'bg-orange-500/5 dark:bg-orange-900/10' : ''}`}
                                 >
                                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-xl flex items-center justify-center font-black text-white text-[10px] sm:text-xs tracking-tighter" style={{ backgroundColor: getCoinColor(coin.symbol) }}>
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-xl flex items-center justify-center font-black text-white text-[11px] sm:text-xs tracking-tighter" style={{ backgroundColor: getCoinColor(coin.symbol) }}>
                                             {coin.symbol[0]}
                                         </div>
                                         <div className="min-w-0">
                                             <div className="font-black text-zinc-900 dark:text-zinc-50 uppercase italic text-xs sm:text-sm tracking-tighter truncate">{coin.symbol}</div>
-                                            <div className="text-[8px] sm:text-[10px] text-zinc-500 uppercase font-black tracking-widest truncate">{coin.name}</div>
+                                            <div className="text-[10px] sm:text-[11px] text-zinc-500 uppercase font-black tracking-widest truncate">{coin.name}</div>
                                         </div>
                                     </div>
                                     <div className="text-right shrink-0">
                                         <div className="font-mono font-black text-zinc-900 dark:text-white text-xs sm:text-sm tracking-tighter tabular-nums">
                                             {sym}{(conv(coin.usdPrice, coin.pkrPrice) ?? 0).toLocaleString(undefined, { maximumFractionDigits: (coin.usdPrice ?? 0) > 1 ? 2 : 4 })}
                                         </div>
-                                        <div className={`text-[10px] sm:text-xs font-black ${coin.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                        <div className={`text-[11px] sm:text-xs font-black ${coin.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                             {coin.changePercent >= 0 ? '+' : ''}{(coin.changePercent ?? 0).toFixed(1)}%
                                         </div>
                                     </div>
@@ -335,11 +335,11 @@ export default function CryptoPage() {
                             {loadingMore && (
                                 <div className="py-4 flex items-center justify-center gap-2">
                                     <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Loading more…</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Loading more…</span>
                                 </div>
                             )}
                             {!hasMore && cryptoData.length > 0 && (
-                                <div className="py-4 text-center text-[9px] font-black uppercase tracking-widest text-zinc-400">— End of market —</div>
+                                <div className="py-4 text-center text-[10px] font-black uppercase tracking-widest text-zinc-400">— End of market —</div>
                             )}
                         </div>
                     </div>

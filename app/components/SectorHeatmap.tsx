@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
-import { Map as MapIcon } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Map as MapIcon, Maximize2, Minimize2 } from "lucide-react";
+import { useBackHandler } from "../lib/backStack";
 import { parseVolume, formatVolume, heatSolid } from "../lib/stockSignals";
 
 interface Stock {
@@ -84,6 +85,36 @@ function squarify<T>(items: { v: number; d: T }[], rect: R): (R & { d: T })[] {
 const TM_W = 1000, TM_H = 700, TM_GAP = 2;
 
 export default function SectorHeatmap({ stocks, onSelectSector, onSelectSymbol }: SectorHeatmapProps) {
+    const [fullscreen, setFullscreen] = useState(false);
+    const [fsSize, setFsSize] = useState({ w: TM_W, h: TM_H });
+    const fsBox = useRef<HTMLDivElement>(null);
+
+    // Esc / Android Back leave full screen; the page behind must not scroll.
+    useBackHandler(fullscreen, () => setFullscreen(false));
+    useEffect(() => {
+        if (!fullscreen) return;
+        const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setFullscreen(false); };
+        window.addEventListener("keydown", onKey);
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+    }, [fullscreen]);
+
+    // In full screen the map is laid out for the REAL viewport (not letterboxed
+    // into 1000x700), re-flowing when the phone rotates or the window resizes.
+    useEffect(() => {
+        if (!fullscreen || !fsBox.current) return;
+        const el = fsBox.current;
+        const measure = () => setFsSize({ w: Math.max(300, Math.round(el.clientWidth)), h: Math.max(200, Math.round(el.clientHeight)) });
+        measure();
+        const ro = new ResizeObserver(measure);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [fullscreen]);
+
+    const W = fullscreen ? fsSize.w : TM_W;
+    const H = fullscreen ? fsSize.h : TM_H;
+
     const sectors = useMemo<SectorGroup[]>(() => {
         const map = new Map<string, Stock[]>();
         (stocks || []).forEach(s => {
@@ -121,7 +152,7 @@ export default function SectorHeatmap({ stocks, onSelectSector, onSelectSymbol }
 
     // Nested treemap: sectors → stocks sized by turnover.
     const treemap = useMemo(() => {
-        const secRects = squarify(sectors.map(s => ({ v: s.sectorValue, d: s })), { x: 0, y: 0, w: TM_W, h: TM_H });
+        const secRects = squarify(sectors.map(s => ({ v: s.sectorValue, d: s })), { x: 0, y: 0, w: W, h: H });
         const cells: { r: R; s: Stock }[] = [];
         const frames: { r: R; sec: SectorGroup; headerH: number }[] = [];
 
@@ -139,32 +170,51 @@ export default function SectorHeatmap({ stocks, onSelectSector, onSelectSymbol }
         });
 
         return { cells, frames };
-    }, [sectors]);
+    }, [sectors, W, H]);
 
     if (sectors.length === 0) {
         return (
-            <div className="py-32 text-center bg-zinc-50 dark:bg-white/5 rounded-[3rem] border border-dashed border-zinc-200 dark:border-white/10">
+            <div className="card-empty py-32 text-center">
                 <MapIcon className="w-10 h-10 mx-auto mb-4 text-zinc-400" strokeWidth={2} />
-                <p className="text-zinc-500 font-black uppercase tracking-widest text-[10px]">No sector data</p>
+                <p className="text-zinc-500 font-black uppercase tracking-widest text-[11px]">No sector data</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-4">
+        <div
+            className={fullscreen
+                ? "fixed inset-0 z-[300] bg-zinc-50 dark:bg-app-dark flex flex-col gap-3 p-3 pt-[calc(0.75rem+var(--sa-top))] pb-[calc(0.75rem+var(--sa-bottom))]"
+                : "space-y-4"}
+            {...(fullscreen ? { role: "dialog", "aria-modal": true, "aria-label": "Market map, full screen" } : {})}
+        >
             {/* Legend */}
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Market Map · {totalCount} scrips · sized by volume</span>
+                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Market Map · {totalCount} scrips · sized by volume</span>
+                <div className="flex items-center gap-3">
                 <div className="hidden sm:flex items-center gap-1.5">
-                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">−7.5%</span>
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">−7.5%</span>
                     <span className="h-2.5 w-16 rounded-full" style={{ background: "linear-gradient(90deg, rgba(239,68,68,0.6), rgba(239,68,68,0.15), rgba(120,120,120,0.2), rgba(34,197,94,0.15), rgba(34,197,94,0.6))" }}></span>
-                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">+7.5%</span>
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">+7.5%</span>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setFullscreen(f => !f)}
+                    aria-label={fullscreen ? "Exit full screen" : "View market map full screen"}
+                    title={fullscreen ? "Exit full screen (Esc)" : "Full screen"}
+                    className="min-h-10 px-3 inline-flex items-center gap-1.5 rounded-xl bg-zinc-100 dark:bg-white/10 text-zinc-700 dark:text-zinc-200 text-xs font-bold active:scale-95 transition-transform"
+                >
+                    {fullscreen ? <><Minimize2 className="w-4 h-4" aria-hidden /> Exit</> : <><Maximize2 className="w-4 h-4" aria-hidden /> Full screen</>}
+                </button>
                 </div>
             </div>
+            {fullscreen && fsSize.w < fsSize.h && fsSize.w < 560 && (
+                <p className="text-[11px] text-zinc-500 sm:hidden">Tip: rotate your phone for a wider map.</p>
+            )}
 
             {/* Squarified treemap: tile area ∝ volume, grouped by sector */}
-            <div className="w-full rounded-2xl overflow-hidden border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-black">
-                    <svg viewBox={`0 0 ${TM_W} ${TM_H}`} className="w-full h-auto block select-none" style={{ fontFamily: 'inherit' }}>
+            <div ref={fsBox} className={`w-full rounded-2xl overflow-hidden border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-black ${fullscreen ? "flex-1 min-h-0" : ""}`}>
+                    <svg viewBox={`0 0 ${W} ${H}`} className={`w-full block select-none ${fullscreen ? "h-full" : "h-auto"}`} style={{ fontFamily: 'inherit' }}>
                         {/* stock tiles */}
                         {treemap.cells.map((c, i) => {
                             const { x, y, w, h } = c.r;

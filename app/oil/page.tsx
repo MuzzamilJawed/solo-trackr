@@ -3,6 +3,7 @@
 import { Fuel, AlertTriangle, Award, TrendingDown, Search, Bell, LineChart, X } from "lucide-react";
 
 import PageSkeleton from "../components/PageSkeleton";
+import { usePullRefresh } from "../lib/pullRefresh";
 
 import PriceCard from "../components/PriceCard";
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -11,16 +12,18 @@ import { useSettings } from "../context/SettingsContext";
 import { useCurrency } from "../context/CurrencyContext";
 import CurrencyToggle from "../components/CurrencyToggle";
 import FitText from "../components/FitText";
+import FreshnessBadge from "../components/FreshnessBadge";
 import { rateOf } from "../lib/currency";
 import { useToast } from "../context/ToastContext";
 import { fetchOilPrices } from "../lib/api";
 import { type OilAlert, type AlertCondition, loadAlerts, persistAlerts, makeAlertId } from "../lib/oilAlerts";
-import { LOADING_CAPTION } from "../lib/caption";
 
 type SortKey = "name" | "price" | "changePercent" | "weekly" | "monthly" | "yearly";
 
 export default function OilPage() {
   const [loading, setLoading] = useState(true);
+  const [fetchedAt, setFetchedAt] = useState<number | null>(null);
+  const [refreshFailed, setRefreshFailed] = useState(false);
   const [error, setError] = useState("");
   const [oilPrices, setOilPrices] = useState<any[]>([]);
   const [allEnergy, setAllEnergy] = useState<any[]>([]);
@@ -48,10 +51,12 @@ export default function OilPage() {
       const data = await fetchOilPrices();
 
       if (!data) {
+        setRefreshFailed(true);
         if (isManual) setError("Could not fetch energy market data.");
         return;
       }
 
+      const now = Date.now();
       const featuredKeys = ['crudeOil', 'brentOil', 'naturalGas', 'heatingOil'];
       const updatedPrices = featuredKeys.map(key => {
         const item = data[key];
@@ -62,21 +67,26 @@ export default function OilPage() {
           pkrPrice: item?.pkrPrice,
           change: item?.change ?? 0,
           changePercent: item?.changePercent ?? 0,
-          lastUpdated: new Date().toLocaleString(),
+          lastUpdated: new Date(now).toLocaleString(),
           isLoading: !item,
         };
       });
 
       setOilPrices(updatedPrices);
       setAllEnergy(data.allEnergy || []);
+      setFetchedAt(now);
+      setRefreshFailed(false);
 
     } catch (err) {
       console.error("Failed to fetch oil prices:", err);
+      setRefreshFailed(true);
       if (isManual) setError("An error occurred while fetching energy data.");
     } finally {
       if (isManual) setLoading(false);
     }
   }, [tableCurrency]);
+
+  usePullRefresh(() => loadPrices(false));
 
   const openDetail = (item: any) => {
     router.push(`/oil/${item.key}`);
@@ -219,13 +229,13 @@ export default function OilPage() {
   if (loading && oilPrices.length === 0) return <PageSkeleton variant="cards" />;
 
   const SortArrow = ({ k }: { k: SortKey }) => (
-    <span className={`ml-1 text-[8px] ${sort.key === k ? 'text-blue-500' : 'text-zinc-300 dark:text-zinc-600'}`}>
+    <span className={`ml-1 text-[10px] ${sort.key === k ? 'text-blue-500' : 'text-zinc-300 dark:text-zinc-600'}`}>
       {sort.key === k ? (sort.dir === 'asc' ? '▲' : '▼') : '↕'}
     </span>
   );
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black selection:bg-blue-500/30 overflow-x-clip">
+    <div className="min-h-screen bg-zinc-50 dark:bg-app-dark selection:bg-blue-500/30 overflow-x-clip">
       {/* Header */}
       <div className="safe-top sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 shadow-sm w-full">
         <div className="pl-16 pr-4 sm:pr-8 lg:pl-8 py-4 sm:py-6 page-shell mx-auto">
@@ -235,13 +245,13 @@ export default function OilPage() {
                 <Fuel className="w-5 h-5 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2} />
                 <FitText className="min-w-0 flex-1">Energy Markets</FitText>
                 {/* Decorative on a phone — the status line below already says it's live. */}
-                <span className="hidden sm:inline-block bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest animate-pulse shrink-0">
+                <span className="hidden sm:inline-block bg-blue-600 text-white text-[11px] font-black px-2 py-0.5 rounded uppercase tracking-widest animate-pulse shrink-0">
                   Live
                 </span>
               </h1>
-              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.2em] mt-1 sm:mt-2 flex items-center gap-2">
+              <p className="text-zinc-500 dark:text-zinc-400 text-[11px] font-black uppercase tracking-[0.2em] mt-1 sm:mt-2 flex items-center gap-2">
                 <span className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${loading ? 'bg-amber-500' : 'bg-green-500'} animate-pulse`}></span>
-                {loading ? LOADING_CAPTION : `Terminal Active - ${new Date().toLocaleTimeString()}`}
+                <FreshnessBadge fetchedAt={fetchedAt} failed={refreshFailed} loading={loading} onRetry={() => loadPrices(true)} />
               </p>
             </div>
             {/* Top-right controls: chart shortcut replaces the full-width Graph
@@ -272,15 +282,15 @@ export default function OilPage() {
         {/* ── Market Breadth strip (real, computed) ── */}
         {intel.total > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-[2rem] border border-zinc-200 dark:border-zinc-800 p-4 sm:p-6 shadow-sm">
-              <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">Session Bias</p>
+            <div className="card p-4 sm:p-6">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">Session Bias</p>
               <p className={`text-2xl sm:text-3xl font-black italic tracking-tighter ${intel.avg >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                 {intel.avg >= 0 ? '+' : ''}{intel.avg.toFixed(2)}%
               </p>
-              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Avg across {intel.total} feeds</p>
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Avg across {intel.total} feeds</p>
             </div>
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-[2rem] border border-zinc-200 dark:border-zinc-800 p-4 sm:p-6 shadow-sm">
-              <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">Breadth</p>
+            <div className="card p-4 sm:p-6">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">Breadth</p>
               <div className="flex items-end gap-2">
                 <span className="text-xl sm:text-2xl font-black text-green-500 tabular-nums">{intel.advancers}</span>
                 <span className="text-zinc-400 text-xs font-black mb-0.5">/</span>
@@ -294,14 +304,14 @@ export default function OilPage() {
             </div>
             {intel.top && (
               <button onClick={() => openDetail(intel.top)} className="text-left bg-green-500/[0.06] rounded-2xl sm:rounded-[2rem] border border-green-500/15 p-4 sm:p-6 shadow-sm hover:bg-green-500/10 transition-colors">
-                <p className="text-[9px] font-black text-green-600/70 dark:text-green-400/70 uppercase tracking-[0.2em] mb-2 inline-flex items-center gap-1.5"><Award className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> Top Gainer</p>
+                <p className="text-[10px] font-black text-green-600/70 dark:text-green-400/70 uppercase tracking-[0.2em] mb-2 inline-flex items-center gap-1.5"><Award className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> Top Gainer</p>
                 <p className="text-base sm:text-lg font-black text-zinc-900 dark:text-white uppercase italic tracking-tighter truncate">{intel.top.name}</p>
                 <p className="text-sm font-black text-green-500 font-mono mt-0.5">+{Math.abs(intel.top.changePercent || 0).toFixed(2)}%</p>
               </button>
             )}
             {intel.bottom && (
               <button onClick={() => openDetail(intel.bottom)} className="text-left bg-red-500/[0.05] rounded-2xl sm:rounded-[2rem] border border-red-500/15 p-4 sm:p-6 shadow-sm hover:bg-red-500/10 transition-colors">
-                <p className="text-[9px] font-black text-red-600/70 dark:text-red-400/70 uppercase tracking-[0.2em] mb-2 inline-flex items-center gap-1.5"><TrendingDown className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> Top Loser</p>
+                <p className="text-[10px] font-black text-red-600/70 dark:text-red-400/70 uppercase tracking-[0.2em] mb-2 inline-flex items-center gap-1.5"><TrendingDown className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> Top Loser</p>
                 <p className="text-base sm:text-lg font-black text-zinc-900 dark:text-white uppercase italic tracking-tighter truncate">{intel.bottom.name}</p>
                 <p className="text-sm font-black text-red-500 font-mono mt-0.5">{(intel.bottom.changePercent || 0).toFixed(2)}%</p>
               </button>
@@ -322,11 +332,11 @@ export default function OilPage() {
         </div>
 
         {/* Detailed Energy Table Section */}
-        <div className="bg-white dark:bg-zinc-900 rounded-[1.5rem] sm:rounded-[3rem] shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="p-5 sm:p-8 border-b border-zinc-200 dark:border-zinc-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-zinc-50 uppercase italic tracking-tighter">Energy Contracts Feed</h2>
-              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1">Satellite Comparison Benchmark</p>
+              <p className="text-zinc-500 text-[11px] font-black uppercase tracking-widest mt-1">Satellite Comparison Benchmark</p>
             </div>
             <div className="flex items-center gap-3 w-full lg:w-auto">
               <div className="relative flex-1 lg:flex-none">
@@ -338,7 +348,7 @@ export default function OilPage() {
                   className="w-full lg:w-56 bg-zinc-100 dark:bg-zinc-800 rounded-xl pl-8 pr-3 py-2.5 text-[11px] font-bold text-zinc-900 dark:text-white placeholder-zinc-400 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 />
               </div>
-              <div className="text-[10px] font-black text-blue-500 border border-blue-500/20 px-4 py-2.5 rounded-xl uppercase tracking-widest bg-blue-500/5 whitespace-nowrap">
+              <div className="text-[11px] font-black text-blue-500 border border-blue-500/20 px-4 py-2.5 rounded-xl uppercase tracking-widest bg-blue-500/5 whitespace-nowrap">
                 {visibleEnergy.length}/{allEnergy.length} Feeds
               </div>
             </div>
@@ -346,7 +356,7 @@ export default function OilPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-zinc-200 dark:border-white/5 text-[10px] sm:text-xs font-black text-zinc-500 uppercase tracking-[0.2em] bg-zinc-50/50 dark:bg-white/5">
+                <tr className="border-b border-zinc-200 dark:border-white/5 text-[11px] sm:text-xs font-black text-zinc-500 uppercase tracking-[0.2em] bg-zinc-50/50 dark:bg-white/5">
                   <th className="px-4 sm:px-8 py-3 sm:py-5 cursor-pointer select-none hover:text-blue-500 transition-colors" onClick={() => toggleSort('name')}>Scrip<SortArrow k="name" /></th>
                   <th className="px-4 sm:px-8 py-3 sm:py-5 text-right cursor-pointer select-none hover:text-blue-500 transition-colors" onClick={() => toggleSort('price')}>Price<SortArrow k="price" /></th>
                   <th className="px-4 sm:px-8 py-3 sm:py-5 text-right cursor-pointer select-none hover:text-blue-500 transition-colors" onClick={() => toggleSort('changePercent')}>24h%<SortArrow k="changePercent" /></th>
@@ -371,16 +381,16 @@ export default function OilPage() {
                       <td className="px-4 sm:px-8 py-3 sm:py-5">
                         <div className="flex items-center gap-2 sm:gap-3">
                           <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${item.change >= 0 ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-                          <span className="font-black text-zinc-900 dark:text-white tracking-tight uppercase italic text-[10px] sm:text-sm">{item.name}</span>
+                          <span className="font-black text-zinc-900 dark:text-white tracking-tight uppercase italic text-[11px] sm:text-sm">{item.name}</span>
                         </div>
                       </td>
-                      <td className="px-4 sm:px-8 py-3 sm:py-5 text-right font-mono font-black text-zinc-900 dark:text-zinc-400 group-hover:text-blue-500 text-[10px] sm:text-sm">
+                      <td className="px-4 sm:px-8 py-3 sm:py-5 text-right font-mono font-black text-zinc-900 dark:text-zinc-400 group-hover:text-blue-500 text-[11px] sm:text-sm">
                         {sym}
                         {formatPrice(conv(item.price, item.pkrPrice) ?? 0)}
                       </td>
                       <td className="px-4 sm:px-8 py-3 sm:py-5">
                         <div className="flex flex-col items-end gap-1">
-                          <span className={`text-[10px] sm:text-xs font-black ${isPos ? 'text-green-500' : 'text-red-500'}`}>
+                          <span className={`text-[11px] sm:text-xs font-black ${isPos ? 'text-green-500' : 'text-red-500'}`}>
                             {isPos ? '▲' : '▼'}{Math.abs(item.changePercent).toFixed(1)}%
                           </span>
                           <div className="w-16 h-1 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden hidden sm:block">
@@ -388,16 +398,16 @@ export default function OilPage() {
                           </div>
                         </div>
                       </td>
-                      <td className={`px-4 sm:px-8 py-3 sm:py-5 text-center text-[10px] sm:text-xs font-bold hidden sm:table-cell ${item.weekly >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <td className={`px-4 sm:px-8 py-3 sm:py-5 text-center text-[11px] sm:text-xs font-bold hidden sm:table-cell ${item.weekly >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {item.weekly > 0 ? '+' : ''}{item.weekly}%
                       </td>
-                      <td className={`px-4 sm:px-8 py-3 sm:py-5 text-center text-[10px] sm:text-xs font-bold hidden sm:table-cell ${item.monthly >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <td className={`px-4 sm:px-8 py-3 sm:py-5 text-center text-[11px] sm:text-xs font-bold hidden sm:table-cell ${item.monthly >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {item.monthly > 0 ? '+' : ''}{item.monthly}%
                       </td>
-                      <td className={`px-4 sm:px-8 py-3 sm:py-5 text-center text-[10px] sm:text-xs font-bold hidden md:table-cell ${(item.yearly || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <td className={`px-4 sm:px-8 py-3 sm:py-5 text-center text-[11px] sm:text-xs font-bold hidden md:table-cell ${(item.yearly || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {(item.yearly || 0) > 0 ? '+' : ''}{item.yearly || 0}%
                       </td>
-                      <td className="px-4 sm:px-8 py-3 sm:py-5 text-right text-[10px] font-black text-zinc-500 uppercase tracking-widest hidden lg:table-cell">
+                      <td className="px-4 sm:px-8 py-3 sm:py-5 text-right text-[11px] font-black text-zinc-500 uppercase tracking-widest hidden lg:table-cell">
                         {item.date || 'Live'}
                       </td>
                     </tr>
@@ -416,24 +426,24 @@ export default function OilPage() {
             <h3 className="relative z-10 text-xl font-black uppercase italic tracking-tighter mb-6">Market Intelligence</h3>
             <div className="relative z-10 space-y-5">
               <div className="flex justify-between items-center border-b border-white/10 pb-4">
-                <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Active Feeds</span>
+                <span className="text-[11px] font-black uppercase text-zinc-500 tracking-widest">Active Feeds</span>
                 <span className="font-mono font-black">{intel.total}</span>
               </div>
               <div className="flex justify-between items-center border-b border-white/10 pb-4">
-                <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Advancing</span>
+                <span className="text-[11px] font-black uppercase text-zinc-500 tracking-widest">Advancing</span>
                 <span className="font-mono font-black text-green-500">{intel.advancers} ▲</span>
               </div>
               <div className="flex justify-between items-center border-b border-white/10 pb-4">
-                <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Declining</span>
+                <span className="text-[11px] font-black uppercase text-zinc-500 tracking-widest">Declining</span>
                 <span className="font-mono font-black text-red-500">{intel.decliners} ▼</span>
               </div>
               <div className="flex justify-between items-center border-b border-white/10 pb-4">
-                <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Avg 24h Move</span>
+                <span className="text-[11px] font-black uppercase text-zinc-500 tracking-widest">Avg 24h Move</span>
                 <span className={`font-mono font-black ${intel.avg >= 0 ? 'text-green-500' : 'text-red-500'}`}>{intel.avg >= 0 ? '+' : ''}{intel.avg.toFixed(2)}%</span>
               </div>
               {intel.volatile && (
                 <div className="pt-2">
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Most Volatile</p>
+                  <p className="text-[11px] font-black text-zinc-500 uppercase tracking-widest mb-1">Most Volatile</p>
                   <div className="flex items-center justify-between">
                     <span className="font-black uppercase italic text-sm tracking-tight">{intel.volatile.name}</span>
                     <span className={`font-mono font-black text-sm ${(intel.volatile.changePercent || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
@@ -446,17 +456,17 @@ export default function OilPage() {
           </div>
 
           {/* Functional Price Alerts */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-[3rem] p-5 sm:p-8 border border-zinc-200 dark:border-zinc-800">
+          <div className="card p-5 sm:p-8">
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h3 className="text-xl font-black uppercase italic tracking-tighter dark:text-white">Price Alerts</h3>
-                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">
+                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">
                   {alerts.length > 0 ? `${alerts.filter(a => a.triggered).length} triggered · ${alerts.length} total` : 'Track your entry levels'}
                 </p>
               </div>
               <button
                 onClick={() => { setShowAlertForm((v) => !v); setAlertKey(allEnergy[0]?.key || ''); }}
-                className={`text-[10px] font-black uppercase tracking-widest px-3 py-2 rounded-xl transition-all ${showAlertForm ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20'}`}
+                className={`text-[11px] font-black uppercase tracking-widest px-3 py-2 rounded-xl transition-all ${showAlertForm ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20'}`}
               >
                 {showAlertForm ? 'Close' : '＋ New'}
               </button>
@@ -477,7 +487,7 @@ export default function OilPage() {
                       <button
                         key={c}
                         onClick={() => setAlertCondition(c)}
-                        className={`px-3 py-1.5 text-[10px] font-black rounded-lg uppercase tracking-widest transition-all ${alertCondition === c ? (c === 'above' ? 'bg-green-500 text-white' : 'bg-red-500 text-white') : 'text-zinc-500'}`}
+                        className={`px-3 py-1.5 text-[11px] font-black rounded-lg uppercase tracking-widest transition-all ${alertCondition === c ? (c === 'above' ? 'bg-green-500 text-white' : 'bg-red-500 text-white') : 'text-zinc-500'}`}
                       >
                         {c === 'above' ? '≥ Above' : '≤ Below'}
                       </button>
@@ -493,7 +503,7 @@ export default function OilPage() {
                     className="flex-1 min-w-0 bg-white dark:bg-zinc-800 rounded-xl px-3 py-2 text-[11px] font-bold border border-zinc-200 dark:border-zinc-700 outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
                 </div>
-                <button onClick={handleAddAlert} className="w-full bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest py-2.5 rounded-xl transition-all">
+                <button onClick={handleAddAlert} className="w-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black uppercase tracking-widest py-2.5 rounded-xl transition-all">
                   Set Alert
                 </button>
               </div>
@@ -503,22 +513,22 @@ export default function OilPage() {
               {alerts.length === 0 ? (
                 <div className="py-8 text-center">
                   <Bell className="w-8 h-8 mx-auto mb-2 text-zinc-400" strokeWidth={2} />
-                  <p className="text-zinc-400 text-[10px] font-black uppercase tracking-widest">No alerts yet</p>
-                  <p className="text-zinc-400 text-[10px] mt-1">Get notified when a contract hits your price.</p>
+                  <p className="text-zinc-400 text-[11px] font-black uppercase tracking-widest">No alerts yet</p>
+                  <p className="text-zinc-400 text-[11px] mt-1">Get notified when a contract hits your price.</p>
                 </div>
               ) : alerts.map((al) => (
                 <div key={al.id} className={`flex items-center justify-between gap-2 p-4 rounded-2xl border transition-colors ${al.triggered ? 'bg-red-500/5 border-red-500/20' : 'bg-zinc-50 dark:bg-zinc-800/50 border-zinc-100 dark:border-white/5'}`}>
                   <div className="min-w-0">
                     <p className="text-[11px] font-black uppercase dark:text-zinc-200 tracking-tight truncate">{al.name}</p>
-                    <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
                       {al.condition === 'above' ? '≥' : '≤'} {displayTarget(al)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`text-[9px] font-black px-2 py-1 rounded-full uppercase tracking-wide ${al.triggered ? 'bg-red-500 text-white' : 'bg-blue-500/10 text-blue-500'}`}>
+                    <span className={`text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide ${al.triggered ? 'bg-red-500 text-white' : 'bg-blue-500/10 text-blue-500'}`}>
                       {al.triggered ? 'Triggered' : 'Active'}
                     </span>
-                    <button onClick={() => handleRemoveAlert(al.id)} className="w-6 h-6 rounded-lg flex items-center justify-center text-zinc-300 dark:text-zinc-600 hover:text-red-500 hover:bg-red-500/10 text-[11px] transition-colors" title="Remove alert" aria-label="Remove alert"><X className="w-3.5 h-3.5" strokeWidth={2.5} /></button>
+                    <button onClick={() => handleRemoveAlert(al.id)} className="w-10 h-10 -m-2 rounded-lg flex items-center justify-center text-zinc-300 dark:text-zinc-600 hover:text-red-500 hover:bg-red-500/10 text-[11px] transition-colors" title="Remove alert" aria-label="Remove alert"><X className="w-3.5 h-3.5" strokeWidth={2.5} /></button>
                   </div>
                 </div>
               ))}

@@ -4,13 +4,14 @@ import { Gem, AlertTriangle, Award, Circle, X } from "lucide-react";
 
 import MetalStatCard from "../components/MetalStatCard";
 import PageSkeleton from "../components/PageSkeleton";
+import { usePullRefresh } from "../lib/pullRefresh";
 import { useState, useEffect, useCallback } from "react";
 import { useSettings } from "../context/SettingsContext";
 import { useCurrency } from "../context/CurrencyContext";
 import CurrencyToggle from "../components/CurrencyToggle";
 import FitText from "../components/FitText";
+import FreshnessBadge from "../components/FreshnessBadge";
 import { rateOf } from "../lib/currency";
-import { LOADING_CAPTION } from "../lib/caption";
 // Use internal API routes to avoid CORS and run scraping/server code server-side
 
 // ── Gold purity ─────────────────────────────────────────────────────────────
@@ -41,6 +42,8 @@ export default function MetalsPage() {
   const [calcQuantity, setCalcQuantity] = useState(1);
   const [timeframe, setTimeframe] = useState("1d");
   const [loading, setLoading] = useState(true);
+  const [fetchedAt, setFetchedAt] = useState<number | null>(null);
+  const [refreshFailed, setRefreshFailed] = useState(false);
   const [error, setError] = useState("");
   const [caratPrices, setCaratPrices] = useState<any[]>([]);
   const [goldCandles, setGoldCandles] = useState<any[]>([]);
@@ -81,8 +84,9 @@ export default function MetalsPage() {
         (gold?.tola24k?.pkrPrice && gold.tola24k.pkrPrice > 0) ||
         (silver?.ounce?.pkrPrice && silver.ounce.pkrPrice > 0);
 
-      if (!hasValidData && isManual) {
-        setError("Could not fetch price data from all sources");
+      if (!hasValidData) {
+        setRefreshFailed(true);
+        if (isManual) setError("Could not fetch price data from all sources");
       }
 
       // Update Carat Prices
@@ -105,10 +109,15 @@ export default function MetalsPage() {
         console.log('[Metals] Fetched Gold Price:', gold?.tola24k?.pkrPrice, 'PKR / Tola');
         console.log('[Metals] Fetched Silver Price:', silver?.ounce?.pkrPrice, 'PKR / Oz');
         setRawMarketData({ gold, silver, platinum, palladium, commodities });
+        if (hasValidData) {
+          setFetchedAt(Date.now());
+          setRefreshFailed(false);
+        }
       }
 
     } catch (err) {
       console.error("Failed to fetch prices:", err);
+      setRefreshFailed(true);
       if (isManual) setError("An error occurred while fetching data.");
     } finally {
       if (isManual) setLoading(false);
@@ -118,6 +127,8 @@ export default function MetalsPage() {
   useEffect(() => {
     loadPrices(true);
   }, [loadPrices]);
+
+  usePullRefresh(() => loadPrices(false));
 
   useEffect(() => {
     if (!settings.refreshInterval || settings.refreshInterval <= 0) return;
@@ -443,7 +454,7 @@ export default function MetalsPage() {
   if (loading && !rawMarketData) return <PageSkeleton variant="metals" />;
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black selection:bg-blue-500/30 overflow-x-clip">
+    <div className="min-h-screen bg-zinc-50 dark:bg-app-dark selection:bg-blue-500/30 overflow-x-clip">
       <div className="safe-top sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 shadow-sm w-full">
         <div className="pl-16 pr-4 sm:pr-8 lg:pl-8 py-4 sm:py-6 page-shell mx-auto">
           <div className="flex flex-row justify-between items-center gap-3 sm:gap-6">
@@ -451,13 +462,13 @@ export default function MetalsPage() {
               <h1 className="text-lg sm:text-3xl font-black text-zinc-900 dark:text-zinc-50 flex items-center gap-2 uppercase italic tracking-tighter min-w-0">
                 <Gem className="w-5 h-5 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2} />
                 <FitText className="min-w-0 flex-1">Precious Metals</FitText>
-                <span className="hidden sm:inline-block bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest animate-pulse shrink-0">
+                <span className="hidden sm:inline-block bg-blue-500 text-white text-[11px] font-black px-2 py-0.5 rounded uppercase tracking-widest animate-pulse shrink-0">
                   Live
                 </span>
               </h1>
-              <p className="hidden sm:flex text-zinc-500 dark:text-zinc-400 text-[10px] mt-1 items-center gap-2 uppercase font-black tracking-widest">
+              <p className="hidden sm:flex text-zinc-500 dark:text-zinc-400 text-[11px] mt-1 items-center gap-2 uppercase font-black tracking-widest">
                 <span className={`w-2 h-2 rounded-full ${loading ? 'bg-amber-500' : 'bg-green-500'} animate-pulse`}></span>
-                {loading ? LOADING_CAPTION : `Last updated: ${new Date().toLocaleString()}`}
+                <FreshnessBadge fetchedAt={fetchedAt} failed={refreshFailed} loading={loading} onRetry={() => loadPrices(true)} prefix="Last updated" />
               </p>
             </div>
 
@@ -529,7 +540,7 @@ export default function MetalsPage() {
         {showMore && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowMore(false)}></div>
-            <div className="relative bg-white dark:bg-[#050505] rounded-2xl sm:rounded-[3rem] p-5 sm:p-8 md:p-12 shadow-2xl border border-zinc-200 dark:border-white/5 w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 duration-300">
+            <div className="relative bg-white dark:bg-app-dark rounded-2xl sm:rounded-[3rem] p-5 sm:p-8 md:p-12 shadow-2xl border border-zinc-200 dark:border-white/5 w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 duration-300">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
               <button onClick={() => setShowMore(false)} aria-label="Close weight calculator" className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 transition-colors text-zinc-500 dark:text-zinc-400 z-20"><X className="w-4 h-4" strokeWidth={2.5} /></button>
 
@@ -542,7 +553,7 @@ export default function MetalsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                   <div className="space-y-6 sm:space-y-10">
                     <div className="space-y-4">
-                      <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest pl-2">Selection Logic</label>
+                      <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest pl-2">Selection Logic</label>
                       <div className="grid grid-cols-2 gap-3 sm:gap-4">
                         {CALC_METALS.map((m) => {
                           const Icon = m.icon;
@@ -563,7 +574,7 @@ export default function MetalsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       {calcMetal === 'gold' && (
                         <div className="space-y-4">
-                          <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest pl-2">Purity Grade</label>
+                          <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest pl-2">Purity Grade</label>
                           <select
                             value={calcPurity}
                             onChange={(e) => setCalcPurity(e.target.value)}
@@ -595,7 +606,7 @@ export default function MetalsPage() {
                                 <p className="text-lg font-black tabular-nums leading-none text-zinc-900 dark:text-zinc-50">
                                   {activeKarat}K
                                 </p>
-                                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-1">
+                                <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest mt-1">
                                   {purityPct(activeKarat)}% pure
                                 </p>
                               </div>
@@ -604,7 +615,7 @@ export default function MetalsPage() {
                         </div>
                       )}
                       <div className="space-y-4 flex-1">
-                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest pl-2">Weight Metric</label>
+                        <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest pl-2">Weight Metric</label>
                         <select
                           value={calcUnit}
                           onChange={(e) => setCalcUnit(e.target.value)}
@@ -619,7 +630,7 @@ export default function MetalsPage() {
                     </div>
 
                     <div className="space-y-4">
-                      <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest pl-2">Execution Quantity</label>
+                      <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest pl-2">Execution Quantity</label>
                       <div className="relative">
                         <input
                           type="number"
@@ -660,7 +671,7 @@ export default function MetalsPage() {
                         })()}
                         {/* Name the purity the figure was struck at — with a free
                             karat field, the number alone is ambiguous. */}
-                        <p className="text-blue-100/40 text-[10px] font-black uppercase tracking-widest">
+                        <p className="text-blue-100/40 text-[11px] font-black uppercase tracking-widest">
                           {calcMetal === 'gold' && `${activeKarat}K · ${purityPct(activeKarat)}% pure · `}
                           {calcQuantity} {calcUnit}
                         </p>
@@ -668,14 +679,14 @@ export default function MetalsPage() {
 
                       <div className="grid grid-cols-2 gap-4 pt-8 border-t border-white/10 min-w-0">
                         <div className="space-y-1 min-w-0">
-                          <p className="text-[10px] font-black text-blue-200/50 uppercase">Current Bid / Tola</p>
+                          <p className="text-[11px] font-black text-blue-200/50 uppercase">Current Bid / Tola</p>
                           <p className="font-bold text-sm sm:text-base font-mono tabular-nums break-all">
                             {sym}
                             {getMetalBasePrice(calcMetal, 'Tola').toLocaleString(undefined, { maximumFractionDigits: 2 })}
                           </p>
                         </div>
                         <div className="space-y-1 min-w-0">
-                          <p className="text-[10px] font-black text-blue-200/50 uppercase">Base Spread</p>
+                          <p className="text-[11px] font-black text-blue-200/50 uppercase">Base Spread</p>
                           <p className="font-bold text-sm sm:text-base">0.05% Fixed</p>
                         </div>
                       </div>
@@ -687,14 +698,14 @@ export default function MetalsPage() {
           </div>
         )}
 
-        <div className="mt-8 bg-white dark:bg-zinc-900 rounded-[1.5rem] sm:rounded-[2.5rem] shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className="card mt-8 overflow-hidden">
           <div className="p-4 sm:p-8 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-zinc-50 flex items-center gap-2 uppercase italic tracking-tighter">
                 Spot Market Rates
-                <span className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full">{tableCurrency}</span>
+                <span className="text-[11px] font-black text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full">{tableCurrency}</span>
               </h2>
-              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1">Live spot benchmarks · scroll for more</p>
+              <p className="text-zinc-500 text-[11px] font-black uppercase tracking-widest mt-1">Live spot benchmarks · scroll for more</p>
             </div>
           </div>
           <div className="overflow-auto max-h-[360px] custom-scrollbar">
@@ -714,7 +725,7 @@ export default function MetalsPage() {
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
                 {detailedRates.map((item) => (
                   <tr key={item.name} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <td className="p-2 sm:p-4 text-[10px] text-zinc-500 whitespace-nowrap hidden md:table-cell">{new Date().toLocaleString()}</td>
+                    <td className="p-2 sm:p-4 text-[11px] text-zinc-500 whitespace-nowrap hidden md:table-cell">{fetchedAt ? new Date(fetchedAt).toLocaleString() : "—"}</td>
                     <td className="p-2 sm:p-4 font-bold text-zinc-900 dark:text-zinc-50 whitespace-nowrap">{item.name}</td>
                     <td className="p-2 sm:p-4 text-right font-mono font-medium whitespace-nowrap hidden sm:table-cell">{item.priceOunce ? sym + item.priceOunce.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '-'}</td>
                     <td className="p-2 sm:p-4 text-right font-mono font-medium whitespace-nowrap">{item.priceTola ? sym + item.priceTola.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '-'}</td>
@@ -742,13 +753,13 @@ export default function MetalsPage() {
                 onClick={() => setShowPurity(false)}
               ></div>
 
-              <div className="relative bg-white dark:bg-[#050505] rounded-2xl sm:rounded-[2rem] p-4 sm:p-6 shadow-2xl border border-zinc-200 dark:border-white/5 w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+              <div className="relative bg-white dark:bg-app-dark rounded-2xl sm:rounded-[2rem] p-4 sm:p-6 shadow-2xl border border-zinc-200 dark:border-white/5 w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
 
                 <div className="flex justify-between items-center mb-5 sm:mb-6 shrink-0">
                   <div>
                     <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-zinc-50 uppercase italic tracking-tighter">Gold Purity Breakdown</h2>
-                    <p className="text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-1">Institutional Valuation Reference Guide</p>
+                    <p className="text-[10px] sm:text-[11px] font-black text-zinc-400 uppercase tracking-widest mt-1">Institutional Valuation Reference Guide</p>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3">
                     <select
@@ -775,11 +786,11 @@ export default function MetalsPage() {
                     <table className="w-full text-left text-sm border-separate border-spacing-y-2">
                       <thead>
                         <tr className="text-zinc-400">
-                          <th className="pb-4 px-4 font-black uppercase tracking-widest text-[10px] hidden sm:table-cell">Reference</th>
-                          <th className="pb-4 px-4 font-black uppercase tracking-widest text-[10px]">Grade</th>
-                          <th className="pb-4 px-4 font-black uppercase tracking-widest text-[10px] hidden sm:table-cell">Purity</th>
-                          <th className="pb-4 px-4 font-black uppercase tracking-widest text-[10px] text-right">{tableCurrency} Market Rate</th>
-                          <th className="pb-4 px-4 font-black uppercase tracking-widest text-[10px] text-right">Movement</th>
+                          <th className="pb-4 px-4 font-black uppercase tracking-widest text-[11px] hidden sm:table-cell">Reference</th>
+                          <th className="pb-4 px-4 font-black uppercase tracking-widest text-[11px]">Grade</th>
+                          <th className="pb-4 px-4 font-black uppercase tracking-widest text-[11px] hidden sm:table-cell">Purity</th>
+                          <th className="pb-4 px-4 font-black uppercase tracking-widest text-[11px] text-right">{tableCurrency} Market Rate</th>
+                          <th className="pb-4 px-4 font-black uppercase tracking-widest text-[11px] text-right">Movement</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -793,10 +804,10 @@ export default function MetalsPage() {
                           const displayChange = (convertFrom(item.change, 'PKR') ?? 0) * factor;
                           return (
                             <tr key={item.carat} className="bg-zinc-50 dark:bg-white/[0.02] hover:bg-zinc-100 dark:hover:bg-white/5 transition-all group">
-                              <td className="py-3 px-3 sm:px-4 first:rounded-l-2xl text-[10px] font-mono text-zinc-500 border-y border-l border-transparent dark:border-white/5 hidden sm:table-cell">{new Date().toLocaleTimeString()}</td>
+                              <td className="py-3 px-3 sm:px-4 first:rounded-l-2xl text-[11px] font-mono text-zinc-500 border-y border-l border-transparent dark:border-white/5 hidden sm:table-cell">{fetchedAt ? new Date(fetchedAt).toLocaleTimeString() : "—"}</td>
                               <td className="py-3 px-3 sm:px-4 rounded-l-2xl sm:rounded-l-none font-black text-amber-600 italic text-base border-y border-l sm:border-l-0 border-transparent dark:border-white/5">
                                 {item.carat}
-                                <span className="sm:hidden block text-[10px] font-bold text-zinc-400 not-italic mt-0.5">{item.purity}% Pure</span>
+                                <span className="sm:hidden block text-[11px] font-bold text-zinc-400 not-italic mt-0.5">{item.purity}% Pure</span>
                               </td>
                               <td className="py-3 px-3 sm:px-4 font-bold text-zinc-400 border-y border-transparent dark:border-white/5 hidden sm:table-cell">{item.purity}% Pure</td>
                               <td className="py-3 px-3 sm:px-4 font-mono font-black text-zinc-900 dark:text-zinc-50 text-right text-base border-y border-transparent dark:border-white/5">
@@ -813,7 +824,7 @@ export default function MetalsPage() {
                   </div>
 
                   <div className="mt-10 p-6 bg-amber-500/5 rounded-[2rem] border border-amber-500/10">
-                    <p className="text-[10px] text-amber-500/70 font-black uppercase tracking-widest text-center">Calculations based on 24K Gold Reference of {sym}{conv(caratPrices[0]?.usd, caratPrices[0]?.pkr)?.toLocaleString(undefined, { maximumFractionDigits: 2 })} per Tola</p>
+                    <p className="text-[11px] text-amber-500/70 font-black uppercase tracking-widest text-center">Calculations based on 24K Gold Reference of {sym}{conv(caratPrices[0]?.usd, caratPrices[0]?.pkr)?.toLocaleString(undefined, { maximumFractionDigits: 2 })} per Tola</p>
                   </div>
                 </div>
               </div>

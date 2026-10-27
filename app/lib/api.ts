@@ -856,28 +856,23 @@ export async function fetchForexRates() {
   }
 }
 
-// Real 24h % change per currency code from Yahoo daily chart meta (parallel, cached).
+// Real 24h % change per currency code. Fetched through our own API route: calling
+// Yahoo straight from the browser is blocked by CORS (it used to fail silently,
+// leaving every currency at 0.00% and flooding the console with errors).
 async function fetchYahooFxChange(codes: string[]): Promise<Record<string, { changePercent: number | null }>> {
-  const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-  const out: Record<string, { changePercent: number | null }> = {};
-  await Promise.all(codes.map(async (code) => {
-    try {
-      const sym = code === 'USD' ? 'PKR=X' : `${code}USD=X`;
-      const r = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=5d`, {
-        headers: { 'User-Agent': UA, 'Accept': 'application/json' },
-        next: { revalidate: 300 },
-      });
-      if (!r.ok) { out[code] = { changePercent: null }; return; }
-      const j = await r.json();
-      const meta = j?.chart?.result?.[0]?.meta || {};
-      const price = meta.regularMarketPrice ?? null;
-      const prev = meta.chartPreviousClose ?? meta.previousClose ?? null;
-      out[code] = { changePercent: (price != null && prev) ? ((price - prev) / prev) * 100 : null };
-    } catch {
-      out[code] = { changePercent: null };
-    }
-  }));
-  return out;
+  // Server (e.g. /api/forex): talk to Yahoo directly. Browser: via our route.
+  if (typeof window === "undefined") {
+    const { fetchFxChangeServer } = await import("./fxChange");
+    return fetchFxChangeServer(codes);
+  }
+  try {
+    const r = await fetch(`/api/forex-change?codes=${encodeURIComponent(codes.join(","))}`);
+    if (!r.ok) return {};
+    const j = await r.json();
+    return j?.success && j.data ? j.data : {};
+  } catch {
+    return {};
+  }
 }
 
 /**

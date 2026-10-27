@@ -3,6 +3,7 @@
 import { useCurrency } from "../context/CurrencyContext";
 import { currencySymbol as symbolFor, rateOf } from "../lib/currency";
 import FitText from "./FitText";
+import { PILL, TEXT, TRI, direction } from "../lib/change";
 
 interface PriceCardProps {
   title: string;
@@ -34,6 +35,7 @@ export default function PriceCard({
   const code = currency ?? active;
 
   const isPositive = (changePercent || 0) >= 0;
+  const dir = direction(changePercent);
   // Prefer the feed's own implied USD→PKR rate so PKR figures match the source.
   const impliedPkr = (pkrPrice && usdPrice) ? pkrPrice / usdPrice : rateOf(rates, 'PKR');
   const factor = code === 'USD' ? 1 : code === 'PKR' ? impliedPkr : rateOf(rates, code);
@@ -44,7 +46,7 @@ export default function PriceCard({
   const currencySymbol = symbolFor(code);
 
   return (
-    <div className="group h-full flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl sm:rounded-[2rem] p-4 sm:p-6 shadow-sm hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
+    <div className="card group h-full flex flex-col p-4 sm:p-6 hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
       {/* Decorative background element */}
       <div className={`absolute top-0 right-0 w-32 h-32 opacity-[0.03] dark:opacity-[0.05] rounded-bl-full translate-x-12 -translate-y-12 transition-transform duration-700 group-hover:scale-150 ${isPositive ? 'bg-green-500' : 'bg-red-500'}`}></div>
 
@@ -55,13 +57,13 @@ export default function PriceCard({
               {title}
             </h3>
             <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full animate-pulse ${isPositive ? 'bg-green-500' : 'bg-red-500'}`}></span>
-              <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Live</span>
+              <span className={`w-2 h-2 rounded-full animate-pulse ${dir === "flat" ? 'bg-zinc-400' : isPositive ? 'bg-green-500' : 'bg-red-500'}`}></span>
+              <span className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Live</span>
             </div>
           </div>
           {!isLoading && !error && (
-            <div className={`px-3 py-1.5 rounded-xl text-xs font-black tracking-tighter ${isPositive ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
-              {isPositive ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}%
+            <div className={`px-3 py-1.5 rounded-xl text-xs font-black tracking-tighter ${PILL[dir]}`}>
+              {TRI[dir]} {Math.abs(changePercent).toFixed(2)}%
             </div>
           )}
         </div>
@@ -88,22 +90,22 @@ export default function PriceCard({
                 </FitText>
               </div>
               <div className="mt-2 flex items-center gap-3">
-                <p className={`text-sm font-black italic tracking-tight ${displayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {displayChange >= 0 ? '+' : ''}
+                <p className={`text-sm font-black italic tracking-tight ${TEXT[direction(displayChange, 4)]}`}>
+                  {displayChange > 0 ? '+' : ''}
                   {(displayChange || 0).toLocaleString(undefined, {
                     minimumFractionDigits: (displayPrice || 0) < 10 ? 4 : 2,
                     maximumFractionDigits: (displayPrice || 0) < 10 ? 4 : 2
                   })}
                 </p>
-                {/* <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Since Open</span> */}
+                {/* <span className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Since Open</span> */}
               </div>
             </div>
 
             {/* Footer hidden on mobile to keep cards short (time is in the page header) */}
             {/* <div className="mt-auto pt-3 sm:pt-6 border-t border-zinc-100 dark:border-zinc-800 hidden sm:flex justify-between items-center">
               <div className="space-y-0.5">
-                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Market Refresh</p>
-                <p className="text-[10px] font-bold text-zinc-900 dark:text-zinc-50">{lastUpdated}</p>
+                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Market Refresh</p>
+                <p className="text-[11px] font-bold text-zinc-900 dark:text-zinc-50">{lastUpdated}</p>
               </div>
             </div> */}
           </div>

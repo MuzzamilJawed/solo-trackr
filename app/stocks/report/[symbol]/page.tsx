@@ -309,7 +309,7 @@ function GlossaryModal({ terms, onClose }: { terms: string[]; onClose: () => voi
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <div
-                className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6"
+                className="card relative w-full max-w-lg max-h-[80vh] overflow-y-auto p-6"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between mb-4">
@@ -329,12 +329,12 @@ function GlossaryModal({ terms, onClose }: { terms: string[]; onClose: () => voi
                             const g = GLOSSARY[key];
                             return (
                                 <div key={key} className="border border-zinc-100 dark:border-zinc-800 rounded-xl p-4">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-0.5">{key}</p>
+                                    <p className="text-[11px] font-black uppercase tracking-widest text-blue-500 mb-0.5">{key}</p>
                                     <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200 mb-1">{g.term}</p>
                                     <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed mb-2">{g.definition}</p>
                                     <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
-                                        <p className="text-[10px] font-black text-amber-600 mb-0.5 inline-flex items-center gap-1"><Lightbulb className="w-3 h-3" strokeWidth={2} /> How to use</p>
-                                        <p className="text-[10px] text-amber-700 dark:text-amber-400 leading-relaxed">{g.howToUse}</p>
+                                        <p className="text-[11px] font-black text-amber-600 mb-0.5 inline-flex items-center gap-1"><Lightbulb className="w-3 h-3" strokeWidth={2} /> How to use</p>
+                                        <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">{g.howToUse}</p>
                                     </div>
                                 </div>
                             );
@@ -483,9 +483,9 @@ function SectionTitle({ num, label, color = "text-blue-500" }: { num?: string | 
     return (
         // pr-11 keeps the title clear of the card's absolutely-positioned "?"
         // button, which a wrapped heading otherwise runs underneath on a phone.
-        <h2 className={`text-[9px] font-black uppercase tracking-[0.15em] ${color} mb-3 pr-11 flex items-start gap-2`}>
+        <h2 className={`text-[10px] font-black uppercase tracking-[0.15em] ${color} mb-3 pr-11 flex items-start gap-2`}>
             {num !== undefined && (
-                <span className="inline-flex shrink-0 items-center justify-center w-4 h-4 rounded text-[8px] font-black" style={{ backgroundColor: "currentColor" }}>
+                <span className="inline-flex shrink-0 items-center justify-center w-4 h-4 rounded text-[10px] font-black" style={{ backgroundColor: "currentColor" }}>
                     <span className="text-white">{num}</span>
                 </span>
             )}
@@ -499,12 +499,12 @@ function ScoreItem({ label, score, glossaryKey }: { label: string; score: number
     const [open, setOpen] = useState(false);
     return (
         <div>
-            <button onClick={() => setOpen(true)} className="no-print text-[8px] font-black uppercase tracking-widest text-zinc-400 mb-2 hover:text-blue-500 transition-colors flex items-center gap-1">
+            <button onClick={() => setOpen(true)} className="no-print text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2 hover:text-blue-500 transition-colors flex items-center gap-1">
                 {label} <span className="w-3 h-3 rounded-full bg-zinc-200 dark:bg-zinc-700 text-[7px] flex items-center justify-center text-zinc-500">?</span>
             </button>
-            <p className="print-only text-[8px] font-black uppercase tracking-widest text-zinc-400 mb-2 hidden print:block">{label}</p>
+            <p className="print-only text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2 hidden print:block">{label}</p>
             <ScoreBlocks score={score} />
-            <p className="text-[8px] text-zinc-400 mt-1">{score}/5</p>
+            <p className="text-[10px] text-zinc-400 mt-1">{score}/5</p>
             {open && <GlossaryModal terms={[glossaryKey]} onClose={() => setOpen(false)} />}
         </div>
     );
@@ -518,11 +518,11 @@ function Card({
 }) {
     const [open, setOpen] = useState(false);
     return (
-        <div className={`relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 ${className}`}>
+        <div className={`card relative p-5 ${className}`}>
             {glossaryTerms && glossaryTerms.length > 0 && (
                 <button
                     onClick={() => setOpen(true)}
-                    className="no-print absolute top-3 right-3 w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 text-blue-500 text-[10px] font-black flex items-center justify-center hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors"
+                    className="no-print absolute top-3 right-3 w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 text-blue-500 text-[11px] font-black flex items-center justify-center hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors"
                     title="What do these terms mean?"
                 >
                     ?
@@ -574,7 +574,7 @@ function ReportContent({ symbol }: { symbol: string }) {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] flex items-center justify-center">
+            <div className="min-h-screen bg-zinc-50 dark:bg-app-dark flex items-center justify-center">
                 <div className="text-center space-y-4">
                     <div className="relative mx-auto w-14 h-14">
                         <div className="w-14 h-14 border-4 border-blue-600/20 rounded-full" />
@@ -583,7 +583,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                     </div>
                     <div>
                         <p className="text-xs font-black uppercase tracking-widest text-zinc-900 dark:text-white">Generating Report</p>
-                        <p className="text-[9px] uppercase tracking-widest text-zinc-400 mt-1 animate-pulse">Fetching financial intelligence…</p>
+                        <p className="text-[10px] uppercase tracking-widest text-zinc-400 mt-1 animate-pulse">Fetching financial intelligence…</p>
                     </div>
                 </div>
             </div>
@@ -592,7 +592,7 @@ function ReportContent({ symbol }: { symbol: string }) {
 
     if (error || !report) {
         return (
-            <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] flex items-center justify-center">
+            <div className="min-h-screen bg-zinc-50 dark:bg-app-dark flex items-center justify-center">
                 <div className="text-center space-y-3">
                     <AlertTriangle className="w-10 h-10 text-red-500 mx-auto" strokeWidth={2} />
                     <p className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Report unavailable</p>
@@ -673,23 +673,23 @@ function ReportContent({ symbol }: { symbol: string }) {
                         <span className="w-6 h-6 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm text-zinc-600 dark:text-zinc-300 group-hover:-translate-x-0.5 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all">
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
                         </span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
                             <span className="hidden sm:inline">Back to </span>{back ? back.label : "Back"}
                         </span>
                     </button>
                     <div className="flex items-center gap-3">
                         <div className="hidden sm:flex gap-1 items-center shrink-0">
-                            {report.dataSources.psx && <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 rounded font-bold whitespace-nowrap">PSX <Check className="w-3 h-3" strokeWidth={3} /></span>}
-                            {report.dataSources.yahoo && <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded font-bold whitespace-nowrap">Yahoo <Check className="w-3 h-3" strokeWidth={3} /></span>}
+                            {report.dataSources.psx && <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 rounded font-bold whitespace-nowrap">PSX <Check className="w-3 h-3" strokeWidth={3} /></span>}
+                            {report.dataSources.yahoo && <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded font-bold whitespace-nowrap">Yahoo <Check className="w-3 h-3" strokeWidth={3} /></span>}
                         </div>
-                        <span className="text-[10px] text-zinc-400 hidden sm:block">
+                        <span className="text-[11px] text-zinc-400 hidden sm:block">
                             {new Date(report.generatedAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
                         </span>
                         <button
                             onClick={() => window.print()}
                             aria-label="Download PDF"
                             title="Download PDF"
-                            className="flex items-center gap-2 shrink-0 px-3 xs:px-4 py-2 min-h-[36px] bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-600/20"
+                            className="flex items-center gap-2 shrink-0 px-3 xs:px-4 py-2 min-h-[36px] bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-600/20"
                         >
                             <Download className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
                             <span className="hidden xs:inline">Download PDF</span>
@@ -700,7 +700,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                 <div ref={printRef} className="w-full px-4 py-6 lg:px-8 lg:py-8 space-y-4">
 
                     {/* ══ HEADER ══ */}
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-6">
+                    <div className="card p-4 sm:p-6">
                         <div className="flex flex-wrap items-start justify-between gap-4 sm:gap-6">
                             <div className="flex items-center gap-3 sm:gap-4 min-w-0 w-full sm:w-auto">
                                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center text-white font-black text-lg sm:text-xl shadow-lg shadow-blue-500/30 shrink-0">
@@ -709,11 +709,11 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <h1 className="text-xl sm:text-3xl font-black uppercase tracking-tight break-words">{report.name}</h1>
-                                        <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-[9px] font-black uppercase tracking-widest rounded border border-blue-200 dark:border-blue-800">
+                                        <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest rounded border border-blue-200 dark:border-blue-800">
                                             {report.exchange}: {report.symbol}
                                         </span>
                                     </div>
-                                    <p className="text-[10px] sm:text-xs text-zinc-400 mt-0.5 uppercase tracking-widest">
+                                    <p className="text-[11px] sm:text-xs text-zinc-400 mt-0.5 uppercase tracking-widest">
                                         {report.sector}{report.industry ? ` • ${report.industry}` : ""} — Equity Research Report
                                     </p>
                                 </div>
@@ -723,10 +723,10 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 instead of wrapping into a ragged row. */}
                             <div className="w-full sm:w-auto grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-6 sm:flex-wrap">
                                 <div className="min-w-0">
-                                    <p className="text-[9px] text-zinc-400 uppercase tracking-widest mb-0.5">Current Price</p>
+                                    <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-0.5">Current Price</p>
                                     <p className="text-xl sm:text-2xl font-black font-mono">{fmtPrice(report.currentPrice, currency)}</p>
                                     {report.changePercent !== null && (
-                                        <p className={`text-[10px] font-bold ${changePositive ? "text-green-500" : "text-red-500"}`}>
+                                        <p className={`text-[11px] font-bold ${changePositive ? "text-green-500" : "text-red-500"}`}>
                                             {changePositive ? "▲" : "▼"} {fmt(Math.abs(report.changePercent ?? 0), 2)}%
                                             {report.change !== null ? ` (${fmtPrice(report.change)})` : ""}
                                         </p>
@@ -734,13 +734,13 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 </div>
                                 {report.targetPrice !== null && (
                                     <div className="min-w-0">
-                                        <p className="text-[9px] text-zinc-400 uppercase tracking-widest mb-0.5">12-Mo Target</p>
+                                        <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-0.5">12-Mo Target</p>
                                         <p className="text-xl sm:text-2xl font-black font-mono text-blue-500">{fmtPrice(report.targetPrice, currency)}</p>
                                     </div>
                                 )}
                                 {report.upsidePotential !== null && (
                                     <div className="min-w-0">
-                                        <p className="text-[9px] text-zinc-400 uppercase tracking-widest mb-0.5">Upside</p>
+                                        <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-0.5">Upside</p>
                                         <p className={`text-xl sm:text-2xl font-black ${report.upsidePotential >= 0 ? "text-green-500" : "text-red-500"}`}>
                                             {report.upsidePotential >= 0 ? "+" : ""}{fmt(report.upsidePotential, 1)}%
                                         </p>
@@ -748,7 +748,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 )}
                                 {report.marketCap !== null && (
                                     <div className="min-w-0">
-                                        <p className="text-[9px] text-zinc-400 uppercase tracking-widest mb-0.5">Market Cap</p>
+                                        <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-0.5">Market Cap</p>
                                         <p className="text-base sm:text-lg font-black font-mono">{fmtLarge(report.marketCap, currency)}</p>
                                     </div>
                                 )}
@@ -761,7 +761,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                         {/* 52-week range bar */}
                         {rangePosition !== null && (
                             <div className="mt-5 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                                <div className="flex justify-between gap-2 text-[9px] font-bold text-zinc-400 mb-1.5 uppercase tracking-widest">
+                                <div className="flex justify-between gap-2 text-[10px] font-bold text-zinc-400 mb-1.5 uppercase tracking-widest">
                                     <span className="min-w-0">52W Low: {fmtPrice(report.technical.fiftyTwoWeekLow, currency)}</span>
                                     <span className="hidden sm:inline shrink-0">52-Week Range Position</span>
                                     <span className="min-w-0 text-right">52W High: {fmtPrice(report.technical.fiftyTwoWeekHigh, currency)}</span>
@@ -776,7 +776,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                         style={{ left: `calc(${rangePosition}% - 6px)` }}
                                     />
                                 </div>
-                                <p className="text-center text-[9px] text-zinc-400 mt-1">{fmt(rangePosition, 0)}% of annual range</p>
+                                <p className="text-center text-[10px] text-zinc-400 mt-1">{fmt(rangePosition, 0)}% of annual range</p>
                             </div>
                         )}
                     </div>
@@ -808,7 +808,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                     { label: "Shares Out", val: fmtLarge(report.financials.sharesOutstanding), raw: report.financials.sharesOutstanding },
                                 ].map((item) => (
                                     <div key={item.label} className={`rounded-xl p-3 ${item.raw === null || item.raw === undefined || item.raw === "" ? "bg-zinc-50 dark:bg-zinc-800/30 opacity-60" : "bg-zinc-50 dark:bg-zinc-800/60"}`}>
-                                        <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400 mb-0.5">{item.label}</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-0.5">{item.label}</p>
                                         <p className={`text-[11px] font-bold truncate ${item.raw === null || item.raw === undefined || item.raw === "" ? "text-zinc-400 italic" : "text-zinc-900 dark:text-white"}`}>
                                             {item.val === "—" ? "Not fetched" : item.val}
                                         </p>
@@ -824,9 +824,9 @@ function ReportContent({ symbol }: { symbol: string }) {
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                                        <th className="text-left text-[8px] font-black uppercase tracking-widest text-zinc-400 pb-2">Metric</th>
-                                        <th className="text-right text-[8px] font-black uppercase tracking-widest text-zinc-400 pb-2">Amount ({currency})</th>
-                                        <th className="text-right text-[8px] font-black uppercase tracking-widest text-zinc-400 pb-2 pl-2">Source</th>
+                                        <th className="text-left text-[10px] font-black uppercase tracking-widest text-zinc-400 pb-2">Metric</th>
+                                        <th className="text-right text-[10px] font-black uppercase tracking-widest text-zinc-400 pb-2">Amount ({currency})</th>
+                                        <th className="text-right text-[10px] font-black uppercase tracking-widest text-zinc-400 pb-2 pl-2">Source</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -845,7 +845,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                                 {row.raw === null ? "Not available" : row.val}
                                             </td>
                                             <td className="py-2.5 text-right pl-2">
-                                                <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${row.raw !== null ? "bg-green-100 dark:bg-green-900/30 text-green-600" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"}`}>
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${row.raw !== null ? "bg-green-100 dark:bg-green-900/30 text-green-600" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"}`}>
                                                     {row.raw !== null ? (report.dataSources.yahoo ? "YF" : "PSX") : "—"}
                                                 </span>
                                             </td>
@@ -883,15 +883,15 @@ function ReportContent({ symbol }: { symbol: string }) {
                                         </ComposedChart>
                                     </ResponsiveContainer>
                                     <div className="flex gap-4 mt-1">
-                                        <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-blue-500 opacity-80" /><span className="text-[10px] text-zinc-500">Revenue (B)</span></div>
-                                        <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-green-500" /><span className="text-[10px] text-zinc-500">Net Income (B)</span></div>
+                                        <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-blue-500 opacity-80" /><span className="text-[11px] text-zinc-500">Revenue (B)</span></div>
+                                        <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-green-500" /><span className="text-[11px] text-zinc-500">Net Income (B)</span></div>
                                     </div>
                                 </>
                             ) : (
                                 <div className="h-[210px] flex flex-col items-center justify-center text-zinc-400 gap-2">
                                     <TrendingDown className="w-8 h-8" strokeWidth={2} />
                                     <p className="text-xs text-center">Historical financial data not available from data sources.</p>
-                                    <p className="text-[10px] text-zinc-300 dark:text-zinc-600 text-center">PSX financials appear in the table below if available.</p>
+                                    <p className="text-[11px] text-zinc-300 dark:text-zinc-600 text-center">PSX financials appear in the table below if available.</p>
                                 </div>
                             )}
                         </Card>
@@ -920,14 +920,14 @@ function ReportContent({ symbol }: { symbol: string }) {
                                     { label: "Dividend Yield", val: fmtPct(report.metrics.dividendYield), raw: report.metrics.dividendYield },
                                 ].map((item) => (
                                     <div key={item.label} className={`flex justify-between items-center gap-3 py-1.5 border-b border-zinc-50 dark:border-zinc-800/50 ${item.raw === null ? "opacity-50" : ""}`}>
-                                        <span className="text-[10px] text-zinc-500 dark:text-zinc-400 min-w-0">{item.label}</span>
+                                        <span className="text-[11px] text-zinc-500 dark:text-zinc-400 min-w-0">{item.label}</span>
                                         <span className={`text-[11px] font-black font-mono shrink-0 ${item.raw === null ? "text-zinc-400 italic" : "text-zinc-900 dark:text-white"}`}>
                                             {item.val === "—" ? "N/A*" : item.val}
                                         </span>
                                     </div>
                                 ))}
                             </div>
-                            <p className="text-[8px] text-zinc-400 mt-2">* N/A = not available from Yahoo Finance or PSX for this ticker</p>
+                            <p className="text-[10px] text-zinc-400 mt-2">* N/A = not available from Yahoo Finance or PSX for this ticker</p>
                         </Card>
                     </div>
 
@@ -955,7 +955,7 @@ function ReportContent({ symbol }: { symbol: string }) {
 
                                 {report.targetLow !== null && report.targetHigh !== null && (
                                     <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
-                                        <p className="text-[8px] font-black uppercase tracking-widest text-green-600 mb-1">Analyst Fair Value Range</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-green-600 mb-1">Analyst Fair Value Range</p>
                                         <p className="text-sm font-black text-green-700 dark:text-green-300">
                                             {fmtPrice(report.targetLow, currency)} – {fmtPrice(report.targetHigh, currency)}
                                         </p>
@@ -963,7 +963,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 )}
 
                                 <div className="p-3 bg-zinc-50 dark:bg-zinc-800/60 rounded-xl border border-zinc-200 dark:border-zinc-700">
-                                    <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400 mb-1">Valuation Stance</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">Valuation Stance</p>
                                     <p className={`text-sm font-black ${report.metrics.pe !== null && report.metrics.pe < 12 ? "text-green-600" : report.metrics.pe !== null && report.metrics.pe > 25 ? "text-red-600" : "text-amber-600"}`}>
                                         {report.metrics.pe === null
                                             ? "INSUFFICIENT DATA"
@@ -982,11 +982,11 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 {risks.map((risk, i) => (
                                     <div key={i} className="flex items-start gap-2 p-2 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30">
                                         <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center shrink-0 mt-0.5">
-                                            <span className="text-white text-[8px] font-black">{i + 1}</span>
+                                            <span className="text-white text-[10px] font-black">{i + 1}</span>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black text-red-700 dark:text-red-400 leading-tight">{risk.title}</p>
-                                            <p className="text-[9px] text-red-500 dark:text-red-500/70 leading-snug">{risk.detail}</p>
+                                            <p className="text-[11px] font-black text-red-700 dark:text-red-400 leading-tight">{risk.title}</p>
+                                            <p className="text-[10px] text-red-500 dark:text-red-500/70 leading-snug">{risk.detail}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -1000,7 +1000,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 {moat.map((point, i) => (
                                     <div key={i} className="flex items-start gap-2 p-2 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30">
                                         <Check className="w-4 h-4 text-green-500 mt-0.5" strokeWidth={3} />
-                                        <p className="text-[10px] font-semibold text-green-700 dark:text-green-400 leading-snug">{point}</p>
+                                        <p className="text-[11px] font-semibold text-green-700 dark:text-green-400 leading-snug">{point}</p>
                                     </div>
                                 ))}
                             </div>
@@ -1014,7 +1014,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 ].map((t, i) => (
                                     <div key={i} className="flex items-start gap-2">
                                         <span className="text-purple-400 font-black text-sm leading-none mt-0.5">•</span>
-                                        <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-snug">{t}</p>
+                                        <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-snug">{t}</p>
                                     </div>
                                 ))}
                             </div>
@@ -1030,7 +1030,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                             <div className="space-y-2">
                                 {report.pricePlan.entryLow !== null ? (
                                     <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                                        <p className="text-[8px] font-black uppercase tracking-widest text-blue-500 mb-0.5">Entry Zone</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-0.5">Entry Zone</p>
                                         <p className="text-sm font-black text-blue-700 dark:text-blue-300">
                                             {fmtPrice(report.pricePlan.entryLow, currency)} – {fmtPrice(report.pricePlan.entryHigh, currency)}
                                         </p>
@@ -1038,7 +1038,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 ) : null}
                                 {report.pricePlan.stopLoss !== null ? (
                                     <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                                        <p className="text-[8px] font-black uppercase tracking-widest text-red-500 mb-0.5">Stop Loss (−12%)</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-red-500 mb-0.5">Stop Loss (−12%)</p>
                                         <p className="text-sm font-black text-red-700 dark:text-red-300">{fmtPrice(report.pricePlan.stopLoss, currency)}</p>
                                     </div>
                                 ) : null}
@@ -1049,14 +1049,14 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 ].map((t) =>
                                     t.val !== null ? (
                                         <div key={t.label} className="p-3 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-900/30">
-                                            <p className="text-[8px] font-black uppercase tracking-widest text-green-600 mb-0.5">{t.label}</p>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-green-600 mb-0.5">{t.label}</p>
                                             <p className="text-sm font-black text-green-700 dark:text-green-300">{fmtPrice(t.val, currency)}</p>
                                         </div>
                                     ) : null
                                 )}
                                 {report.technical.support.length > 0 && (
                                     <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60">
-                                        <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400 mb-0.5">Key Support Levels</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-0.5">Key Support Levels</p>
                                         <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
                                             {report.technical.support.map(v => fmtPrice(v, currency)).join(" | ")}
                                         </p>
@@ -1064,14 +1064,14 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 )}
                                 {report.technical.resistance.length > 0 && (
                                     <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60">
-                                        <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400 mb-0.5">Key Resistance Levels</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-0.5">Key Resistance Levels</p>
                                         <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
                                             {report.technical.resistance.map(v => fmtPrice(v, currency)).join(" | ")}
                                         </p>
                                     </div>
                                 )}
                                 {report.currentPrice === null && (
-                                    <p className="text-[10px] text-zinc-400 italic">Price data not available — targets cannot be calculated</p>
+                                    <p className="text-[11px] text-zinc-400 italic">Price data not available — targets cannot be calculated</p>
                                 )}
                             </div>
                         </Card>
@@ -1080,9 +1080,9 @@ function ReportContent({ symbol }: { symbol: string }) {
                         <Card glossaryTerms={["50-Day Moving Avg", "200-Day Moving Avg", "52-Week High", "52-Week Low", "Day Range", "LDCP", "Support Level", "Resistance Level"]}>
                             <SectionTitle num={10} label="Technical Outlook" color="text-indigo-500" />
                             <div className={`p-4 rounded-2xl mb-4 text-center border-2 ${sigStyle}`}>
-                                <p className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-1">Overall Signal</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Overall Signal</p>
                                 <p className="text-3xl font-black">{report.technical.signal}</p>
-                                <p className="text-[9px] font-bold opacity-70 mt-1">{report.technical.trend}</p>
+                                <p className="text-[10px] font-bold opacity-70 mt-1">{report.technical.trend}</p>
                             </div>
                             <div className="space-y-1.5">
                                 {[
@@ -1095,7 +1095,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                     { label: "200-Day MA", val: fmtPrice(report.technical.twoHundredDayAvg, currency), raw: report.technical.twoHundredDayAvg },
                                 ].map((item) => (
                                     <div key={item.label} className={`flex justify-between items-center py-1.5 border-b border-zinc-50 dark:border-zinc-800/50 ${item.raw === null ? "opacity-40" : ""}`}>
-                                        <span className="text-[10px] text-zinc-500">{item.label}</span>
+                                        <span className="text-[11px] text-zinc-500">{item.label}</span>
                                         <span className={`text-[11px] font-black font-mono ${item.raw === null ? "text-zinc-400 italic" : "text-zinc-900 dark:text-white"}`}>
                                             {item.raw === null ? "N/A" : item.val}
                                         </span>
@@ -1103,7 +1103,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 ))}
                             </div>
                             {(report.technical.fiftyDayAvg === null && report.technical.twoHundredDayAvg === null) && (
-                                <p className="text-[9px] text-zinc-400 mt-2 italic">Moving averages not available from PSX — signal based on LDCP comparison</p>
+                                <p className="text-[10px] text-zinc-400 mt-2 italic">Moving averages not available from PSX — signal based on LDCP comparison</p>
                             )}
                         </Card>
 
@@ -1121,19 +1121,19 @@ function ReportContent({ symbol }: { symbol: string }) {
                                             { label: "Strong Sell", val: report.analysts.strongSell, color: "bg-red-600" },
                                         ].map((item) => (
                                             <div key={item.label} className="flex items-center gap-2">
-                                                <span className="text-[10px] w-20 text-zinc-500 shrink-0">{item.label}</span>
+                                                <span className="text-[11px] w-20 text-zinc-500 shrink-0">{item.label}</span>
                                                 <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-full h-2 overflow-hidden">
                                                     <div className={`${item.color} h-2 rounded-full`} style={{ width: `${(item.val / report.analysts.total) * 100}%` }} />
                                                 </div>
-                                                <span className="text-[10px] font-black w-4 text-right">{item.val}</span>
+                                                <span className="text-[11px] font-black w-4 text-right">{item.val}</span>
                                             </div>
                                         ))}
                                     </div>
                                     <div className="p-3 bg-zinc-50 dark:bg-zinc-800/60 rounded-xl text-center">
-                                        <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400 mb-1">Consensus ({report.analysts.total} analysts)</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">Consensus ({report.analysts.total} analysts)</p>
                                         <p className={`text-lg font-black ${ratingStyle.split(" ")[0]}`}>{report.rating}</p>
                                         {report.analysts.recMean !== null && (
-                                            <p className="text-[9px] text-zinc-400 mt-0.5">Mean score: {fmt(report.analysts.recMean)} / 5.0</p>
+                                            <p className="text-[10px] text-zinc-400 mt-0.5">Mean score: {fmt(report.analysts.recMean)} / 5.0</p>
                                         )}
                                     </div>
                                 </>
@@ -1141,7 +1141,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 <div className="flex flex-col items-center justify-center h-28 text-zinc-400 gap-2 mb-2">
                                     <Search className="w-8 h-8" strokeWidth={2} />
                                     <p className="text-xs text-center">Analyst coverage not available — PSX stocks are typically not covered by Yahoo analyst ratings.</p>
-                                    <p className="text-[9px] text-center text-zinc-300 dark:text-zinc-600">Rating derived from technical signal instead.</p>
+                                    <p className="text-[10px] text-center text-zinc-300 dark:text-zinc-600">Rating derived from technical signal instead.</p>
                                 </div>
                             )}
 
@@ -1150,7 +1150,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 <SectionTitle num={12} label="Bull vs Bear" color="text-zinc-500" />
                                 <div className="grid grid-cols-2 gap-2">
                                     <div className="p-2 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-200 dark:border-green-900/30">
-                                        <p className="text-[8px] font-black uppercase text-green-600 mb-1 inline-flex items-center gap-1"><TrendingUp className="w-3 h-3" strokeWidth={2} /> Bull Case</p>
+                                        <p className="text-[10px] font-black uppercase text-green-600 mb-1 inline-flex items-center gap-1"><TrendingUp className="w-3 h-3" strokeWidth={2} /> Bull Case</p>
                                         {[
                                             report.metrics.operatingMargin !== null && report.metrics.operatingMargin > 0.1
                                                 ? `Strong ${fmtPct(report.metrics.operatingMargin)} op. margin`
@@ -1162,11 +1162,11 @@ function ReportContent({ symbol }: { symbol: string }) {
                                                 ? `${fmtPct(report.metrics.roe)} ROE efficiency`
                                                 : "Sector tailwinds",
                                         ].map((b, i) => (
-                                            <p key={i} className="text-[9px] text-green-700 dark:text-green-400">• {b}</p>
+                                            <p key={i} className="text-[10px] text-green-700 dark:text-green-400">• {b}</p>
                                         ))}
                                     </div>
                                     <div className="p-2 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-900/30">
-                                        <p className="text-[8px] font-black uppercase text-red-600 mb-1 inline-flex items-center gap-1"><TrendingDown className="w-3 h-3" strokeWidth={2} /> Bear Case</p>
+                                        <p className="text-[10px] font-black uppercase text-red-600 mb-1 inline-flex items-center gap-1"><TrendingDown className="w-3 h-3" strokeWidth={2} /> Bear Case</p>
                                         {[
                                             report.metrics.debtToEquity !== null && report.metrics.debtToEquity > 100
                                                 ? `High D/E ${fmt(report.metrics.debtToEquity, 0)}%`
@@ -1178,7 +1178,7 @@ function ReportContent({ symbol }: { symbol: string }) {
                                                 ? `Rich P/E of ${fmt(report.metrics.pe)}x`
                                                 : "Margin compression risk",
                                         ].map((b, i) => (
-                                            <p key={i} className="text-[9px] text-red-700 dark:text-red-400">• {b}</p>
+                                            <p key={i} className="text-[10px] text-red-700 dark:text-red-400">• {b}</p>
                                         ))}
                                     </div>
                                 </div>
@@ -1194,18 +1194,18 @@ function ReportContent({ symbol }: { symbol: string }) {
                                 <table className="w-full text-xs">
                                     <thead>
                                         <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                                            <th className="text-left text-[9px] font-black uppercase tracking-widest text-zinc-400 pb-2 pr-4 min-w-[160px]">Metric</th>
+                                            <th className="text-left text-[10px] font-black uppercase tracking-widest text-zinc-400 pb-2 pr-4 min-w-[160px]">Metric</th>
                                             {psxYears.map((y) => (
-                                                <th key={y} className="text-right text-[9px] font-black uppercase tracking-widest text-zinc-400 pb-2 px-3">{y}</th>
+                                                <th key={y} className="text-right text-[10px] font-black uppercase tracking-widest text-zinc-400 pb-2 px-3">{y}</th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {psxRows.map((row, i) => (
                                             <tr key={i} className="border-b border-zinc-50 dark:border-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                                                <td className="py-2 pr-4 font-semibold text-zinc-600 dark:text-zinc-400 text-[10px]">{row.label}</td>
+                                                <td className="py-2 pr-4 font-semibold text-zinc-600 dark:text-zinc-400 text-[11px]">{row.label}</td>
                                                 {row.values.map((v, j) => (
-                                                    <td key={j} className={`py-2 px-3 text-right font-mono font-black text-[10px] ${v ? "text-zinc-900 dark:text-white" : "text-zinc-400"}`}>
+                                                    <td key={j} className={`py-2 px-3 text-right font-mono font-black text-[11px] ${v ? "text-zinc-900 dark:text-white" : "text-zinc-400"}`}>
                                                         {v || "—"}
                                                     </td>
                                                 ))}
@@ -1235,23 +1235,23 @@ function ReportContent({ symbol }: { symbol: string }) {
                                         <ScoreItem key={item.label} label={item.label} score={item.score} glossaryKey={item.key} />
                                     ))}
                                 </div>
-                                <div className="mt-4 text-[10px] text-zinc-500 space-y-0.5">
+                                <div className="mt-4 text-[11px] text-zinc-500 space-y-0.5">
                                     <p>Overall composite: {((scores.businessQuality + scores.financialHealth + scores.valuation + scores.growthPotential + scores.technicalPicture) / 5).toFixed(1)} / 5.0</p>
                                     <p>Based on: operating margins, debt levels, P/E, revenue CAGR, and price trend</p>
                                 </div>
                             </div>
                             <div className={`w-full sm:w-auto px-5 sm:px-8 py-4 sm:py-5 rounded-2xl border-2 text-center shrink-0 order-1 sm:order-none ${ratingStyle}`}>
-                                <p className="text-[8px] font-black uppercase tracking-widest opacity-70 mb-1">Final Rating</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">Final Rating</p>
                                 <p className="text-3xl sm:text-4xl font-black">{report.rating}</p>
-                                <p className="text-[8px] opacity-60 mt-1">FOR PATIENT INVESTORS (2–3 YR)</p>
+                                <p className="text-[10px] opacity-60 mt-1">FOR PATIENT INVESTORS (2–3 YR)</p>
                                 {report.upsidePotential !== null && (
-                                    <p className="text-[9px] font-bold mt-2">{report.upsidePotential >= 0 ? "+" : ""}{fmt(report.upsidePotential, 1)}% to target</p>
+                                    <p className="text-[10px] font-bold mt-2">{report.upsidePotential >= 0 ? "+" : ""}{fmt(report.upsidePotential, 1)}% to target</p>
                                 )}
                             </div>
                         </div>
 
                         <div className="mt-5 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl">
-                            <p className="text-[9px] text-zinc-400 leading-relaxed">
+                            <p className="text-[10px] text-zinc-400 leading-relaxed">
 <AlertTriangle className="inline w-3 h-3 mr-0.5 -mt-0.5 text-amber-500" strokeWidth={2} /> <strong>Disclaimer:</strong> This report is auto-generated using publicly available financial data (Yahoo Finance, PSX) and is for educational purposes only.
                                 Values showing "N/A", "—", or "Not available" were not returned by the data source for this ticker.
                                 This does not constitute financial advice. Always consult a licensed financial advisor before investing.
@@ -1262,7 +1262,7 @@ function ReportContent({ symbol }: { symbol: string }) {
 
                     {/* Footer */}
                     <div className="text-center py-4 no-print">
-                        <p className="text-[9px] text-zinc-400 uppercase tracking-widest">
+                        <p className="text-[10px] text-zinc-400 uppercase tracking-widest">
                             {report.exchange}: {report.symbol} • {new Date(report.generatedAt).toLocaleString()} •
                             Data: {[report.dataSources.psx && "PSX", report.dataSources.yahoo && "Yahoo Finance"].filter(Boolean).join(" + ") || "No sources"}
                         </p>
@@ -1280,7 +1280,7 @@ export default async function StockReportPage({ params }: { params: Promise<{ sy
     const sym = symbol.toUpperCase();
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] flex items-center justify-center">
+            <div className="min-h-screen bg-zinc-50 dark:bg-app-dark flex items-center justify-center">
                 <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
             </div>
         }>

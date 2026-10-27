@@ -12,7 +12,7 @@ import { LOADING_CAPTION } from "../../lib/caption";
 export default function MarketTerminalPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] flex items-center justify-center relative overflow-hidden">
+            <div className="min-h-screen bg-zinc-50 dark:bg-app-dark flex items-center justify-center relative overflow-hidden">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full"></div>
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full"></div>
                 <div className="flex flex-col items-center gap-8 relative z-10">
@@ -321,7 +321,7 @@ function MarketTerminalContent() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] flex items-center justify-center relative overflow-hidden">
+            <div className="min-h-screen bg-zinc-50 dark:bg-app-dark flex items-center justify-center relative overflow-hidden">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full"></div>
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-600/10 blur-[120px] rounded-full"></div>
                 <div className="flex flex-col items-center gap-8 relative z-10">
@@ -339,7 +339,7 @@ function MarketTerminalContent() {
     }
 
     return (
-        <div className="min-h-screen lg:h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white flex flex-col lg:overflow-hidden selection:bg-blue-500/30">
+        <div className="min-h-screen lg:h-screen bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white flex flex-col lg:overflow-hidden selection:bg-blue-500/30">
             {/* Dynamic Background Glows */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/5 dark:bg-blue-600/10 blur-[120px] rounded-full"></div>
@@ -359,7 +359,7 @@ function MarketTerminalContent() {
                     <div className="w-[1px] h-6 bg-zinc-200 dark:bg-white/10 mx-1 sm:mx-2"></div>
                     <div className="flex items-center gap-2 sm:gap-3">
                         <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-500" strokeWidth={2} />
-                        <h1 className="text-[10px] sm:text-sm font-black uppercase tracking-widest sm:tracking-[0.3em] text-zinc-900 dark:text-white/90 italic truncate max-w-[120px] sm:max-w-none">
+                        <h1 className="text-[11px] sm:text-sm font-black uppercase tracking-widest sm:tracking-[0.3em] text-zinc-900 dark:text-white/90 italic truncate max-w-[120px] sm:max-w-none">
                             Trade <span className="text-blue-500">Analytics</span>
                         </h1>
                     </div>
@@ -374,9 +374,9 @@ function MarketTerminalContent() {
                     </button>
                     <div className="hidden sm:flex items-center gap-3">
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Live</span>
+                        <span className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Live</span>
                     </div>
-                    <div className="hidden lg:block text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
+                    <div className="hidden lg:block text-[11px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
                         {clockTime ? `EST ${clockTime}` : ""}
                     </div>
                 </div>
@@ -403,19 +403,19 @@ function MarketTerminalContent() {
                         <div className="flex bg-zinc-100 dark:bg-white/5 p-1 rounded-xl border border-zinc-200 dark:border-white/5">
                             <button
                                 onClick={() => { setViewMode('stocks'); setSelectedAsset(stocks[0] || null); }}
-                                className={`flex-1 py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${viewMode === 'stocks' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-zinc-500 dark:text-zinc-500 hover:text-blue-500'}`}
+                                className={`flex-1 py-2.5 text-[10px] sm:text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${viewMode === 'stocks' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-zinc-500 dark:text-zinc-500 hover:text-blue-500'}`}
                             >
                                 Equity
                             </button>
                             <button
                                 onClick={() => { setViewMode('sectors'); setSelectedSector((prev) => prev || sectorAgg[0]?.sector || null); }}
-                                className={`flex-1 py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${viewMode === 'sectors' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-zinc-500 dark:text-zinc-500 hover:text-blue-500'}`}
+                                className={`flex-1 py-2.5 text-[10px] sm:text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${viewMode === 'sectors' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-zinc-500 dark:text-zinc-500 hover:text-blue-500'}`}
                             >
                                 Sectors
                             </button>
                             <button
                                 onClick={() => { setViewMode('indices'); setSelectedAsset(indices[0] || null); }}
-                                className={`flex-1 py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${viewMode === 'indices' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-zinc-500 dark:text-zinc-500 hover:text-blue-500'}`}
+                                className={`flex-1 py-2.5 text-[10px] sm:text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${viewMode === 'indices' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-zinc-500 dark:text-zinc-500 hover:text-blue-500'}`}
                             >
                                 Index
                             </button>
@@ -450,10 +450,10 @@ function MarketTerminalContent() {
                                             <p className={`text-xs font-black font-mono tabular-nums shrink-0 ${pos ? 'text-green-500' : 'text-red-500'}`}>{pos ? '+' : ''}{sec.avgChange.toFixed(2)}%</p>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[8px] font-black text-green-600 dark:text-green-400">▲{sec.advancers}</span>
-                                            <span className="text-[8px] font-black text-red-600 dark:text-red-400">▼{sec.decliners}</span>
+                                            <span className="text-[10px] font-black text-green-600 dark:text-green-400">▲{sec.advancers}</span>
+                                            <span className="text-[10px] font-black text-red-600 dark:text-red-400">▼{sec.decliners}</span>
                                             <div className="flex-1 h-1 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden"><div className="h-full bg-green-500" style={{ width: `${advPct}%` }}></div></div>
-                                            <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest shrink-0">{sec.count}</span>
+                                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest shrink-0">{sec.count}</span>
                                         </div>
                                     </button>
                                 );
@@ -472,12 +472,12 @@ function MarketTerminalContent() {
                                         </div>
                                         <div className="text-left">
                                             <p className={`text-xs font-black uppercase tracking-tighter ${selectedAsset?.symbol === s.symbol ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-900 dark:text-zinc-300'}`}>{s.symbol}</p>
-                                            <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest truncate max-w-[120px]">{s.name || s.symbol}</p>
+                                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest truncate max-w-[120px]">{s.name || s.symbol}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-xs font-black font-mono tracking-tighter text-zinc-900 dark:text-white">{s.currentPrice?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                                        <p className={`text-[9px] font-black ${s.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                        <p className={`text-[10px] font-black ${s.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                             {s.changePercent >= 0 ? '▲' : '▼'}{Math.abs(s.changePercent).toFixed(1)}%
                                         </p>
                                     </div>
@@ -495,18 +495,18 @@ function MarketTerminalContent() {
                                 <div>
                                     <div className="flex items-center gap-3 mb-1">
                                         <h2 className="text-lg sm:text-2xl font-black text-zinc-900 dark:text-white italic uppercase tracking-tighter">{activeSector.sector}</h2>
-                                        <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[8px] sm:text-[10px] font-black uppercase tracking-widest rounded sm:rounded-lg border border-blue-500/20">Sector</span>
+                                        <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[10px] sm:text-[11px] font-black uppercase tracking-widest rounded sm:rounded-lg border border-blue-500/20">Sector</span>
                                     </div>
-                                    <p className="text-zinc-500 text-[8px] sm:text-[11px] font-black uppercase tracking-[0.15em]">{activeSector.count} scrips • {fmtVol(activeSector.totalVolume)} volume</p>
+                                    <p className="text-zinc-500 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.15em]">{activeSector.count} scrips • {fmtVol(activeSector.totalVolume)} volume</p>
                                 </div>
                                 <div className="h-10 w-[1px] bg-zinc-200 dark:bg-white/10 hidden md:block"></div>
                                 <div>
-                                    <p className="text-[8px] sm:text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Avg Performance</p>
+                                    <p className="text-[10px] sm:text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Avg Performance</p>
                                     <p className={`text-xl sm:text-2xl font-black font-mono leading-none ${activeSector.avgChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>{activeSector.avgChange >= 0 ? '+' : ''}{activeSector.avgChange.toFixed(2)}%</p>
                                 </div>
                                 <div className="h-8 w-[1px] bg-zinc-200 dark:bg-white/10 hidden md:block"></div>
                                 <div>
-                                    <p className="text-[8px] sm:text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Breadth</p>
+                                    <p className="text-[10px] sm:text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Breadth</p>
                                     <div className="flex items-center gap-2 text-sm font-black leading-none">
                                         <span className="text-green-500">▲{activeSector.advancers}</span>
                                         <span className="text-red-500">▼{activeSector.decliners}</span>
@@ -520,11 +520,11 @@ function MarketTerminalContent() {
                                 <div>
                                     <div className="flex items-center gap-3 sm:gap-4 mb-1">
                                         <h2 className="text-xl sm:text-3xl font-black text-zinc-900 dark:text-white italic uppercase tracking-tighter truncate max-w-[150px] sm:max-w-none">{selectedAsset.symbol}</h2>
-                                        <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[8px] sm:text-[10px] font-black uppercase tracking-widest rounded sm:rounded-lg border border-blue-500/20">
+                                        <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-blue-600/20 text-blue-600 dark:text-blue-400 text-[10px] sm:text-[11px] font-black uppercase tracking-widest rounded sm:rounded-lg border border-blue-500/20">
                                             {viewMode === 'stocks' ? 'Equity' : 'Index'}
                                         </span>
                                     </div>
-                                    <p className="text-zinc-500 text-[8px] sm:text-[11px] font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] truncate max-w-[200px] sm:max-w-none">{selectedAsset.name || selectedAsset.symbol} {selectedAsset.sector ? `• ${selectedAsset.sector}` : ''}</p>
+                                    <p className="text-zinc-500 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] truncate max-w-[200px] sm:max-w-none">{selectedAsset.name || selectedAsset.symbol} {selectedAsset.sector ? `• ${selectedAsset.sector}` : ''}</p>
                                 </div>
 
                                 {/* Compact price + change (mobile only) */}
@@ -541,19 +541,19 @@ function MarketTerminalContent() {
 
                                 <div className="hidden sm:flex items-center gap-4 lg:gap-10">
                                     <div>
-                                        <p className="text-[8px] sm:text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Current Price</p>
+                                        <p className="text-[10px] sm:text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Current Price</p>
                                         <p className="text-xl sm:text-2xl font-black font-mono text-zinc-900 dark:text-white leading-none">
                                             {viewMode === 'indices' ? '' : 'Rs.'}{selectedAsset.currentPrice?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                         </p>
                                     </div>
                                     <div className="h-8 w-[1px] bg-zinc-200 dark:bg-white/10"></div>
                                     <div>
-                                        <p className="text-[8px] sm:text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Session</p>
+                                        <p className="text-[10px] sm:text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Session</p>
                                         <div className="flex items-center gap-2">
                                             <p className={`text-sm sm:text-base font-black font-mono leading-none ${selectedAsset.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                                 {selectedAsset.change >= 0 ? '+' : ''}{selectedAsset.change?.toFixed(2)}
                                             </p>
-                                            <span className={`text-[10px] sm:text-xs font-bold ${selectedAsset.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                            <span className={`text-[11px] sm:text-xs font-bold ${selectedAsset.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                                 ({selectedAsset.changePercent >= 0 ? '+' : ''}{selectedAsset.changePercent?.toFixed(2)}%)
                                             </span>
                                         </div>
@@ -562,7 +562,7 @@ function MarketTerminalContent() {
                                         <>
                                             <div className="h-8 w-[1px] bg-zinc-200 dark:bg-white/10 hidden lg:block"></div>
                                             <div className="hidden lg:block">
-                                                <p className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Trading Liquidity</p>
+                                                <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Trading Liquidity</p>
                                                 <p className="text-sm font-black font-mono text-zinc-900 dark:text-white leading-none">{selectedAsset.volume}</p>
                                             </div>
                                         </>
@@ -571,7 +571,7 @@ function MarketTerminalContent() {
                                         <>
                                             <div className="h-8 w-[1px] bg-zinc-200 dark:bg-white/10 hidden lg:block"></div>
                                             <div className="hidden lg:block">
-                                                <p className="text-[8px] sm:text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Day High / Low</p>
+                                                <p className="text-[10px] sm:text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-1">Day High / Low</p>
                                                 <div className="flex items-center gap-2 leading-none">
                                                     <span className="text-sm sm:text-base font-black font-mono text-green-500">
                                                         {dayRange.high != null ? dayRange.high.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}
@@ -593,7 +593,7 @@ function MarketTerminalContent() {
                             <div className="flex items-center gap-2 shrink-0">
                                 <button
                                     onClick={() => router.push(`/stocks/${encodeURIComponent(selectedAsset.symbol)}`)}
-                                    className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600/10 hover:bg-blue-600 text-blue-600 hover:text-white dark:text-blue-400 dark:hover:text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-xl border border-blue-500/30 hover:border-blue-600 transition-all duration-200 group"
+                                    className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600/10 hover:bg-blue-600 text-blue-600 hover:text-white dark:text-blue-400 dark:hover:text-white text-[10px] sm:text-[11px] font-black uppercase tracking-widest rounded-xl border border-blue-500/30 hover:border-blue-600 transition-all duration-200 group"
                                     title="Open full stock details"
                                 >
                                     <LineChart className="w-4 h-4 group-hover:scale-110 transition-transform" strokeWidth={2} />
@@ -601,7 +601,7 @@ function MarketTerminalContent() {
                                 </button>
                                 <button
                                     onClick={() => router.push(`/stocks/report/${selectedAsset.symbol}?exchange=PSX&from=terminal`)}
-                                    className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600/10 hover:bg-blue-600 text-blue-600 hover:text-white dark:text-blue-400 dark:hover:text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-xl border border-blue-500/30 hover:border-blue-600 transition-all duration-200 group"
+                                    className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600/10 hover:bg-blue-600 text-blue-600 hover:text-white dark:text-blue-400 dark:hover:text-white text-[10px] sm:text-[11px] font-black uppercase tracking-widest rounded-xl border border-blue-500/30 hover:border-blue-600 transition-all duration-200 group"
                                 >
                                     <ClipboardList className="w-4 h-4 group-hover:scale-110 transition-transform" strokeWidth={2} />
                                     <span className="hidden sm:inline">Full Report</span>
@@ -618,26 +618,26 @@ function MarketTerminalContent() {
                                         {/* Breadth summary */}
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                                             <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-3 text-center">
-                                                <p className="text-[8px] font-black text-green-600/80 dark:text-green-400/80 uppercase tracking-widest mb-0.5">Advancers</p>
+                                                <p className="text-[10px] font-black text-green-600/80 dark:text-green-400/80 uppercase tracking-widest mb-0.5">Advancers</p>
                                                 <p className="text-lg font-black text-green-600 dark:text-green-400 leading-none">{activeSector.advancers}</p>
                                             </div>
                                             <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-3 text-center">
-                                                <p className="text-[8px] font-black text-red-600/80 dark:text-red-400/80 uppercase tracking-widest mb-0.5">Decliners</p>
+                                                <p className="text-[10px] font-black text-red-600/80 dark:text-red-400/80 uppercase tracking-widest mb-0.5">Decliners</p>
                                                 <p className="text-lg font-black text-red-600 dark:text-red-400 leading-none">{activeSector.decliners}</p>
                                             </div>
                                             <div className="bg-zinc-500/10 border border-zinc-500/20 rounded-2xl p-3 text-center">
-                                                <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Unchanged</p>
+                                                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Unchanged</p>
                                                 <p className="text-lg font-black text-zinc-600 dark:text-zinc-300 leading-none">{activeSector.unchanged}</p>
                                             </div>
                                             <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-3 text-center">
-                                                <p className="text-[8px] font-black text-blue-600/80 dark:text-blue-400/80 uppercase tracking-widest mb-0.5">Volume</p>
+                                                <p className="text-[10px] font-black text-blue-600/80 dark:text-blue-400/80 uppercase tracking-widest mb-0.5">Volume</p>
                                                 <p className="text-lg font-black text-blue-600 dark:text-blue-400 leading-none">{fmtVol(activeSector.totalVolume)}</p>
                                             </div>
                                         </div>
 
                                         <div className="flex items-center justify-between">
-                                            <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em]">Constituents · {activeSector.count}</p>
-                                            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Click to open chart →</p>
+                                            <p className="text-[11px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em]">Constituents · {activeSector.count}</p>
+                                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Click to open chart →</p>
                                         </div>
 
                                         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 pb-4">
@@ -651,9 +651,9 @@ function MarketTerminalContent() {
                                                     >
                                                         <div className="flex items-center justify-between gap-1 mb-1">
                                                             <span className="text-xs font-black uppercase tracking-tighter text-zinc-900 dark:text-white truncate">{s.symbol}</span>
-                                                            <span className={`text-[10px] font-black tabular-nums shrink-0 ${pos ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{pos ? '▲' : '▼'}{Math.abs(s.changePercent || 0).toFixed(2)}%</span>
+                                                            <span className={`text-[11px] font-black tabular-nums shrink-0 ${pos ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{pos ? '▲' : '▼'}{Math.abs(s.changePercent || 0).toFixed(2)}%</span>
                                                         </div>
-                                                        <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest truncate mb-1">{s.name || s.symbol}</p>
+                                                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest truncate mb-1">{s.name || s.symbol}</p>
                                                         <p className="text-sm font-black font-mono tabular-nums text-zinc-900 dark:text-white">Rs.{(s.currentPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                                                     </button>
                                                 );
@@ -662,19 +662,19 @@ function MarketTerminalContent() {
                                     </div>
                                 ) : (
                                     <div className="h-full flex items-center justify-center">
-                                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Select a sector</p>
+                                        <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Select a sector</p>
                                     </div>
                                 )}
                             </div>
                         ) : (
                             <div className="absolute inset-0 p-4 lg:p-6 flex flex-col">
-                                <div className="flex-1 bg-white dark:bg-black/60 rounded-3xl border border-zinc-200 dark:border-white/5 overflow-hidden shadow-[0_0_50px_-12px_rgba(37,99,235,0.15)] transition-all duration-1000 relative">
+                                <div className="card flex-1 overflow-hidden shadow-[0_0_50px_-12px_rgba(37,99,235,0.15)] transition-all duration-1000 relative">
                                     <div className="h-full w-full relative px-3 sm:px-5 py-2">
                                         {chartLoading && (
                                             <div className="absolute inset-0 z-20 bg-white/50 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center">
                                                 <div className="flex flex-col items-center gap-3">
                                                     <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                                    <p className="text-[10px] font-black uppercase text-blue-600 tracking-widest">Fetching Real History...</p>
+                                                    <p className="text-[11px] font-black uppercase text-blue-600 tracking-widest">Fetching Real History...</p>
                                                 </div>
                                             </div>
                                         )}
@@ -695,14 +695,14 @@ function MarketTerminalContent() {
                                     {srLevels ? (
                                         <>
                                             <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-                                                <p className="text-[9px] lg:text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em]">Support / Resistance · Pivot Levels</p>
+                                                <p className="text-[10px] lg:text-[11px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em]">Support / Resistance · Pivot Levels</p>
                                                 <div className="flex items-center gap-2 sm:gap-3">
                                                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
-                                                        <span className="text-[8px] font-black text-green-600/80 dark:text-green-400/80 uppercase tracking-widest">Next Support</span>
+                                                        <span className="text-[10px] font-black text-green-600/80 dark:text-green-400/80 uppercase tracking-widest">Next Support</span>
                                                         <span className="text-xs font-black font-mono text-green-600 dark:text-green-400 tabular-nums">{fmtSR(srNext.nextSupport)}</span>
                                                     </div>
                                                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
-                                                        <span className="text-[8px] font-black text-red-600/80 dark:text-red-400/80 uppercase tracking-widest">Next Resistance</span>
+                                                        <span className="text-[10px] font-black text-red-600/80 dark:text-red-400/80 uppercase tracking-widest">Next Resistance</span>
                                                         <span className="text-xs font-black font-mono text-red-600 dark:text-red-400 tabular-nums">{fmtSR(srNext.nextResistance)}</span>
                                                     </div>
                                                 </div>
@@ -717,16 +717,16 @@ function MarketTerminalContent() {
                                                     { label: 'R2', val: srLevels.r2, tone: 'text-red-600 dark:text-red-400' },
                                                     { label: 'R3', val: srLevels.r3, tone: 'text-red-600 dark:text-red-400' },
                                                 ].map((lvl) => (
-                                                    <div key={lvl.label} className="bg-white/60 dark:bg-zinc-900/40 border border-zinc-100 dark:border-white/5 rounded-xl sm:rounded-2xl px-2 py-2 sm:py-2.5 text-center backdrop-blur-md shadow-sm">
-                                                        <p className="text-[8px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-0.5">{lvl.label}</p>
-                                                        <p className={`text-[10px] lg:text-xs font-black font-mono tabular-nums truncate ${lvl.tone}`}>{fmtSR(lvl.val)}</p>
+                                                    <div key={lvl.label} className="card-inset px-2 py-2 sm:py-2.5 text-center backdrop-blur-md">
+                                                        <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest mb-0.5">{lvl.label}</p>
+                                                        <p className={`text-[11px] lg:text-xs font-black font-mono tabular-nums truncate ${lvl.tone}`}>{fmtSR(lvl.val)}</p>
                                                     </div>
                                                 ))}
                                             </div>
                                         </>
                                     ) : (
-                                        <div className="bg-white/60 dark:bg-zinc-900/40 border border-zinc-100 dark:border-white/5 rounded-xl sm:rounded-2xl px-4 py-4 text-center backdrop-blur-md shadow-sm">
-                                            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Support / resistance unavailable — no session range yet</p>
+                                        <div className="card-inset px-4 py-4 text-center backdrop-blur-md">
+                                            <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Support / resistance unavailable — no session range yet</p>
                                         </div>
                                     )}
                                 </div>

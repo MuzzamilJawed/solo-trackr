@@ -1,5 +1,6 @@
 "use client";
 
+import { TRI, direction } from "../lib/change";
 import { useEffect, useState } from "react";
 import { Target, Medal, Gem, Trash2, X } from "lucide-react";
 import { dayRangePosition } from "../lib/stockSignals";
@@ -62,6 +63,7 @@ export default function MetalStatCard({
     }, [metal]);
 
     const isPos = (change || 0) >= 0;
+    const dirNow = direction(changePercent);
     const rangePos = dayRangePosition(low52 ?? undefined, high52 ?? undefined, currentPrice);
     const unitRatio = UNIT_GRAMS[selectedUnit] / UNIT_GRAMS[baseUnit];
     const toSelectedUnit = (value?: number | null) => value == null ? null : value * unitRatio;
@@ -99,7 +101,7 @@ export default function MetalStatCard({
                             : <Gem className="w-5 h-5 shrink-0" strokeWidth={2} />}
                         <div className="min-w-0">
                             <h3 className="text-sm font-black uppercase italic tracking-tighter leading-none">{label}</h3>
-                            <p className="text-[9px] font-bold text-white/60 uppercase tracking-widest mt-0.5">per {UNIT_LABELS[selectedUnit]}</p>
+                            <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest mt-0.5">per {UNIT_LABELS[selectedUnit]}</p>
                         </div>
                     </div>
 
@@ -110,7 +112,7 @@ export default function MetalStatCard({
                             value={selectedUnit}
                             onChange={(event) => setSelectedUnit(event.target.value as MetalUnit)}
                             aria-label={`${label} price unit`}
-                            className="h-8 max-w-[5.75rem] rounded-lg border border-white/20 bg-white/15 px-2 text-[9px] font-black uppercase tracking-widest text-white outline-none focus:ring-2 focus:ring-white/40"
+                            className="h-8 max-w-[5.75rem] rounded-lg border border-white/20 bg-white/15 px-2 text-[10px] font-black uppercase tracking-widest text-white outline-none focus:ring-2 focus:ring-white/40"
                         >
                             {(Object.keys(UNIT_LABELS) as MetalUnit[]).map(unit => <option key={unit} value={unit} className="text-zinc-900">{UNIT_LABELS[unit]}</option>)}
                         </select>
@@ -118,7 +120,7 @@ export default function MetalStatCard({
                         <button
                             onClick={() => { setInput(String(Number(((show(toSelectedUnit(target.value)) ?? 0)).toFixed(2)))); setEditing(true); }}
                             title={hit ? "Target reached — tap to edit" : "Tap to edit your price target"}
-                            className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 min-h-[32px] rounded-full text-[9px] font-black uppercase tracking-widest transition-colors ${hit
+                            className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 min-h-[32px] rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${hit
                                 ? "bg-white text-emerald-600 animate-pulse"
                                 : "bg-white/15 hover:bg-white/25 text-white/90"
                                 }`}
@@ -137,7 +139,7 @@ export default function MetalStatCard({
                         <button
                             onClick={() => { setInput(""); setEditing(true); }}
                             title="Set a price target"
-                            className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 min-h-[32px] rounded-full bg-white/15 hover:bg-white/25 text-[9px] font-black uppercase tracking-widest text-white/80 hover:text-white transition-colors"
+                            className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 min-h-[32px] rounded-full bg-white/15 hover:bg-white/25 text-[10px] font-black uppercase tracking-widest text-white/80 hover:text-white transition-colors"
                         >
                             <Target className="w-3 h-3 shrink-0" strokeWidth={2} /> Set target
                         </button>
@@ -150,17 +152,17 @@ export default function MetalStatCard({
                         <FitText className="text-2xl sm:text-4xl font-black font-mono tracking-tighter leading-none">
                             <span className="text-sm sm:text-lg font-medium mr-1 text-white/70">{sym}</span>{fmt(show(selectedPrice))}
                         </FitText>
-                        <p className="text-[9px] font-black uppercase tracking-widest text-white/60 mt-1">per {UNIT_LABELS[selectedUnit]}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-white/60 mt-1">per {UNIT_LABELS[selectedUnit]}</p>
                     </div>
-                    <div className={`text-right shrink-0 ${isPos ? 'text-emerald-200' : 'text-red-200'}`}>
-                        <p className="text-sm font-black font-mono leading-none">{isPos ? '▲' : '▼'} {Math.abs(changePercent || 0).toFixed(2)}%</p>
-                        <p className="text-[10px] font-bold opacity-80">{isPos ? '+' : ''}{fmt(show(selectedChange || 0))}</p>
+                    <div className={`text-right shrink-0 ${dirNow === 'flat' ? 'text-white/70' : isPos ? 'text-emerald-200' : 'text-red-200'}`}>
+                        <p className="text-sm font-black font-mono leading-none">{TRI[dirNow]} {Math.abs(changePercent || 0).toFixed(2)}%</p>
+                        <p className="text-[11px] font-bold opacity-80">{isPos ? '+' : ''}{fmt(show(selectedChange || 0))}</p>
                     </div>
                 </div>
 
                 {/* 52-week range bar */}
                 <div>
-                    <div className="flex items-center justify-between text-[8px] font-black text-white/70 uppercase tracking-widest mb-1.5">
+                    <div className="flex items-center justify-between text-[10px] font-black text-white/70 uppercase tracking-widest mb-1.5">
                         <span>52W Low {fmtPkr(low52)}</span>
                         <span>52W High {fmtPkr(high52)}</span>
                     </div>
@@ -193,7 +195,7 @@ export default function MetalStatCard({
                                     className="w-full bg-white/15 border border-white/20 rounded-xl pl-9 pr-3 py-2 text-sm font-black text-white placeholder:text-white/40 outline-none focus:ring-2 focus:ring-white/40"
                                 />
                             </div>
-                            <button onClick={save} className="shrink-0 bg-white text-zinc-900 text-[10px] font-black uppercase px-3 py-2 min-h-[36px] rounded-xl">Save</button>
+                            <button onClick={save} className="shrink-0 bg-white text-zinc-900 text-[11px] font-black uppercase px-3 py-2 min-h-[36px] rounded-xl">Save</button>
                             <button
                                 onClick={() => setEditing(false)}
                                 aria-label="Cancel"

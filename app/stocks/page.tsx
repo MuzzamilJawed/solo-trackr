@@ -13,6 +13,8 @@ import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import SectorHeatmap from "../components/SectorHeatmap";
 import CompareTray from "../components/CompareTray";
 import PageSkeleton from "../components/PageSkeleton";
+import { usePullRefresh } from "../lib/pullRefresh";
+import LoadErrorBanner from "../components/LoadErrorBanner";
 import FitText from "../components/FitText";
 import { dayRangePosition, parseVolume } from "../lib/stockSignals";
 import { rollLeaders } from "../lib/stockPrefs";
@@ -87,6 +89,7 @@ function StocksContent() {
     const [sectors, setSectors] = useState<string[]>([]);
     const [filteredStocks, setFilteredStocks] = useState<Stock[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState<Index | null>(null);
     const [indexMenuOpen, setIndexMenuOpen] = useState(false);
     const [indexDayRange, setIndexDayRange] = useState<{ high: number | null; low: number | null }>({ high: null, low: null });
@@ -123,8 +126,10 @@ function StocksContent() {
         try {
             if (isManual) setLoading(true);
             const res = await fetch('/api/psx-stocks');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const json = await res.json();
             const rawData: Stock[] = json?.data || [];
+            setLoadError(false);
             const rawIndices: Index[] = json?.indices || [];
 
             const stockData = rawData
@@ -178,10 +183,13 @@ function StocksContent() {
             setSectors(['All', ...allSectorsArr]);
         } catch (err) {
             console.error('Failed to load PSX stocks', err);
+            setLoadError(true);
         } finally {
             if (isManual) setLoading(false);
         }
     };
+
+    usePullRefresh(() => load(false));
 
     const fetchWatchlists = async () => {
         try {
@@ -519,7 +527,7 @@ function StocksContent() {
     if (loading && stocks.length === 0) return <PageSkeleton variant="explorer" />;
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white selection:bg-blue-500/30">
+        <div className="min-h-screen bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white selection:bg-blue-500/30">
             {loading && (
                 <div className="fixed top-[var(--sa-top)] left-0 w-full h-1 z-[100] bg-blue-600/10">
                     <div className="h-full bg-blue-600 animate-[loading_2s_infinite]"></div>
@@ -536,15 +544,15 @@ function StocksContent() {
                             <h1 className="text-xl sm:text-3xl font-black tracking-tighter italic uppercase text-zinc-900 dark:text-white leading-none flex items-center gap-2.5">
                                 <CandlestickChart className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2} /> Market <span className="text-blue-500">Explorer</span>
                             </h1>
-                            <p className="hidden sm:block text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Real-Time Terminal</p>
+                            <p className="hidden sm:block text-zinc-500 text-[11px] font-black uppercase tracking-[0.2em] mt-1">Real-Time Terminal</p>
                         </div>
                     </div>
                 </header>
 
                 <div className="page-shell mx-auto w-full px-4 sm:px-8 lg:px-10 2xl:px-12">
-                    <div className="relative overflow-visible rounded-2xl sm:rounded-[1.75rem] border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/70 shadow-xl shadow-black/5 dark:shadow-black/20">
+                    <div className="card relative overflow-visible shadow-black/5 dark:shadow-black/20">
                         {indices.length > 0 && (
-                            <div className="py-2.5 sm:py-3 bg-white dark:bg-[#050505]">
+                            <div className="py-2.5 sm:py-3 bg-white dark:bg-app-dark">
                                 <div className="px-3 sm:px-5 lg:px-7 flex items-center gap-2 sm:gap-5 lg:gap-8 2xl:gap-12">
                                     <div className="relative min-w-0 flex-1 flex items-baseline gap-2 sm:gap-3">
                                         <button
@@ -555,7 +563,7 @@ function StocksContent() {
                                             title="Choose market index"
                                             className={`min-w-0 max-w-[55%] inline-flex items-center gap-1 rounded-lg px-1.5 py-1 text-left transition-colors ${indexMenuOpen ? "bg-blue-600/10 text-blue-600 dark:text-blue-400" : "text-zinc-900 dark:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-white/10"}`}
                                         >
-                                            <span className="min-w-0 truncate text-[10px] sm:text-xs lg:text-sm 2xl:text-base font-black uppercase tracking-widest">{activeIndex?.name || "Index"}</span>
+                                            <span className="min-w-0 truncate text-[11px] sm:text-xs lg:text-sm 2xl:text-base font-black uppercase tracking-widest">{activeIndex?.name || "Index"}</span>
                                             <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${indexMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
                                         </button>
                                         {activeIndex && (
@@ -568,7 +576,7 @@ function StocksContent() {
                                                         key={index.name}
                                                         type="button"
                                                         onClick={() => { setSelectedIndex(index); setIndexFilter(index.name); setIndexMenuOpen(false); }}
-                                                        className={`w-full min-h-10 flex items-center justify-between gap-2 rounded-lg px-2.5 text-left text-[9px] font-black uppercase tracking-widest transition-colors ${activeIndex?.name === index.name ? "bg-blue-600/10 text-blue-600 dark:text-blue-400" : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-white/10"}`}
+                                                        className={`w-full min-h-10 flex items-center justify-between gap-2 rounded-lg px-2.5 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${activeIndex?.name === index.name ? "bg-blue-600/10 text-blue-600 dark:text-blue-400" : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-white/10"}`}
                                                     >
                                                         <span className="truncate">{index.name}</span>
                                                         <span className={`shrink-0 font-mono ${index.changePercent >= 0 ? "text-green-600" : "text-red-600"}`}>
@@ -581,10 +589,10 @@ function StocksContent() {
                                     </div>
                                     {activeIndex && (
                                         <div className="flex items-baseline gap-2 sm:gap-4 shrink-0">
-                                            <span className={`text-[10px] sm:text-xs lg:text-sm 2xl:text-base font-black font-mono ${activeIndex.changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                            <span className={`text-[11px] sm:text-xs lg:text-sm 2xl:text-base font-black font-mono ${activeIndex.changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                                 {activeIndex.change >= 0 ? '+' : '-'}{Math.abs(activeIndex.change).toFixed(2)} ({activeIndex.changePercent >= 0 ? '+' : '-'}{Math.abs(activeIndex.changePercent).toFixed(2)}%)
                                             </span>
-                                            <span className="hidden sm:inline text-[9px] sm:text-xs lg:text-sm 2xl:text-base font-black font-mono text-zinc-500 dark:text-zinc-400">
+                                            <span className="hidden sm:inline text-[10px] sm:text-xs lg:text-sm 2xl:text-base font-black font-mono text-zinc-500 dark:text-zinc-400">
                                                 H {indexDayRange.high != null ? indexDayRange.high.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "—"}
                                                 <span className="mx-1 text-zinc-300 dark:text-zinc-700">/</span>
                                                 L {indexDayRange.low != null ? indexDayRange.low.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "—"}
@@ -603,27 +611,27 @@ function StocksContent() {
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`w-2 h-2 rounded-full ${marketStats?.status?.toLowerCase().includes('open') ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
-                                                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Exchange {marketStats?.status || '—'}</p>
+                                                    <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Exchange {marketStats?.status || '—'}</p>
                                                 </div>
                                                 {/* Phones get abbreviated figures — 25,369,263,260 is
                                         eleven digits of precision nobody reads on a list screen. */}
                                                 <div className="flex flex-wrap items-baseline gap-3 sm:gap-4">
                                                     <div>
-                                                        <p className="text-[9px] font-bold text-zinc-400 uppercase">Volume</p>
+                                                        <p className="text-[10px] font-bold text-zinc-400 uppercase">Volume</p>
                                                         <p className="text-sm font-black text-zinc-900 dark:text-zinc-50 font-mono tracking-tighter">
                                                             <span className="sm:hidden">{abbreviateCount(marketStats.volume)}</span>
                                                             <span className="hidden sm:inline">{marketStats.volume}</span>
                                                         </p>
                                                     </div>
                                                     <div>
-                                                        <p className="text-[9px] font-bold text-zinc-400 uppercase">Value (PKR)</p>
+                                                        <p className="text-[10px] font-bold text-zinc-400 uppercase">Value (PKR)</p>
                                                         <p className="text-sm font-black text-zinc-900 dark:text-zinc-50 font-mono tracking-tighter">
                                                             <span className="sm:hidden">{abbreviateCount(marketStats.value)}</span>
                                                             <span className="hidden sm:inline">{marketStats.value}</span>
                                                         </p>
                                                     </div>
                                                     <div>
-                                                        <p className="text-[9px] font-bold text-zinc-400 uppercase">Trades</p>
+                                                        <p className="text-[10px] font-bold text-zinc-400 uppercase">Trades</p>
                                                         <p className="text-sm font-black text-zinc-900 dark:text-zinc-50 font-mono tracking-tighter">
                                                             <span className="sm:hidden">{abbreviateCount(marketStats.trades)}</span>
                                                             <span className="hidden sm:inline">{marketStats.trades}</span>
@@ -634,7 +642,7 @@ function StocksContent() {
                                         </div>
                                         <div className="flex-1 py-3 sm:py-4 md:pl-8 flex items-center justify-between">
                                             <div className="space-y-1 w-full">
-                                                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">
+                                                <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest mb-2">
                                                     {/* "Breadth" was jargon; the long explainer was worse.
                                             Two words, same meaning. */}
                                                     Gainers &amp; Losers
@@ -644,7 +652,7 @@ function StocksContent() {
                                                 <div className="sm:hidden">
                                                     <div className="flex items-baseline justify-between text-[11px] font-black mb-1.5">
                                                         <span className="text-green-600">▲ {marketStats.advanced}</span>
-                                                        <span className="text-zinc-400 text-[9px] uppercase tracking-widest">{marketStats.unchanged} unch</span>
+                                                        <span className="text-zinc-400 text-[10px] uppercase tracking-widest">{marketStats.unchanged} unch</span>
                                                         <span className="text-red-600">{marketStats.declined} ▼</span>
                                                     </div>
                                                     <div className="flex h-1.5 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-800">
@@ -656,19 +664,19 @@ function StocksContent() {
 
                                                 <div className="hidden sm:grid grid-cols-4 gap-1.5 sm:gap-2">
                                                     <div className="bg-green-50/50 dark:bg-green-900/10 border border-green-100/50 dark:border-green-800/30 p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-center">
-                                                        <p className="text-[7px] sm:text-[8px] font-black text-green-600/80 uppercase mb-0.5">Adv</p>
+                                                        <p className="text-[7px] sm:text-[10px] font-black text-green-600/80 uppercase mb-0.5">Adv</p>
                                                         <p className="text-xs sm:text-sm font-black text-green-600 leading-none">{marketStats.advanced}</p>
                                                     </div>
                                                     <div className="bg-red-50/50 dark:bg-red-900/10 border border-red-100/50 dark:border-red-800/30 p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-center">
-                                                        <p className="text-[7px] sm:text-[8px] font-black text-red-600/80 uppercase mb-0.5">Dec</p>
+                                                        <p className="text-[7px] sm:text-[10px] font-black text-red-600/80 uppercase mb-0.5">Dec</p>
                                                         <p className="text-xs sm:text-sm font-black text-red-600 leading-none">{marketStats.declined}</p>
                                                     </div>
                                                     <div className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-800/30 p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-center">
-                                                        <p className="text-[7px] sm:text-[8px] font-black text-blue-600/80 uppercase mb-0.5">Unch</p>
+                                                        <p className="text-[7px] sm:text-[10px] font-black text-blue-600/80 uppercase mb-0.5">Unch</p>
                                                         <p className="text-xs sm:text-sm font-black text-blue-600 leading-none">{marketStats.unchanged}</p>
                                                     </div>
                                                     <div className="bg-zinc-100/50 dark:bg-zinc-800/50 border border-zinc-200/50 dark:border-zinc-700/30 p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-center">
-                                                        <p className="text-[7px] sm:text-[8px] font-black text-zinc-500 uppercase mb-0.5">Total</p>
+                                                        <p className="text-[7px] sm:text-[10px] font-black text-zinc-500 uppercase mb-0.5">Total</p>
                                                         <p className="text-xs sm:text-sm font-black text-zinc-900 dark:text-zinc-50 leading-none">{marketStats.total}</p>
                                                     </div>
                                                 </div>
@@ -683,11 +691,12 @@ function StocksContent() {
             </div>
 
             <div className={`px-4 sm:px-8 py-5 sm:py-10 page-shell mx-auto w-full space-y-5 sm:space-y-10 ${compareStocks.length > 0 ? 'pb-64' : ''}`}>
+                {loadError && <LoadErrorBanner hasData={stocks.length > 0} what="PSX stocks" onRetry={() => load(true)} />}
                 {/* Unified Market Control Ribbon */}
                 {/* gap-* rather than space-y-*: the filter panels below collapse to
                     display:none on phones, and space-y still reserved their margin,
                     leaving dead space under the Filters button. */}
-                <div className={`bg-white dark:bg-zinc-900/50 backdrop-blur-3xl rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl animate-in fade-in slide-in-from-bottom-6 duration-700 transition-all ${analysisOpen ? 'p-4 sm:p-8 flex flex-col gap-4 sm:gap-8' : 'px-4 sm:px-8 py-3.5 sm:py-5'}`}>
+                <div className={`card backdrop-blur-3xl animate-in fade-in slide-in-from-bottom-6 duration-700 transition-all ${analysisOpen ? 'p-4 sm:p-8 flex flex-col gap-4 sm:gap-8' : 'px-4 sm:px-8 py-3.5 sm:py-5'}`}>
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
                         <div className={`flex-1 w-full ${analysisOpen ? 'flex flex-col gap-4 sm:gap-6' : ''}`}>
                             {/* flex-wrap: between sm and lg the title and the control
@@ -709,7 +718,7 @@ function StocksContent() {
                                             strokeWidth={3}
                                         />
                                     </button>
-                                    <p className="text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+                                    <p className="text-[10px] sm:text-[11px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
                                         <span className="w-1.5 h-1.5 bg-blue-600 rounded-full shrink-0 animate-pulse"></span>
                                         <span className="sm:hidden">{filteredStocks.length} assets</span>
                                         <span className="hidden sm:inline">Monitoring {filteredStocks.length} Real-Time Assets</span>
@@ -718,9 +727,9 @@ function StocksContent() {
                                     {!analysisOpen && (
                                         <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
                                             {activeFilters.length === 0 ? (
-                                                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-zinc-100 dark:bg-white/5 text-zinc-400">All Market</span>
+                                                <span className="text-[10px] sm:text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-zinc-100 dark:bg-white/5 text-zinc-400">All Market</span>
                                             ) : activeFilters.map(f => (
-                                                <span key={f} className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-blue-600/10 text-blue-600 dark:text-blue-400 max-w-[160px] truncate">{f}</span>
+                                                <span key={f} className="text-[10px] sm:text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-blue-600/10 text-blue-600 dark:text-blue-400 max-w-[160px] truncate">{f}</span>
                                             ))}
                                         </div>
                                     )}
@@ -777,14 +786,14 @@ function StocksContent() {
                                     <div className={`flex h-fit bg-zinc-100 dark:bg-white/5 p-1 rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-white/10 ${searchExpanded ? 'shrink-0' : 'flex-1 sm:flex-none'}`}>
                                         <button
                                             onClick={() => setViewType('card')}
-                                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewType === 'card' ? 'bg-white dark:bg-zinc-800 text-blue-600 shadow-xl' : 'text-zinc-400 hover:text-zinc-600'}`}
+                                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${viewType === 'card' ? 'bg-white dark:bg-zinc-800 text-blue-600 shadow-xl' : 'text-zinc-400 hover:text-zinc-600'}`}
                                         >
                                             <LayoutGrid className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
                                             <span className={labelWhenSearching}>Card</span>
                                         </button>
                                         <button
                                             onClick={() => setViewType('table')}
-                                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewType === 'table' ? 'bg-white dark:bg-zinc-800 text-blue-600 shadow-xl' : 'text-zinc-400 hover:text-zinc-600'}`}
+                                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${viewType === 'table' ? 'bg-white dark:bg-zinc-800 text-blue-600 shadow-xl' : 'text-zinc-400 hover:text-zinc-600'}`}
                                         >
                                             <Table className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
                                             <span className={labelWhenSearching}>Table</span>
@@ -792,7 +801,7 @@ function StocksContent() {
                                         {/* Heatmap needs width to be legible — desktop only. */}
                                         <button
                                             onClick={() => setViewType('heatmap')}
-                                            className={`hidden sm:flex flex-1 sm:flex-none items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${viewType === 'heatmap' ? 'bg-white dark:bg-zinc-800 text-blue-600 shadow-xl' : 'text-zinc-400 hover:text-zinc-600'}`}
+                                            className={`hidden sm:flex flex-1 sm:flex-none items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${viewType === 'heatmap' ? 'bg-white dark:bg-zinc-800 text-blue-600 shadow-xl' : 'text-zinc-400 hover:text-zinc-600'}`}
                                         >
                                             <Grid3x3 className="w-3.5 h-3.5" strokeWidth={2.5} /> Heatmap
                                         </button>
@@ -820,7 +829,7 @@ function StocksContent() {
                                             <option key={idx.name} value={idx.name}>{idx.name}</option>
                                         ))}
                                     </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 text-[10px]">▼</div>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 text-[11px]">▼</div>
                                 </div>
 
                                 <div className="relative group">
@@ -832,7 +841,7 @@ function StocksContent() {
                                         <option value="all">Sectors: Global</option>
                                         {sectors.filter(s => s !== 'All').map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 text-[10px]">▼</div>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 text-[11px]">▼</div>
                                 </div>
 
                                 {/* Span must track the column count — a hard col-span-2 in a
@@ -849,7 +858,7 @@ function StocksContent() {
                                         <option value="active">High Liquidity</option>
                                         <option value="losers">Market Decliners</option>
                                     </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 text-[10px]">▼</div>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 text-[11px]">▼</div>
                                 </div>
                             </div>
                         </div>
@@ -857,13 +866,13 @@ function StocksContent() {
 
                     <div className={`${analysisOpen ? (showFilters ? 'flex' : 'hidden') : 'hidden'} ${analysisOpen ? 'lg:flex' : ''} flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-6 pt-4 sm:pt-6 border-t border-zinc-100 dark:border-white/5`}>
                         <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar py-1 -mx-1 px-1 w-full lg:w-auto">
-                            <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] whitespace-nowrap shrink-0">
+                            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] whitespace-nowrap shrink-0">
                                 <span className="sm:hidden">Watchlist:</span>
                                 <span className="hidden sm:inline">Watchlist Monitor:</span>
                             </span>
                             <button
                                 onClick={() => setActiveWatchlistId(null)}
-                                className={`shrink-0 whitespace-nowrap px-4 sm:px-5 py-2 min-h-[34px] rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!activeWatchlistId ? 'bg-blue-600 text-white shadow-lg' : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-zinc-300'}`}
+                                className={`shrink-0 whitespace-nowrap px-4 sm:px-5 py-2 min-h-[34px] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!activeWatchlistId ? 'bg-blue-600 text-white shadow-lg' : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-zinc-300'}`}
                             >
                                 Total Market
                             </button>
@@ -871,14 +880,14 @@ function StocksContent() {
                                 <button
                                     key={wl._id}
                                     onClick={() => setActiveWatchlistId(wl._id)}
-                                    className={`shrink-0 px-4 sm:px-5 py-2 min-h-[34px] rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeWatchlistId === wl._id ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-zinc-300'}`}
+                                    className={`shrink-0 px-4 sm:px-5 py-2 min-h-[34px] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeWatchlistId === wl._id ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:text-zinc-300'}`}
                                 >
                                     <Folder className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} /> <span className="max-w-[9rem] truncate">{wl.name}</span>
                                 </button>
                             ))}
                             <button
                                 onClick={() => setIsCreatingWatchlist(!isCreatingWatchlist)}
-                                className="shrink-0 whitespace-nowrap px-4 sm:px-5 py-2 min-h-[34px] rounded-xl text-[9px] font-black uppercase tracking-widest border border-dashed border-zinc-300 dark:border-white/10 text-zinc-400 hover:border-blue-500 hover:text-blue-500 transition-all"
+                                className="shrink-0 whitespace-nowrap px-4 sm:px-5 py-2 min-h-[34px] rounded-xl text-[10px] font-black uppercase tracking-widest border border-dashed border-zinc-300 dark:border-white/10 text-zinc-400 hover:border-blue-500 hover:text-blue-500 transition-all"
                             >
                                 + Create New
                             </button>
@@ -889,21 +898,21 @@ function StocksContent() {
                         <div className="grid grid-cols-3 sm:flex sm:items-center gap-2 sm:gap-4 shrink-0 w-full sm:w-auto">
                             <button
                                 onClick={() => { setCompareMode(m => !m); if (compareMode) setCompareSymbols([]); }}
-                                className={`inline-flex items-center justify-center gap-1 px-2 py-2 min-h-[36px] rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors bg-zinc-100 dark:bg-white/5 sm:bg-transparent sm:dark:bg-transparent sm:px-0 sm:py-0 sm:min-h-0 ${compareMode ? 'text-blue-600' : 'text-zinc-400 hover:text-blue-600'}`}
+                                className={`inline-flex items-center justify-center gap-1 px-2 py-2 min-h-[36px] rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors bg-zinc-100 dark:bg-white/5 sm:bg-transparent sm:dark:bg-transparent sm:px-0 sm:py-0 sm:min-h-0 ${compareMode ? 'text-blue-600' : 'text-zinc-400 hover:text-blue-600'}`}
                                 title="Select cards to compare side by side"
                             >
                                 <Scale className="w-3 h-3 shrink-0" strokeWidth={2.5} /> Compare{compareMode ? ' On' : ''}
                             </button>
                             <button
                                 onClick={exportCSV}
-                                className="inline-flex items-center justify-center gap-1 px-2 py-2 min-h-[36px] rounded-xl text-[9px] font-black text-zinc-400 hover:text-blue-600 uppercase tracking-widest transition-colors bg-zinc-100 dark:bg-white/5 sm:bg-transparent sm:dark:bg-transparent sm:px-0 sm:py-0 sm:min-h-0"
+                                className="inline-flex items-center justify-center gap-1 px-2 py-2 min-h-[36px] rounded-xl text-[10px] font-black text-zinc-400 hover:text-blue-600 uppercase tracking-widest transition-colors bg-zinc-100 dark:bg-white/5 sm:bg-transparent sm:dark:bg-transparent sm:px-0 sm:py-0 sm:min-h-0"
                                 title="Export the current filtered view to CSV"
                             >
                                 <Download className="w-3 h-3 shrink-0" strokeWidth={2.5} /> <span className="sm:hidden">CSV</span><span className="hidden sm:inline">Export CSV</span>
                             </button>
                             <button
                                 onClick={() => { setFilter('all'); setCategoryFilter('all'); setIndexFilter('all'); setSelectedIndex(null); setSearchTerm(""); }}
-                                className="inline-flex items-center justify-center gap-1 px-2 py-2 min-h-[36px] rounded-xl text-[9px] font-black text-blue-600 hover:text-red-500 uppercase tracking-widest transition-colors bg-zinc-100 dark:bg-white/5 sm:bg-transparent sm:dark:bg-transparent sm:px-0 sm:py-0 sm:min-h-0"
+                                className="inline-flex items-center justify-center gap-1 px-2 py-2 min-h-[36px] rounded-xl text-[10px] font-black text-blue-600 hover:text-red-500 uppercase tracking-widest transition-colors bg-zinc-100 dark:bg-white/5 sm:bg-transparent sm:dark:bg-transparent sm:px-0 sm:py-0 sm:min-h-0"
                                 title="Clear all filters"
                             >
                                 <RotateCcw className="w-3 h-3 shrink-0" strokeWidth={2.5} /> <span className="sm:hidden">Reset</span><span className="hidden sm:inline">Reset Pipeline</span>
@@ -956,9 +965,9 @@ function StocksContent() {
                                     />
                                 ))}
                                 {filteredStocks.length === 0 && (
-                                    <div className="col-span-full py-48 text-center bg-zinc-50 dark:bg-white/5 rounded-[3rem] border border-dashed border-zinc-200 dark:border-white/10">
+                                    <div className="card-empty col-span-full py-48 text-center">
                                         <SearchX className="w-10 h-10 mx-auto mb-4 text-zinc-400" strokeWidth={1.5} />
-                                        <p className="text-zinc-500 font-black uppercase tracking-widest text-[10px]">No matching scripts found</p>
+                                        <p className="text-zinc-500 font-black uppercase tracking-widest text-[11px]">No matching scripts found</p>
                                     </div>
                                 )}
                             </div>
@@ -969,16 +978,16 @@ function StocksContent() {
                                     {visibleCount < filteredStocks.length ? (
                                         <>
                                             <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Loading more · {Math.min(visibleCount, filteredStocks.length)} / {filteredStocks.length}</p>
+                                            <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Loading more · {Math.min(visibleCount, filteredStocks.length)} / {filteredStocks.length}</p>
                                         </>
                                     ) : (
-                                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">All {filteredStocks.length} assets loaded</p>
+                                        <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">All {filteredStocks.length} assets loaded</p>
                                     )}
                                 </div>
                             )}
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-[#050505] rounded-[2.5rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="bg-white dark:bg-app-dark rounded-[2.5rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="overflow-x-auto custom-scrollbar">
                                 <table className="w-full text-left text-[11px] border-collapse">
                                     <thead>
@@ -1002,7 +1011,7 @@ function StocksContent() {
                                                 <td className="p-3 sm:p-6">
                                                     <div className="flex flex-col gap-1 min-w-0">
                                                         <span className="w-fit px-2.5 py-1 sm:px-3 sm:py-1.5 bg-zinc-100 dark:bg-white/10 rounded-lg font-black group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">{stock.symbol}</span>
-                                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-tight truncate max-w-[130px] sm:max-w-[190px]">{stock.name}</span>
+                                                        <span className="text-[10px] sm:text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-tight truncate max-w-[130px] sm:max-w-[190px]">{stock.name}</span>
                                                     </div>
                                                 </td>
                                                 <td className="p-3 sm:p-6 font-mono font-black text-right text-sm">{stock.currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
@@ -1024,14 +1033,14 @@ function StocksContent() {
                                                                 <div className="relative h-1.5 rounded-full bg-gradient-to-r from-red-500/30 via-zinc-300 dark:via-zinc-700 to-green-500/30">
                                                                     <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-blue-600 border-2 border-white dark:border-zinc-900" style={{ left: `${pos}%` }}></div>
                                                                 </div>
-                                                                <div className="text-[8px] font-bold text-zinc-400 text-center mt-1 tabular-nums">{pos.toFixed(0)}%</div>
+                                                                <div className="text-[10px] font-bold text-zinc-400 text-center mt-1 tabular-nums">{pos.toFixed(0)}%</div>
                                                             </div>
                                                         );
                                                     })()}
                                                 </td>
                                                 <td className="p-3 sm:p-6 font-mono text-zinc-500 dark:text-zinc-500 text-right group-hover:text-zinc-300 hidden md:table-cell">{stock.volume}</td>
                                                 <td className="p-3 sm:p-6 text-right hidden lg:table-cell">
-                                                    <button onClick={(e) => { e.stopPropagation(); router.push(`/stocks/${stock.symbol.toLowerCase()}`); }} className="text-[10px] font-black uppercase bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-blue-600/20">Analyze</button>
+                                                    <button onClick={(e) => { e.stopPropagation(); router.push(`/stocks/${stock.symbol.toLowerCase()}`); }} className="text-[11px] font-black uppercase bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-blue-600/20">Analyze</button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -1039,7 +1048,7 @@ function StocksContent() {
                                             <tr>
                                                 <td colSpan={8} className="py-24 text-center">
                                                     <SearchX className="w-10 h-10 mx-auto mb-4 text-zinc-400" strokeWidth={1.5} />
-                                                    <p className="text-zinc-500 font-black uppercase tracking-widest text-[10px]">No matching scripts found</p>
+                                                    <p className="text-zinc-500 font-black uppercase tracking-widest text-[11px]">No matching scripts found</p>
                                                 </td>
                                             </tr>
                                         )}
@@ -1053,10 +1062,10 @@ function StocksContent() {
                                     {visibleCount < filteredStocks.length ? (
                                         <>
                                             <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Loading more · {Math.min(visibleCount, filteredStocks.length)} / {filteredStocks.length}</p>
+                                            <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Loading more · {Math.min(visibleCount, filteredStocks.length)} / {filteredStocks.length}</p>
                                         </>
                                     ) : (
-                                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">All {filteredStocks.length} assets loaded</p>
+                                        <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">All {filteredStocks.length} assets loaded</p>
                                     )}
                                 </div>
                             )}
