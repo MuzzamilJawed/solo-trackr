@@ -1,5 +1,6 @@
 "use client";
 
+import HoldingAlertThresholds from "../components/HoldingAlertThresholds";
 import { Check, Settings } from "lucide-react";
 
 import { useState, useEffect } from "react";
@@ -78,7 +79,7 @@ export default function SettingsPage() {
   const selectClass = "w-full sm:w-auto px-4 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 border border-zinc-200 dark:border-zinc-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all";
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white selection:bg-blue-500/30">
+    <div className="min-h-screen bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white selection:bg-blue-500/30">
       {/* Dynamic Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/5 dark:bg-blue-600/10 blur-[120px] rounded-full"></div>
@@ -91,7 +92,7 @@ export default function SettingsPage() {
           <h1 className="text-xl sm:text-3xl font-black tracking-tighter italic uppercase text-zinc-900 dark:text-white leading-none flex flex-wrap items-center gap-x-2.5 gap-y-1">
             <Settings className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2} /> Configuration <span className="text-blue-500 text-xl sm:text-2xl">Hub</span>
           </h1>
-          <p className="text-zinc-500 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] mt-1">
+          <p className="text-zinc-500 text-[11px] sm:text-xs font-black uppercase tracking-[0.2em] mt-1">
             Dashboard Preferences & Controls
           </p>
         </div>
@@ -103,18 +104,18 @@ export default function SettingsPage() {
 
           {/* Display Settings */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white dark:bg-zinc-900/60 backdrop-blur-sm rounded-[2rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-sm">
+            <div className="card backdrop-blur-sm overflow-hidden">
               <div className="px-6 sm:px-8 py-5 border-b border-zinc-100 dark:border-white/5">
                 <h2 className="text-base sm:text-lg font-black uppercase tracking-tighter italic text-zinc-900 dark:text-white">Display Settings</h2>
                 <p className="text-zinc-500 text-xs font-bold mt-0.5">Visual preferences for the dashboard</p>
               </div>
               <div className="p-5 sm:p-8 space-y-6">
                 <div>
-                  <label className="text-sm font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-tight">Display Currencies</label>
+                  <p id="set-currencies" className="text-sm font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-tight">Display Currencies</p>
                   <p className="text-xs text-zinc-500 mt-0.5 mb-4">
                     Pick every currency you want available. Select more than one and screens get a currency toggle; with just one, that currency always displays.
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div role="group" aria-labelledby="set-currencies" className="flex flex-wrap gap-2">
                     {CURRENCIES.map(({ code, name, symbol }) => {
                       const on = enabledCurrencies.includes(code);
                       return (
@@ -123,7 +124,7 @@ export default function SettingsPage() {
                           onClick={() => toggleCurrency(code)}
                           aria-pressed={on}
                           title={name}
-                          className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${on
+                          className={`px-3 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest border transition-all ${on
                             ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20'
                             : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
                         >
@@ -132,7 +133,7 @@ export default function SettingsPage() {
                       );
                     })}
                   </div>
-                  <p className="text-[10px] text-zinc-400 font-bold mt-3 leading-relaxed">
+                  <p className="text-[11px] text-zinc-400 font-bold mt-3 leading-relaxed">
                     PSX stocks always display in PKR and NASDAQ stocks always in USD — those markets are never converted.
                     Forex, oil, metals, crypto, portfolio, watchlist and the dashboard follow your selection.
                   </p>
@@ -140,10 +141,10 @@ export default function SettingsPage() {
 
                 <div className="border-t border-zinc-100 dark:border-white/5 pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <label className="text-sm font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-tight">Default Currency</label>
+                    <label htmlFor="set-default-currency" className="text-sm font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-tight">Default Currency</label>
                     <p className="text-xs text-zinc-500 mt-0.5">Screens open in this currency</p>
                   </div>
-                  <select value={settings.currency} onChange={(e) => handleChange("currency", e.target.value)} className={selectClass}>
+                  <select id="set-default-currency" value={settings.currency} onChange={(e) => handleChange("currency", e.target.value)} className={selectClass}>
                     {enabledCurrencies.map(code => (
                       <option key={code} value={code}>
                         {code} — {CURRENCIES.find(c => c.code === code)?.name ?? code}
@@ -154,10 +155,10 @@ export default function SettingsPage() {
 
                 <div className="border-t border-zinc-100 dark:border-white/5 pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <label className="text-sm font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-tight">Color Theme</label>
+                    <label htmlFor="set-theme" className="text-sm font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-tight">Color Theme</label>
                     <p className="text-xs text-zinc-500 mt-0.5">Light, dark or follow system</p>
                   </div>
-                  <select value={mounted ? (theme ?? 'system') : 'system'} onChange={(e) => handleChange("theme", e.target.value)} className={selectClass}>
+                  <select id="set-theme" value={mounted ? (theme ?? 'system') : 'system'} onChange={(e) => handleChange("theme", e.target.value)} className={selectClass}>
                     <option value="light">Light Mode</option>
                     <option value="dark">Dark Mode</option>
                     <option value="system">System Default</option>
@@ -166,10 +167,10 @@ export default function SettingsPage() {
 
                 <div className="border-t border-zinc-100 dark:border-white/5 pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <label className="text-sm font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-tight">Auto-Refresh Interval</label>
+                    <label htmlFor="set-refresh" className="text-sm font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-tight">Auto-Refresh Interval</label>
                     <p className="text-xs text-zinc-500 mt-0.5">How often live data updates</p>
                   </div>
-                  <select value={settings.refreshInterval} onChange={(e) => handleChange("refreshInterval", e.target.value)} className={selectClass}>
+                  <select id="set-refresh" value={settings.refreshInterval} onChange={(e) => handleChange("refreshInterval", e.target.value)} className={selectClass}>
                     <option value="1">Every 1 second</option>
                     <option value="5">Every 5 seconds</option>
                     <option value="10">Every 10 seconds</option>
@@ -183,14 +184,14 @@ export default function SettingsPage() {
             </div>
 
             {/* Notifications */}
-            <div className="bg-white dark:bg-zinc-900/60 backdrop-blur-sm rounded-[2rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-sm">
+            <div className="card backdrop-blur-sm overflow-hidden">
               <div className="px-6 sm:px-8 py-5 border-b border-zinc-100 dark:border-white/5">
                 <h2 className="text-base sm:text-lg font-black uppercase tracking-tighter italic text-zinc-900 dark:text-white">Alert Settings</h2>
                 <p className="text-zinc-500 text-xs font-bold mt-0.5">Notifications and market alerts</p>
               </div>
               <div className="p-5 sm:p-8 space-y-5">
                 {[
-                  { key: 'notifications', label: 'Enable Notifications', desc: 'System-level push alerts' },
+                  { key: 'notifications', label: 'Enable Notifications', desc: 'In-app alerts while SoloTrackr is open' },
                   { key: 'soundAlerts', label: 'Sound Alerts', desc: 'Audio cues on price events' },
                   { key: 'priceAlerts', label: 'Price Alerts', desc: 'Notify on threshold breaches' },
                 ].map(({ key, label, desc }) => (
@@ -200,24 +201,29 @@ export default function SettingsPage() {
                       <p className="text-xs text-zinc-500 mt-0.5">{desc}</p>
                     </div>
                     <button
+                      type="button"
+                      role="switch"
+                      aria-checked={!!(settings as any)[key]}
+                      aria-label={label}
                       onClick={() => handleChange(key, !(settings as any)[key])}
-                      className={`relative w-12 h-6 rounded-full transition-all duration-300 shrink-0 ${(settings as any)[key] ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700'}`}
+                      className={`relative w-12 h-6 rounded-full transition-all duration-300 shrink-0 before:absolute before:-inset-2.5 before:content-[''] ${(settings as any)[key] ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700'}`}
                     >
                       <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${(settings as any)[key] ? 'translate-x-6' : ''}`}></span>
                     </button>
                   </div>
                 ))}
+                <HoldingAlertThresholds />
               </div>
             </div>
 
             {/* Modules */}
-            <div className="bg-white dark:bg-zinc-900/60 backdrop-blur-sm rounded-[2rem] border border-zinc-200 dark:border-white/5 overflow-hidden shadow-sm">
+            <div className="card backdrop-blur-sm overflow-hidden">
               <div className="px-6 sm:px-8 py-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between gap-3">
                 <div>
                   <h2 className="text-base sm:text-lg font-black uppercase tracking-tighter italic text-zinc-900 dark:text-white">Modules</h2>
                   <p className="text-zinc-500 text-xs font-bold mt-0.5">Show or hide sections across the sidebar &amp; dashboard</p>
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-600/10 px-2.5 py-1 rounded-full shrink-0">{enabledCount}/{MODULES.length} on</span>
+                <span className="text-[11px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-600/10 px-2.5 py-1 rounded-full shrink-0">{enabledCount}/{MODULES.length} on</span>
               </div>
               <div className="p-5 sm:p-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
                 {MODULES.map(({ key, label, desc }) => {
@@ -229,9 +235,12 @@ export default function SettingsPage() {
                         <p className="text-xs text-zinc-500 mt-0.5 truncate">{desc}</p>
                       </div>
                       <button
+                        type="button"
+                        role="switch"
+                        aria-checked={on}
                         onClick={() => toggleModule(key)}
-                        aria-label={`${on ? 'Hide' : 'Show'} ${label}`}
-                        className={`relative w-12 h-6 rounded-full transition-all duration-300 shrink-0 ${on ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700'}`}
+                        aria-label={label}
+                        className={`relative w-12 h-6 rounded-full transition-all duration-300 shrink-0 before:absolute before:-inset-2.5 before:content-[''] ${on ? 'bg-blue-600' : 'bg-zinc-200 dark:bg-zinc-700'}`}
                       >
                         <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${on ? 'translate-x-6' : ''}`}></span>
                       </button>
@@ -260,7 +269,7 @@ export default function SettingsPage() {
 
           {/* Sidebar Info */}
           <div className="space-y-6">
-            <div className="bg-white dark:bg-zinc-900/60 backdrop-blur-sm rounded-[2rem] border border-zinc-200 dark:border-white/5 p-6 sm:p-8 shadow-sm">
+            <div className="card backdrop-blur-sm p-6 sm:p-8">
               <h3 className="text-sm font-black uppercase tracking-tighter italic text-zinc-900 dark:text-white mb-4">Data & Privacy</h3>
               <ul className="space-y-3">
                 {[
@@ -278,7 +287,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2rem] p-6 sm:p-8 text-white">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-200 mb-2">Pro Tip</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-blue-200 mb-2">Pro Tip</p>
               <p className="text-sm font-bold leading-relaxed text-blue-50">
                 Set refresh interval to 30s or higher to reduce API calls and improve performance during long sessions.
               </p>
