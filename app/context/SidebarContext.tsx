@@ -7,6 +7,9 @@ interface SidebarContextType {
     collapsed: boolean;
     setCollapsed: (v: boolean) => void;
     toggleCollapsed: () => void;
+    // Phone drawer. Lives here so the bottom tab bar's "More" can open it.
+    mobileOpen: boolean;
+    setMobileOpen: (v: boolean) => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
@@ -14,6 +17,7 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
     const [collapsed, setCollapsed] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
 
     useEffect(() => {
         const saved = localStorage.getItem('sidebar-collapsed');
@@ -30,7 +34,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     const toggleCollapsed = () => setCollapsed(prev => !prev);
 
     return (
-        <SidebarContext.Provider value={{ collapsed, setCollapsed, toggleCollapsed }}>
+        <SidebarContext.Provider value={{ collapsed, setCollapsed, toggleCollapsed, mobileOpen, setMobileOpen }}>
             {children}
         </SidebarContext.Provider>
     );

@@ -14,6 +14,9 @@
    devices), where dense action bars have to drop their button labels. */
 @theme {
   --breakpoint-xs: 22.5rem; /* 360px — the common Android floor */
+  /* The one dark page background (also the Capacitor/manifest colour). Use
+     `dark:bg-app-dark` instead of dark:bg-black / dark:bg-[#050505]. */
+  --color-app-dark: #050505;
 }
 
 @theme inline {
@@ -24,7 +27,7 @@
 }
 
 .dark {
-  --background: #0a0a0a;
+  --background: var(--color-app-dark);
   --foreground: #ededed;
   --tooltip-bg: #18181b;
   --tooltip-fg: #ededed;
@@ -34,7 +37,14 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Visible keyboard focus on controls that don't style their own (low
+   specificity via :where, so any utility class still wins). */
+:where(a, button, summary, [role="button"], [role="tab"], [role="switch"], [role="option"], select):focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
 /* Native form controls follow the active theme so the browser paints the
@@ -248,6 +258,14 @@ select option {
   --sa-right: env(safe-area-inset-right, 0px);
 }
 
+/* Space taken by the phone bottom tab bar (<BottomNav>); 0 elsewhere. Fixed
+   bottom UI (toasts, compare tray) and page padding add it so nothing hides
+   behind the bar. */
+:root { --tabbar-h: 0px; }
+@media (max-width: 1023px) {
+  html.has-tabbar { --tabbar-h: calc(3.5rem + var(--sa-bottom)); }
+}
+
 /* Native Android/iOS shell: never let the top strip collapse to nothing. */
 html.native-shell {
   --sa-top-min: 28px;
@@ -272,9 +290,16 @@ html.native-shell {
 .safe-top { padding-top: var(--sa-top); }
 
 /* Feels more like a native app: no long-press callouts / text selection flicker
-   on tappable chrome, and no rubber-band overscroll glow. */
+   on tappable chrome, and no rubber-band overscroll glow. A Capacitor WebView
+   is never display-mode: standalone, so the native-shell class matters too. */
 @media (display-mode: standalone) {
   html, body { overscroll-behavior-y: none; }
+}
+html.native-shell, html.native-shell body { overscroll-behavior-y: none; }
+html.native-shell nav, html.native-shell button, html.native-shell aside {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* Page shell width.
@@ -299,3 +324,70 @@ html.native-shell {
 @media (min-width: 1920px) { .card-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 @media (min-width: 2560px) { .card-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 @media (min-width: 3400px) { .card-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+
+/* Countdown bar on self-dismissing notifications (HoldingNotifier). */
+@keyframes alert-shrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .alert-countdown { animation: none !important; } }
+
+/* ── Card system ────────────────────────────────────────────────────────────
+   ONE surface style for every card / panel in the app, in light and dark.
+   Use these instead of hand-rolling bg-white + dark:bg-zinc-900/xx + rounded-* +
+   border-* + shadow-* on each element (that produced ~100 slightly different
+   cards). Padding, grid and overflow stay on the element; being in a CSS layer,
+   any Tailwind utility (p-4, overflow-hidden, hover:*) still wins.
+
+     .card          page sections, panels, tiles
+     .card-float    menus, popovers, dialogs (solid, stronger shadow)
+     .card-inset    a quieter panel nested inside a card
+   Add colour accents with a border/bg utility only for real state (error, success). */
+@layer components {
+  .card {
+    position: relative;
+    background-color: #ffffff;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+  }
+  @media (min-width: 640px) {
+    .card { border-radius: 1.5rem; }
+  }
+  .dark .card {
+    background-color: rgb(24 24 27 / 0.6);
+    border-color: rgb(255 255 255 / 0.06);
+    box-shadow: none;
+  }
+
+  .card-float {
+    background-color: #ffffff;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: 1rem;
+    box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.25);
+  }
+  .dark .card-float {
+    background-color: rgb(24 24 27);
+    border-color: rgb(255 255 255 / 0.1);
+    box-shadow: 0 24px 48px -12px rgb(0 0 0 / 0.7);
+  }
+
+  /* Empty / "nothing here yet" panels */
+  .card-empty {
+    background-color: var(--color-zinc-50, #fafafa);
+    border: 1px dashed var(--color-zinc-300, #d4d4d8);
+    border-radius: 1rem;
+  }
+  @media (min-width: 640px) { .card-empty { border-radius: 1.5rem; } }
+  .dark .card-empty {
+    background-color: rgb(255 255 255 / 0.03);
+    border-color: rgb(255 255 255 / 0.1);
+  }
+
+  .card-inset {
+    background-color: var(--color-zinc-50, #fafafa);
+    border: 1px solid var(--color-zinc-100, #f4f4f5);
+    border-radius: 0.75rem;
+  }
+  .dark .card-inset {
+    background-color: rgb(255 255 255 / 0.03);
+    border-color: rgb(255 255 255 / 0.05);
+  }
+}

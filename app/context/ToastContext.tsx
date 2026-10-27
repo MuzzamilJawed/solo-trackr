@@ -105,15 +105,27 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 }
 
 function ToastViewport({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: number) => void }) {
+    // Screen readers only reliably announce changes inside a live region that
+    // already exists, not nodes that arrive with their own role. So two
+    // persistent regions mirror the newest toast: errors assertively, the rest
+    // politely. The visible cards themselves are not live.
+    const lastError = [...toasts].reverse().find((t) => t.type === "error");
+    const lastPolite = [...toasts].reverse().find((t) => t.type === "success" || t.type === "info");
+
     return (
-        <div className="fixed z-[200] bottom-0 right-4 left-4 sm:left-auto pb-safe flex flex-col gap-2 items-stretch sm:items-end pointer-events-none">
+        <>
+            <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                {lastPolite && <span key={lastPolite.id}>{lastPolite.message}</span>}
+            </div>
+            <div className="sr-only" role="alert" aria-atomic="true">
+                {lastError && <span key={lastError.id}>{lastError.message}</span>}
+            </div>
+        <div className="fixed z-[200] bottom-[var(--tabbar-h)] right-4 left-4 sm:left-auto pb-safe flex flex-col gap-2 items-stretch sm:items-end pointer-events-none">
             {toasts.map((t) => (
                 <div
                     key={t.id}
-                    role="status"
-                    aria-live="polite"
                     onClick={() => onDismiss(t.id)}
-                    className="toast-item pointer-events-auto cursor-pointer w-full sm:w-auto sm:min-w-[16rem] sm:max-w-sm flex items-center gap-3 pl-3 pr-4 py-3 rounded-2xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-white/10 shadow-2xl"
+                    className="card-float toast-item pointer-events-auto cursor-pointer w-full sm:w-auto sm:min-w-[16rem] sm:max-w-sm flex items-center gap-3 pl-3 pr-4 py-3 backdrop-blur-md"
                 >
                     <span className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-black ring-1 ${TONE[t.type]}`}>
                         {t.type === "loading" ? (
@@ -125,12 +137,18 @@ function ToastViewport({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id:
                     <p className="flex-1 text-xs font-bold text-zinc-800 dark:text-zinc-100 leading-snug">
                         {t.message}
                     </p>
-                    <span className="shrink-0 text-zinc-300 dark:text-zinc-600 text-[10px] font-black hover:text-zinc-500 transition-colors">
-                        <X className="w-3 h-3" strokeWidth={2.5} />
-                    </span>
+                    <button
+                        type="button"
+                        aria-label="Dismiss notification"
+                        onClick={(e) => { e.stopPropagation(); onDismiss(t.id); }}
+                        className="shrink-0 -mr-2 w-10 h-10 flex items-center justify-center rounded-xl text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+                    >
+                        <X className="w-4 h-4" strokeWidth={2.5} />
+                    </button>
                 </div>
             ))}
         </div>
+        </>
     );
 }
 
