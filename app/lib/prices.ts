@@ -2,6 +2,7 @@
 // Builds a { "TYPE:SYMBOL" -> { usd, pkr, name } } map plus the live USD->PKR
 // rate, so the portfolio (and multi-asset watchlist) can price any holding.
 
+import { cleanPsxName } from "./psxName";
 import { fetchOilPrices } from "./api";
 import { rateOf } from "./currency";
 
@@ -43,7 +44,7 @@ export async function fetchAllPrices(): Promise<PriceBook> {
     const jobs: Promise<any>[] = [
         fetch("/api/psx-stocks").then(r => r.json()).then(j => {
             (j?.data || []).forEach((s: any) => {
-                if (s?.symbol) map[priceKey("PSX", s.symbol)] = { pkr: num(s.currentPrice), usd: null, name: s.name || s.symbol, changePct: num(s.changePercent) };
+                if (s?.symbol) map[priceKey("PSX", s.symbol)] = { pkr: num(s.currentPrice), usd: null, name: cleanPsxName(s.name) || s.symbol, changePct: num(s.changePercent) };
             });
         }).catch(() => {}),
         fetch("/api/nasdaq-stocks").then(r => r.json()).then(j => {

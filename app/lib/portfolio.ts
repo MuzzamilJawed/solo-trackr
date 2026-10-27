@@ -76,6 +76,26 @@ export async function addTxn(
   }
 }
 
+export async function updateTxn(
+  id: string,
+  t: Omit<Txn, "id">,
+): Promise<{ txn?: Txn; error?: string }> {
+  try {
+    const res = await fetch(`/api/portfolio/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...t, symbol: t.symbol.trim().toUpperCase() }),
+    });
+    const json = await res.json();
+    if (!json?.success)
+      return { error: json?.error || "Couldn't update the trade" };
+    emit();
+    return { txn: fromApi(json.data) };
+  } catch {
+    return { error: "Network error — couldn't update the trade" };
+  }
+}
+
 export async function deleteTxn(id: string): Promise<boolean> {
   try {
     const res = await fetch(`/api/portfolio/${id}`, { method: "DELETE" });
@@ -175,6 +195,18 @@ export function brokerageAmount(
   return (appliedQuantity * (Number(t.price) || 0) * feeValue) / 100;
 }
 
+/**
+ * What the trade actually cost or returned, brokerage included: a BUY costs
+ * gross + fee, a SELL returns gross - fee. (Gross is quantity x price.)
+ */
+export function tradeTotal(
+  t: Pick<Txn, "type" | "quantity" | "price" | "brokerage" | "brokerageMode">,
+): number {
+  const gross = (Number(t.quantity) || 0) * (Number(t.price) || 0);
+  const fee = brokerageAmount(t);
+  return t.type === "BUY" ? gross + fee : gross - fee;
+}
+
 // Average-cost accounting, processed in chronological order.
 export function computeHoldings(txns: Txn[]): Derived {
   const sorted = [...txns].sort((a, b) =>
@@ -232,6 +264,7 @@ export function txnsToCsv(txns: Txn[]): string {
     "Brokerage Mode",
     "Brokerage Fee",
     "Value",
+    "Net Total",
   ];
   const rows = txns.map((t) => [
     t.date,
@@ -246,6 +279,7 @@ export function txnsToCsv(txns: Txn[]): string {
     t.brokerageMode || "PERCENT",
     String(brokerageAmount(t)),
     String((Number(t.quantity) || 0) * (Number(t.price) || 0)),
+    String(tradeTotal(t)),
   ]);
   return [head, ...rows].map((r) => r.join(",")).join("\n");
 }

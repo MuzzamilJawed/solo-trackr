@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { Briefcase } from "lucide-react";
 import StatCard from "./StatCard";
 import { useCurrency } from "../context/CurrencyContext";
@@ -59,17 +60,20 @@ export default function PortfolioStatCard({ compact = false }: { compact?: boole
     const cs = currencySymbol(displayCur);
     const fmt = (v: number) => `${cs}${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
     const has = totals.count > 0;
+    // Prices arrive after the ledger. Until they do, "Rs.0 / 0.00%" would read as
+    // a real (and alarming) valuation, so show a placeholder instead.
+    const priced = book.updated !== "";
 
     return (
-        <a href="/portfolio" className="block">
+        <Link href="/portfolio" className="block" aria-label="Open portfolio">
             <StatCard
                 compact={compact}
                 label="Portfolio"
-                value={has ? fmt(totals.value) : "—"}
+                value={has ? (priced ? fmt(totals.value) : "…") : "—"}
                 icon={<Briefcase className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2} />}
-                change={has ? totals.totalPct : undefined}
-                changeLabel={has ? `Total Return · ${totals.count} holding${totals.count === 1 ? "" : "s"}` : "No holdings yet"}
+                change={has && priced ? totals.totalPct : undefined}
+                changeLabel={has ? (priced ? `Total Return · ${totals.count} holding${totals.count === 1 ? "" : "s"}` : "Loading live prices…") : "No holdings yet"}
             />
-        </a>
+        </Link>
     );
 }
