@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Debug builds only: lets the app load the dev server over plain http on your LAN
+         (CAP_SERVER_URL=http://<pc-ip>:3005). Release builds are unaffected and stay https-only. -->
+    <application android:usesCleartextTraffic="true" />
+</manifest>
