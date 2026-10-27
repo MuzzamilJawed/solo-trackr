@@ -29,9 +29,9 @@ export async function GET(request: Request) {
             symbol: symbol,
             name: $('.company_name').text().trim(),
             sector: $('.company_sector').text().trim(),
-            price: $('.last').text().trim(),
-            change: $('.change').text().trim(),
-            changePercent: $('.percentage').text().trim(),
+            price: ($('.quote__close').first().text() || $('.last').text()).replace(/^Rs\.?\s*/i, '').trim(),
+            change: ($('.change__value').first().text() || $('.change').text()).trim(),
+            changePercent: ($('.change__percent').first().text() || $('.percentage').text()).replace(/[()\s]/g, ''),
             stats: {}
         };
 

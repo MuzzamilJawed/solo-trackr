@@ -11,7 +11,9 @@ function safe(val: any): any {
 
 function parseNum(s: string | undefined | null): number | null {
     if (!s) return null;
-    const n = parseFloat(s.toString().replace(/,/g, '').replace(/[^0-9.\-]/g, ''));
+    // First number in the string, so "Rs.49.40" gives 49.4 (not ".49.40" -> 0.49).
+    const m = s.toString().replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+    const n = m ? parseFloat(m[0]) : NaN;
     return isNaN(n) ? null : n;
 }
 
@@ -146,9 +148,9 @@ async function fetchPsxDetail(symbol: string): Promise<any> {
         return {
             name: $('.company_name').text().trim() || null,
             sector: $('.company_sector').text().trim() || null,
-            currentPrice: parseNum($('.last').text().trim()),
-            change: parseNum($('.change').text().trim()),
-            changePercent: parseNum($('.percentage').text().trim()),
+            currentPrice: parseNum($('.quote__close').first().text().trim()) ?? parseNum($('.last').text().trim()),
+            change: parseNum($('.change__value').first().text().trim()) ?? parseNum($('.change').text().trim()),
+            changePercent: parseNum($('.change__percent').first().text().trim()) ?? parseNum($('.percentage').text().trim()),
             pe: parseNum(getStat(['P/E Ratio', 'PE Ratio', 'P/E'])),
             eps: parseNum(getStat(['EPS'])),
             beta: parseNum(getStat(['BETA', 'Beta'])),

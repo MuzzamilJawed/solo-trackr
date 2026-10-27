@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import * as cheerio from 'cheerio';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -129,7 +130,8 @@ export async function GET(request: Request) {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept': 'application/json'
-            }
+            },
+            cache: 'no-store'
         });
 
         // Fallback for stocks: if .KA fails, try .K or just the symbol if it's an index
@@ -164,7 +166,7 @@ export async function GET(request: Request) {
         const ohlc = result.indicators.quote[0];
         const volumeData = ohlc.volume || [];
 
-        const formattedData = timestamps.map((ts: number, i: number) => {
+        let formattedData = timestamps.map((ts: number, i: number) => {
             let time: string | number = ts;
             if (timeframe !== '1H') {
                 const date = new Date(ts * 1000);
@@ -182,12 +184,70 @@ export async function GET(request: Request) {
         }).filter((d: any) => d.open != null && d.close != null);
 
         const meta = result.meta || {};
+        let dayHigh: number | null = meta.regularMarketDayHigh ?? null;
+        let dayLow: number | null = meta.regularMarketDayLow ?? null;
+
+        // Yahoo's PSX (.KA) data lags by a day. PSX's company page is live, so use
+        // it to update today's candle (or append it when Yahoo hasn't got it yet).
+        if (timeframe !== '1H' && formattedData.length && !yahooSymbol.startsWith('^')) {
+            try {
+                const r = await fetch(`https://dps.psx.com.pk/company/${encodeURIComponent(symbol.toUpperCase())}`, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Cache-Control': 'no-cache',
+                    },
+                    cache: 'no-store',
+                });
+                if (r.ok) {
+                    const $ = cheerio.load(await r.text());
+                    const num = (s: string | undefined) => {
+                        const m = (s ?? '').replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+                        const n = m ? parseFloat(m[0]) : NaN;
+                        return Number.isFinite(n) ? n : null;
+                    };
+                    const stats: Record<string, string> = {};
+                    $('.stats_item').each((_, el) => {
+                        const label = $(el).find('.stats_label').text().trim().replace(/[\^*]/g, '').trim().toLowerCase();
+                        if (label) stats[label] = $(el).find('.stats_value').text().trim();
+                    });
+                    const close = num($('.quote__close').first().text());
+                    const open = num(stats['open']);
+                    const high = num(stats['high']);
+                    const low = num(stats['low']);
+                    const vol = num(stats['volume']) ?? 0;
+                    const ldcp = num(stats['ldcp']);
+
+                    if (close && close > 0) {
+                        const hi = Math.max(high ?? close, close);
+                        const lo = Math.min(low && low > 0 ? low : close, close);
+                        const last = formattedData[formattedData.length - 1];
+                        const prev = formattedData[formattedData.length - 2];
+                        // LDCP is the previous session's close. If it equals Yahoo's latest
+                        // close, Yahoo is missing today; if it equals the one before, Yahoo
+                        // already has today's (partial) bar.
+                        const yahooMissingToday = ldcp !== null && Math.abs(ldcp - last.close) < 0.01;
+                        const yahooHasToday = ldcp !== null && prev && Math.abs(ldcp - prev.close) < 0.01;
+                        const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(new Date());
+
+                        if (yahooMissingToday && timeframe === '1D' && String(last.time) < today) {
+                            formattedData.push({ time: today, open: open ?? ldcp, high: hi, low: lo, close, volume: vol });
+                        } else if (yahooMissingToday || yahooHasToday) {
+                            last.close = close;
+                            last.high = Math.max(last.high, hi);
+                            last.low = Math.min(last.low, lo);
+                            if (timeframe === '1D' && vol > last.volume) last.volume = vol;
+                        }
+                        if (high && low) { dayHigh = high; dayLow = low; }
+                    }
+                }
+            } catch { /* Yahoo data still stands */ }
+        }
 
         return NextResponse.json({
             success: true,
             symbol: yahooSymbol,
-            dayHigh: meta.regularMarketDayHigh ?? null,
-            dayLow: meta.regularMarketDayLow ?? null,
+            dayHigh,
+            dayLow,
             data: formattedData
         });
 
