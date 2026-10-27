@@ -1,6 +1,0 @@
-Solotrackr
-
-Show alert for every stock holding
-portfolio analytics me vs kse100
-announcement regarding book closure like dividend or shares of stock
-PORTFOLIO brokerage value incorrect and stock selection in dropdown--> edit or delete option for stocks should be add
