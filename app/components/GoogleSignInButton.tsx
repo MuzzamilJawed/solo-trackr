@@ -80,7 +80,7 @@ export default function GoogleSignInButton({
 
     if (failed) {
         return (
-            <p className="text-center text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+            <p className="text-center text-[11px] font-black text-zinc-400 uppercase tracking-widest">
                 Google sign-in couldn&apos;t load — use your email and password
             </p>
         );

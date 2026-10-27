@@ -83,7 +83,7 @@ function LoginScreen() {
     const iconCls = "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none";
 
     return (
-        <div className="min-h-screen h-dvh bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white overflow-y-auto">
+        <div className="min-h-screen h-dvh bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white overflow-y-auto">
             {/* Backdrop: masked grid + two slowly drifting glows + a floor fade, so
                 the card sits in a scene instead of on a flat slab. */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -113,7 +113,7 @@ function LoginScreen() {
                                     <p className="text-base font-black tracking-tighter italic uppercase leading-none">
                                         Solo<span className="text-blue-200">Trackr</span>
                                     </p>
-                                    <p className="text-blue-200/80 text-[8px] font-black uppercase tracking-[0.25em] mt-1">
+                                    <p className="text-blue-200/80 text-[10px] font-black uppercase tracking-[0.25em] mt-1">
                                         All Markets · One Place
                                     </p>
                                 </div>
@@ -133,7 +133,7 @@ function LoginScreen() {
 
                         <div className="relative grid grid-cols-2 gap-x-5 gap-y-2.5">
                             {["Live prices", "Price targets", "Portfolio P&L", "Research reports"].map(f => (
-                                <span key={f} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-100/90">
+                                <span key={f} className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-blue-100/90">
                                     <Check className="w-3.5 h-3.5 shrink-0 text-white" strokeWidth={3} /> {f}
                                 </span>
                             ))}
@@ -153,7 +153,7 @@ function LoginScreen() {
                             <h1 className="text-2xl font-black tracking-tighter italic uppercase leading-none">
                                 Solo<span className="text-blue-500">Trackr</span>
                             </h1>
-                            <p className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.25em] mt-2">
+                            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.25em] mt-2">
                                 All Markets · One Place
                             </p>
                         </div>
@@ -162,22 +162,24 @@ function LoginScreen() {
                             <h1 className="text-2xl font-black tracking-tighter italic uppercase leading-none">
                                 {mode === "signin" ? "Welcome back" : "Create your account"}
                             </h1>
-                            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-2">
+                            <p className="text-zinc-500 text-[11px] font-black uppercase tracking-widest mt-2">
                                 {mode === "signin" ? "Sign in to pick up where you left off" : "Free — takes less than a minute"}
                             </p>
                         </div>
 
                         {/* Its own card on a phone; inside the split card on desktop it
                             drops the chrome so the two don't nest. */}
-                        <div className="bg-white dark:bg-zinc-900/60 backdrop-blur-sm rounded-[1.75rem] border border-zinc-200 dark:border-white/5 shadow-xl p-6 sm:p-7 lg:bg-transparent lg:dark:bg-transparent lg:border-0 lg:shadow-none lg:rounded-none lg:p-0 lg:backdrop-blur-none">
+                        <div className="card backdrop-blur-sm p-6 sm:p-7 lg:bg-transparent lg:dark:bg-transparent lg:border-0 lg:shadow-none lg:p-0 lg:backdrop-blur-none">
                     {/* Sign in / Sign up switch */}
-                    <div className="flex bg-zinc-100 dark:bg-white/5 p-1 rounded-xl border border-zinc-200 dark:border-white/10 mb-6">
+                    <div role="tablist" aria-label="Sign in or create an account" className="flex bg-zinc-100 dark:bg-white/5 p-1 rounded-xl border border-zinc-200 dark:border-white/10 mb-6">
                         {([["signin", "Sign In"], ["signup", "Create Account"]] as const).map(([value, label]) => (
                             <button
                                 key={value}
                                 type="button"
+                                role="tab"
+                                aria-selected={mode === value}
                                 onClick={() => switchMode(value)}
-                                className={`flex-1 px-3 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${mode === value
+                                className={`flex-1 px-3 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${mode === value
                                     ? "bg-white dark:bg-zinc-800 text-blue-600 shadow"
                                     : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
                             >
@@ -193,6 +195,8 @@ function LoginScreen() {
                                 <input
                                     value={name}
                                     onChange={e => setName(e.target.value)}
+                                    aria-label="Your name"
+                                    name="name"
                                     placeholder="Your name"
                                     autoComplete="name"
                                     className={inputCls}
@@ -206,6 +210,9 @@ function LoginScreen() {
                                 type="email"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
+                                aria-label="Email address"
+                                name="email"
+                                aria-invalid={!!error || undefined}
                                 placeholder="you@example.com"
                                 autoComplete="email"
                                 inputMode="email"
@@ -220,6 +227,8 @@ function LoginScreen() {
                                     type="tel"
                                     value={phone}
                                     onChange={e => setPhone(e.target.value)}
+                                    aria-label="Phone number"
+                                    name="phone"
                                     placeholder="+92 300 1234567"
                                     autoComplete="tel"
                                     inputMode="tel"
@@ -231,6 +240,7 @@ function LoginScreen() {
                         <PasswordField
                             value={password}
                             onChange={setPassword}
+                            ariaLabel={mode === "signup" ? "Password, at least 8 characters" : "Password"}
                             placeholder={mode === "signup" ? "At least 8 characters" : "Password"}
                             autoComplete={mode === "signup" ? "new-password" : "current-password"}
                             className={passwordCls}
@@ -241,7 +251,7 @@ function LoginScreen() {
                             <div className="flex justify-end">
                                 <Link
                                     href="/forgot-password"
-                                    className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-blue-600 transition-colors"
+                                    className="text-[11px] font-black uppercase tracking-widest text-zinc-500 hover:text-blue-600 transition-colors"
                                 >
                                     Forgot password?
                                 </Link>
@@ -253,6 +263,7 @@ function LoginScreen() {
                                 <PasswordField
                                     value={confirmPassword}
                                     onChange={setConfirmPassword}
+                                    ariaLabel="Confirm password"
                                     placeholder="Verify password"
                                     autoComplete="new-password"
                                     className={passwordCls}
@@ -260,7 +271,7 @@ function LoginScreen() {
                                 />
                                 {/* Live feedback, so a mismatch isn't only found on submit. */}
                                 {confirmPassword.length > 0 && (
-                                    <p className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1 ${password === confirmPassword ? "text-emerald-500" : "text-amber-500"}`}>
+                                    <p role="status" className={`text-[11px] font-black uppercase tracking-widest flex items-center gap-1 ${password === confirmPassword ? "text-emerald-500" : "text-amber-500"}`}>
                                         {password === confirmPassword
                                             ? <><Check className="w-3 h-3" strokeWidth={3} /> Passwords match</>
                                             : <>Passwords don&apos;t match yet</>}
@@ -270,13 +281,13 @@ function LoginScreen() {
                         )}
 
                         {notice && !error && (
-                            <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
+                            <p role="status" className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
                                 {notice}
                             </p>
                         )}
 
                         {error && (
-                            <p className="text-[11px] font-bold text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+                            <p role="alert" className="text-[11px] font-bold text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
                                 {error}
                             </p>
                         )}
@@ -295,7 +306,7 @@ function LoginScreen() {
                         <>
                             <div className="flex items-center gap-3 my-5">
                                 <span className="flex-1 h-px bg-zinc-200 dark:bg-white/10" />
-                                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">or</span>
+                                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">or</span>
                                 <span className="flex-1 h-px bg-zinc-200 dark:bg-white/10" />
                             </div>
                             <GoogleSignInButton
@@ -330,7 +341,7 @@ export default function LoginPage() {
     return (
         <Suspense
             fallback={
-                <div className="min-h-screen h-dvh flex items-center justify-center bg-zinc-50 dark:bg-[#050505]">
+                <div className="min-h-screen h-dvh flex items-center justify-center bg-zinc-50 dark:bg-app-dark">
                     <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-blue-600" />
                 </div>
             }

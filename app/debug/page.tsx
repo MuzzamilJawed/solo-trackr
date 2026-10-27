@@ -41,7 +41,7 @@ export default function DebugPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black p-8">
+    <div className="min-h-screen bg-zinc-50 dark:bg-app-dark p-8">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 mb-6">
           <Wrench className="inline-block mr-2 h-7 w-7" strokeWidth={2} /> API Debug Page

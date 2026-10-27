@@ -123,6 +123,8 @@ export default function ForgotPasswordPage() {
                             type="email"
                             value={identifier}
                             onChange={e => setIdentifier(e.target.value)}
+                            aria-label="Email address"
+                            name="email"
                             placeholder="you@example.com"
                             autoComplete="email"
                             inputMode="email"
@@ -132,7 +134,7 @@ export default function ForgotPasswordPage() {
                     </div>
 
                     {error && (
-                        <p className="text-[11px] font-bold text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+                        <p role="alert" className="text-[11px] font-bold text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
                             {error}
                         </p>
                     )}
@@ -153,7 +155,7 @@ export default function ForgotPasswordPage() {
         >
             <div className="flex items-center gap-2 mb-5 px-3 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20">
                 <MailCheck className="w-4 h-4 text-blue-500 shrink-0" strokeWidth={2.5} />
-                <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                <p className="text-[11px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
                     Sent by email · check your spam folder
                 </p>
             </div>
@@ -165,13 +167,13 @@ export default function ForgotPasswordPage() {
                 <OtpInput value={code} onChange={setCode} disabled={busy} onComplete={onCodeComplete} />
 
                 {pending?.devCode && (
-                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2">
                         Dev server · no mail provider configured · code {pending.devCode}
                     </p>
                 )}
 
                 {error && (
-                    <p className="text-[11px] font-bold text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+                    <p role="alert" className="text-[11px] font-bold text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
                         {error}
                     </p>
                 )}
@@ -186,7 +188,7 @@ export default function ForgotPasswordPage() {
                 <button
                     type="button"
                     onClick={() => { setStep("identify"); setCode(""); setError(null); submitted.current = ""; }}
-                    className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+                    className="text-[11px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
                 >
                     Use another email
                 </button>
@@ -194,7 +196,7 @@ export default function ForgotPasswordPage() {
                     type="button"
                     disabled={busy || cooldown > 0}
                     onClick={() => sendCode(true)}
-                    className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 disabled:text-zinc-400 disabled:hover:text-zinc-400 transition-colors"
+                    className="text-[11px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 disabled:text-zinc-400 disabled:hover:text-zinc-400 transition-colors"
                 >
                     {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
                 </button>

@@ -14,6 +14,8 @@ export default function PasswordField({
     onKeyDown,
     disabled,
     leading,
+    ariaLabel,
+    id,
 }: {
     value: string;
     onChange: (value: string) => void;
@@ -24,6 +26,9 @@ export default function PasswordField({
     disabled?: boolean;
     /** Optional decoration rendered inside the field, on the left. */
     leading?: React.ReactNode;
+    /** Accessible name for the input (placeholders alone aren't a label). */
+    ariaLabel?: string;
+    id?: string;
 }) {
     const [shown, setShown] = useState(false);
 
@@ -31,6 +36,8 @@ export default function PasswordField({
         <div className="relative">
             {leading}
             <input
+                id={id}
+                aria-label={ariaLabel}
                 type={shown ? "text" : "password"}
                 value={value}
                 onChange={e => onChange(e.target.value)}
@@ -43,13 +50,13 @@ export default function PasswordField({
             <button
                 type="button"
                 onClick={() => setShown(s => !s)}
-                // Keep focus in the input so toggling mid-typing doesn't
-                // interrupt, and keep the control off the tab order.
+                // Mouse/touch presses keep focus in the input so toggling
+                // mid-typing doesn't interrupt; keyboard users can still Tab to it.
                 onMouseDown={e => e.preventDefault()}
-                tabIndex={-1}
+                aria-pressed={shown}
                 aria-label={shown ? "Hide password" : "Show password"}
                 title={shown ? "Hide password" : "Show password"}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/60 dark:hover:bg-white/10 transition-all"
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/60 dark:hover:bg-white/10 transition-all"
             >
                 {shown ? <EyeOff className="w-4 h-4" strokeWidth={2.25} /> : <Eye className="w-4 h-4" strokeWidth={2.25} />}
             </button>

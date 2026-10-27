@@ -182,7 +182,7 @@ export default function ProfilePage() {
     if (loading) return <PageSkeleton variant="form" />;
     if (!profile) {
         return (
-            <div className="min-h-screen flex items-center justify-center px-6 text-center bg-zinc-50 dark:bg-[#050505]">
+            <div className="min-h-screen flex items-center justify-center px-6 text-center bg-zinc-50 dark:bg-app-dark">
                 <p className="text-zinc-500 font-black uppercase tracking-widest text-xs">Couldn&apos;t load your profile</p>
             </div>
         );
@@ -193,12 +193,12 @@ export default function ProfilePage() {
     const inputCls = "w-full px-3 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm font-bold text-zinc-900 dark:text-white placeholder-zinc-400 outline-none focus:ring-2 focus:ring-blue-500 transition-all";
     // Extra right padding so the text never runs under the show/hide button.
     const passwordCls = inputCls.replace("px-3", "pl-3 pr-11");
-    const labelCls = "text-[9px] font-black text-zinc-400 uppercase tracking-widest";
+    const labelCls = "text-[10px] font-black text-zinc-400 uppercase tracking-widest";
     const fieldCls = "space-y-1";
     const cardCls = "bg-white dark:bg-zinc-900/50 rounded-2xl sm:rounded-[2rem] border border-zinc-200 dark:border-white/5 shadow-sm p-5 sm:p-6 flex flex-col";
     const cardTitleCls = "text-sm font-black uppercase tracking-tighter italic mb-1 min-h-[1.25rem]";
-    const cardSubCls = "text-[10px] text-zinc-400 font-bold mb-4 min-h-[1.5rem]";
-    const buttonCls = "w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all";
+    const cardSubCls = "text-[11px] text-zinc-400 font-bold mb-4 min-h-[1.5rem]";
+    const buttonCls = "w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-all";
 
     const googleLinked = profile.providers.includes("google");
 
@@ -211,7 +211,7 @@ export default function ProfilePage() {
     ];
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white">
+        <div className="min-h-screen bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white">
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/5 dark:bg-blue-600/10 blur-[120px] rounded-full" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/5 dark:bg-indigo-600/10 blur-[120px] rounded-full" />
@@ -222,13 +222,13 @@ export default function ProfilePage() {
                     <h1 className="text-xl sm:text-3xl font-black tracking-tighter italic uppercase leading-none flex items-center gap-2">
                         <UserCircle className="w-6 h-6 sm:w-7 sm:h-7 text-blue-500 shrink-0" strokeWidth={2} /> My <span className="text-blue-500">Profile</span>
                     </h1>
-                    <p className="text-zinc-500 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] mt-1">Account · Activity · Security</p>
+                    <p className="text-zinc-500 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] mt-1">Account · Activity · Security</p>
                 </div>
             </header>
 
             <main className="max-w-[1100px] mx-auto p-4 sm:p-8 relative z-10 space-y-6">
                 {/* Identity */}
-                <div className="bg-white dark:bg-zinc-900/50 rounded-2xl sm:rounded-[2rem] border border-zinc-200 dark:border-white/5 shadow-sm p-5 sm:p-7">
+                <div className="card p-5 sm:p-7">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                         {profile.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -242,7 +242,7 @@ export default function ProfilePage() {
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
                                 <h2 className="text-xl sm:text-2xl font-black tracking-tighter italic uppercase truncate">{profile.name}</h2>
-                                <span className={`inline-flex items-center gap-1 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${profile.role === "admin" ? "bg-blue-500/10 text-blue-500" : "bg-zinc-500/10 text-zinc-500"}`}>
+                                <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${profile.role === "admin" ? "bg-blue-500/10 text-blue-500" : "bg-zinc-500/10 text-zinc-500"}`}>
                                     {profile.role === "admin" && <ShieldCheck className="w-3 h-3" strokeWidth={2.5} />}
                                     {profile.role}
                                 </span>
@@ -266,7 +266,7 @@ export default function ProfilePage() {
                                 {["credentials", "google"].map(p => {
                                     const on = profile.providers.includes(p);
                                     return (
-                                        <span key={p} className={`inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg border ${on ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-zinc-100 dark:bg-white/5 text-zinc-400 border-zinc-200 dark:border-white/10"}`}>
+                                        <span key={p} className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg border ${on ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-zinc-100 dark:bg-white/5 text-zinc-400 border-zinc-200 dark:border-white/10"}`}>
                                             {on && <Check className="w-3 h-3" strokeWidth={3} />}
                                             {p === "credentials" ? "Password" : "Google"}
                                         </span>
@@ -281,7 +281,7 @@ export default function ProfilePage() {
                                         onClick={unlinkGoogle}
                                         disabled={linkingGoogle || !profile.hasPassword}
                                         title={profile.hasPassword ? "Disconnect Google" : "Set a password first"}
-                                        className="text-[9px] font-black uppercase tracking-widest text-zinc-400 hover:text-red-500 disabled:hover:text-zinc-400 disabled:opacity-50 transition-colors"
+                                        className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-red-500 disabled:hover:text-zinc-400 disabled:opacity-50 transition-colors"
                                     >
                                         {linkingGoogle ? "Working…" : "Disconnect Google"}
                                     </button>
@@ -292,7 +292,7 @@ export default function ProfilePage() {
                                         onCredential={linkGoogle}
                                     />
                                 ) : (
-                                    <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 leading-relaxed max-w-[220px]">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 leading-relaxed max-w-[220px]">
                                         Google sign-in isn&apos;t configured — set <span className="text-zinc-500">GOOGLE_CLIENT_ID</span> in .env
                                     </p>
                                 )}
@@ -306,15 +306,15 @@ export default function ProfilePage() {
                     <h2 className="text-sm font-black uppercase tracking-tighter italic mb-3">Your Activity</h2>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                         {stats.map(s => (
-                            <div key={s.label} className="bg-white dark:bg-zinc-900/50 rounded-2xl sm:rounded-[1.75rem] p-4 sm:p-5 border border-zinc-200 dark:border-white/5 shadow-sm">
+                            <div key={s.label} className="card p-4 sm:p-5">
                                 <s.icon className={`w-4 h-4 mb-2 ${s.tone}`} strokeWidth={2} />
                                 <p className="text-2xl font-black font-mono tabular-nums tracking-tighter">{s.val}</p>
-                                <p className="text-[8px] sm:text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">{s.label}</p>
+                                <p className="text-[10px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">{s.label}</p>
                             </div>
                         ))}
                     </div>
                     {profile.stats.trades > 0 && (
-                        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-3">
+                        <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest mt-3">
                             Trading between {fmtDate(profile.stats.firstTrade)} and {fmtDate(profile.stats.lastTrade)}
                         </p>
                     )}
@@ -331,12 +331,13 @@ export default function ProfilePage() {
 
                         <div className="space-y-3">
                             <div className={fieldCls}>
-                                <label className={labelCls}>Name</label>
-                                <input value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === "Enter" && saveDetails()} className={inputCls} />
+                                <label htmlFor="pf-name" className={labelCls}>Name</label>
+                                <input id="pf-name" autoComplete="name" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === "Enter" && saveDetails()} className={inputCls} />
                             </div>
                             <div className={fieldCls}>
-                                <label className={labelCls}>Phone</label>
+                                <label htmlFor="pf-phone" className={labelCls}>Phone</label>
                                 <input
+                                    id="pf-phone"
                                     type="tel"
                                     inputMode="tel"
                                     autoComplete="tel"
@@ -348,8 +349,8 @@ export default function ProfilePage() {
                                 />
                             </div>
                             <div className={fieldCls}>
-                                <label className={labelCls}>Email · not editable</label>
-                                <input value={profile.email} disabled className={`${inputCls} opacity-60 cursor-not-allowed`} />
+                                <label htmlFor="pf-email" className={labelCls}>Email · not editable</label>
+                                <input id="pf-email" value={profile.email} disabled className={`${inputCls} opacity-60 cursor-not-allowed`} />
                             </div>
                         </div>
 
@@ -378,17 +379,17 @@ export default function ProfilePage() {
                         <div className="space-y-3">
                             {profile.hasPassword && (
                                 <div className={fieldCls}>
-                                    <label className={labelCls}>Current password</label>
-                                    <PasswordField value={currentPassword} onChange={setCurrentPassword} autoComplete="current-password" className={passwordCls} />
+                                    <label htmlFor="pf-cur-pw" className={labelCls}>Current password</label>
+                                    <PasswordField id="pf-cur-pw" value={currentPassword} onChange={setCurrentPassword} autoComplete="current-password" className={passwordCls} />
                                 </div>
                             )}
                             <div className={fieldCls}>
-                                <label className={labelCls}>New password</label>
-                                <PasswordField value={newPassword} onChange={setNewPassword} autoComplete="new-password" placeholder="At least 8 characters" className={passwordCls} />
+                                <label htmlFor="pf-new-pw" className={labelCls}>New password</label>
+                                <PasswordField id="pf-new-pw" value={newPassword} onChange={setNewPassword} autoComplete="new-password" placeholder="At least 8 characters" className={passwordCls} />
                             </div>
                             <div className={fieldCls}>
-                                <label className={labelCls}>Confirm new password</label>
-                                <PasswordField value={confirmPassword} onChange={setConfirmPassword} autoComplete="new-password" className={passwordCls} />
+                                <label htmlFor="pf-conf-pw" className={labelCls}>Confirm new password</label>
+                                <PasswordField id="pf-conf-pw" value={confirmPassword} onChange={setConfirmPassword} autoComplete="new-password" className={passwordCls} />
                             </div>
                         </div>
 

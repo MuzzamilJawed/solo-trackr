@@ -18,7 +18,7 @@ export default function AuthCard({
     footer?: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen h-dvh bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white overflow-y-auto">
+        <div className="min-h-screen h-dvh bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white overflow-y-auto">
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute inset-0 auth-bg-grid" />
                 <div className="auth-blob-a absolute top-[-22%] left-[-15%] w-[58%] h-[58%] bg-blue-600/15 blur-[130px] rounded-full" />
@@ -37,9 +37,9 @@ export default function AuthCard({
                         </h1>
                     </div>
 
-                    <div className="bg-white dark:bg-zinc-900/60 backdrop-blur-sm rounded-[1.75rem] border border-zinc-200 dark:border-white/5 shadow-xl p-6 sm:p-7">
+                    <div className="card backdrop-blur-sm p-6 sm:p-7">
                         <h2 className="text-lg font-black tracking-tighter italic uppercase leading-none">{title}</h2>
-                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-2 mb-6 leading-relaxed">
+                        <p className="text-zinc-500 text-[11px] font-black uppercase tracking-widest mt-2 mb-6 leading-relaxed">
                             {subtitle}
                         </p>
                         {children}
@@ -49,7 +49,7 @@ export default function AuthCard({
                         {footer ?? (
                             <Link
                                 href="/login"
-                                className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-blue-600 transition-colors"
+                                className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-zinc-500 hover:text-blue-600 transition-colors"
                             >
                                 <ArrowLeft className="w-3.5 h-3.5" strokeWidth={3} /> Back to sign in
                             </Link>

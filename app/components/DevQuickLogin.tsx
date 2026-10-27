@@ -37,7 +37,7 @@ export default function DevQuickLogin({ onPick }: { onPick: (email: string, pass
 
     return (
         <div className="mt-6 rounded-2xl border border-dashed border-amber-500/40 bg-amber-500/[0.06] p-3.5">
-            <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-2.5">
+            <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-2.5">
                 <TerminalSquare className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
                 Local development only
             </p>
@@ -55,14 +55,14 @@ export default function DevQuickLogin({ onPick }: { onPick: (email: string, pass
                             <span className="block text-[11px] font-black text-zinc-900 dark:text-white truncate">
                                 {a.label}
                                 {a.role && (
-                                    <span className="ml-1.5 text-[8px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                                    <span className="ml-1.5 text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
                                         {a.role}
                                     </span>
                                 )}
                             </span>
-                            <span className="block text-[10px] font-bold text-zinc-500 truncate">{a.email}</span>
+                            <span className="block text-[11px] font-bold text-zinc-500 truncate">{a.email}</span>
                         </span>
-                        <span className="shrink-0 text-[9px] font-black uppercase tracking-widest text-zinc-400">Fill</span>
+                        <span className="shrink-0 text-[10px] font-black uppercase tracking-widest text-zinc-400">Fill</span>
                     </button>
                 ))}
             </div>

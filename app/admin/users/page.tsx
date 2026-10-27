@@ -6,6 +6,7 @@ import {
     CalendarDays, Clock, Mail, Phone, ArrowUpDown,
 } from "lucide-react";
 import PageSkeleton from "../../components/PageSkeleton";
+import { useBackHandler } from "../../lib/backStack";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -101,6 +102,9 @@ export default function AdminUsersPage() {
 
     useEffect(() => { load(); }, [load]);
 
+    // Android Back closes the detail drawer.
+    useBackHandler(!!selectedId, () => setSelectedId(null));
+
     // Escape closes the detail drawer.
     useEffect(() => {
         if (!selectedId) return;
@@ -166,19 +170,19 @@ export default function AdminUsersPage() {
 
     if (loading) return <PageSkeleton variant="table" />;
 
-    const labelCls = "text-[9px] font-black text-zinc-400 uppercase tracking-widest";
+    const labelCls = "text-[10px] font-black text-zinc-400 uppercase tracking-widest";
     const avatar = (u: { image: string | null; name: string }, size: string) =>
         u.image ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={u.image} alt="" referrerPolicy="no-referrer" className={`${size} shrink-0 rounded-xl object-cover border border-zinc-200 dark:border-zinc-700`} />
         ) : (
             <div className={`${size} shrink-0 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center`}>
-                <span className="text-white font-black text-[10px] leading-none">{initials(u.name)}</span>
+                <span className="text-white font-black text-[11px] leading-none">{initials(u.name)}</span>
             </div>
         );
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-white">
+        <div className="min-h-screen bg-zinc-50 dark:bg-app-dark text-zinc-900 dark:text-white">
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/5 dark:bg-blue-600/10 blur-[120px] rounded-full" />
             </div>
@@ -189,7 +193,7 @@ export default function AdminUsersPage() {
                         <h1 className="text-xl sm:text-3xl font-black tracking-tighter italic uppercase leading-none flex items-center gap-2">
                             <Users className="w-6 h-6 sm:w-7 sm:h-7 text-blue-500 shrink-0" strokeWidth={2} /> User <span className="text-blue-500">Management</span>
                         </h1>
-                        <p className="text-zinc-500 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] mt-1">Registered Accounts · Roles · Activity</p>
+                        <p className="text-zinc-500 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] mt-1">Registered Accounts · Roles · Activity</p>
                     </div>
                     <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-1 sm:min-w-[280px]">
                         <div className="relative flex-1 sm:min-w-0">
@@ -224,26 +228,26 @@ export default function AdminUsersPage() {
                         { label: "Administrators", val: summary.admins },
                         { label: "Google Linked", val: summary.withGoogle },
                     ].map(c => (
-                        <div key={c.label} className="bg-white dark:bg-zinc-900/50 rounded-2xl sm:rounded-[1.75rem] p-4 sm:p-5 border border-zinc-200 dark:border-white/5 shadow-sm">
-                            <p className="text-[8px] sm:text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">{c.label}</p>
+                        <div key={c.label} className="card p-4 sm:p-5">
+                            <p className="text-[10px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">{c.label}</p>
                             <p className="text-xl sm:text-2xl font-black font-mono tabular-nums tracking-tighter">{c.val}</p>
                         </div>
                     ))}
                 </div>
 
                 {/* Directory */}
-                <div className="bg-white dark:bg-zinc-900/50 rounded-2xl sm:rounded-[2rem] border border-zinc-200 dark:border-white/5 shadow-sm overflow-hidden">
+                <div className="card overflow-hidden">
                     <div className="px-4 sm:px-6 py-4 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between gap-2">
                         <h2 className="text-sm font-black uppercase tracking-tighter italic">All Users <span className="text-zinc-400">· {visible.length}</span></h2>
                     </div>
 
                     {visible.length === 0 ? (
-                        <div className="py-16 text-center text-[10px] font-black text-zinc-400 uppercase tracking-widest">No users match “{query}”</div>
+                        <div className="py-16 text-center text-[11px] font-black text-zinc-400 uppercase tracking-widest">No users match “{query}”</div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="text-[8px] sm:text-[9px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-100 dark:border-white/5">
+                                    <tr className="text-[10px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-100 dark:border-white/5">
                                         <th className="px-3 sm:px-6 py-3">User</th>
                                         <th className="px-3 sm:px-4 py-3">Role</th>
                                         <th className="px-3 sm:px-4 py-3 hidden lg:table-cell">Sign-in</th>
@@ -269,12 +273,12 @@ export default function AdminUsersPage() {
                                                             {u.name}
                                                             {me?.id === u.id && <span className="text-[7px] font-black uppercase tracking-widest px-1 py-0.5 rounded bg-blue-500/10 text-blue-500">You</span>}
                                                         </div>
-                                                        <div className="text-[10px] text-zinc-400 font-bold truncate max-w-[200px]">{u.email}</div>
+                                                        <div className="text-[11px] text-zinc-400 font-bold truncate max-w-[200px]">{u.email}</div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-3 sm:px-4 py-3">
-                                                <span className={`inline-flex items-center gap-1 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${u.role === "admin" ? "bg-blue-500/10 text-blue-500" : "bg-zinc-500/10 text-zinc-500"}`}>
+                                                <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${u.role === "admin" ? "bg-blue-500/10 text-blue-500" : "bg-zinc-500/10 text-zinc-500"}`}>
                                                     {u.role === "admin" && <ShieldCheck className="w-3 h-3" strokeWidth={2.5} />} {u.role}
                                                 </span>
                                             </td>
@@ -305,7 +309,7 @@ export default function AdminUsersPage() {
             {selectedId && (
                 <>
                     <div onClick={() => setSelectedId(null)} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[110]" />
-                    <aside className="fixed right-0 top-0 h-screen h-dvh w-[min(30rem,100vw)] bg-white dark:bg-zinc-900 border-l border-zinc-200 dark:border-zinc-800 shadow-2xl z-[115] overflow-y-auto">
+                    <aside role="dialog" aria-modal="true" aria-label="User details" className="fixed right-0 top-0 h-screen h-dvh w-[min(30rem,100vw)] bg-white dark:bg-zinc-900 border-l border-zinc-200 dark:border-zinc-800 shadow-2xl z-[115] overflow-y-auto">
                         <div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-5 py-4 pt-[calc(1rem_+_var(--sa-top))] flex items-center justify-between gap-2">
                             <h2 className="text-sm font-black uppercase tracking-tighter italic">User Details</h2>
                             <button onClick={() => setSelectedId(null)} aria-label="Close" className="w-9 h-9 flex items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800">
@@ -371,7 +375,7 @@ export default function AdminUsersPage() {
                                                     <span className="text-xs font-black truncate">{l.name}</span>
                                                     <span className="flex items-center gap-2 shrink-0">
                                                         <span className="text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500">{l.type}</span>
-                                                        <span className="text-[10px] font-black text-zinc-400 tabular-nums">{l.symbols}</span>
+                                                        <span className="text-[11px] font-black text-zinc-400 tabular-nums">{l.symbols}</span>
                                                     </span>
                                                 </div>
                                             ))}
@@ -388,13 +392,13 @@ export default function AdminUsersPage() {
                                                 key={r}
                                                 onClick={() => detail.role !== r && changeRole(detail.id, r)}
                                                 disabled={savingRole || detail.role === r}
-                                                className={`flex-1 px-3 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all disabled:cursor-default ${detail.role === r ? "bg-white dark:bg-zinc-800 text-blue-600 shadow" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                                                className={`flex-1 px-3 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all disabled:cursor-default ${detail.role === r ? "bg-white dark:bg-zinc-800 text-blue-600 shadow" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
                                             >
                                                 {r}
                                             </button>
                                         ))}
                                     </div>
-                                    <p className="text-[10px] text-zinc-400 font-bold mt-2 leading-relaxed">
+                                    <p className="text-[11px] text-zinc-400 font-bold mt-2 leading-relaxed">
                                         {me?.id === detail.id
                                             ? "This is your own account — you can't remove your administrator access."
                                             : "Administrators can view this directory and manage roles. A user's watchlists and portfolio stay private either way."}

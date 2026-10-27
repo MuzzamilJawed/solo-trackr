@@ -98,11 +98,11 @@ export default function AuthArtwork() {
 
             {/* Floating quote chips — solid white so they lift off the gradient */}
             <div className="absolute -top-4 -right-1 auth-float rounded-xl bg-white shadow-xl shadow-blue-950/20 px-3 py-2">
-                <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400">KSE 100</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">KSE 100</p>
                 <p className="text-xs font-black font-mono text-emerald-600">▲ 1.24%</p>
             </div>
             <div className="absolute -bottom-5 left-1 auth-float auth-float-slow rounded-xl bg-white shadow-xl shadow-blue-950/20 px-3 py-2">
-                <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400">Gold · Tola</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Gold · Tola</p>
                 <p className="text-xs font-black font-mono text-zinc-900">Rs.418,991</p>
             </div>
         </div>

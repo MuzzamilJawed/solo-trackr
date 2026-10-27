@@ -46,7 +46,7 @@ export default function UserMenu({ collapsed }: { collapsed: boolean }) {
                         <ShieldCheck className="w-3 h-3 text-blue-500 shrink-0" strokeWidth={2.5} aria-label="Administrator" />
                     )}
                 </p>
-                <p className="text-[10px] text-zinc-500 font-bold truncate">{user.email}</p>
+                <p className="text-[11px] text-zinc-500 font-bold truncate">{user.email}</p>
             </div>
 
             <button

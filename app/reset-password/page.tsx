@@ -54,7 +54,7 @@ function ResetPasswordForm() {
     // Land on the sign-in screen once the new password is in place.
     useEffect(() => {
         if (state.kind !== "done") return;
-        const t = setTimeout(() => router.replace("/login?reset=1"), 2200);
+        const t = setTimeout(() => router.replace("/login?reset=1"), 6000);
         return () => clearTimeout(t);
     }, [state.kind, router]);
 
@@ -141,6 +141,7 @@ function ResetPasswordForm() {
                 <PasswordField
                     value={password}
                     onChange={setPassword}
+                    ariaLabel="New password, at least 8 characters"
                     placeholder="At least 8 characters"
                     autoComplete="new-password"
                     className={inputCls}
@@ -149,6 +150,7 @@ function ResetPasswordForm() {
                 <PasswordField
                     value={confirmPassword}
                     onChange={setConfirmPassword}
+                    ariaLabel="Confirm new password"
                     placeholder="Verify password"
                     autoComplete="new-password"
                     className={inputCls}
@@ -156,7 +158,7 @@ function ResetPasswordForm() {
                 />
 
                 {confirmPassword.length > 0 && (
-                    <p className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1 ${password === confirmPassword ? "text-emerald-500" : "text-amber-500"}`}>
+                    <p role="status" className={`text-[11px] font-black uppercase tracking-widest flex items-center gap-1 ${password === confirmPassword ? "text-emerald-500" : "text-amber-500"}`}>
                         {password === confirmPassword
                             ? <><Check className="w-3 h-3" strokeWidth={3} /> Passwords match</>
                             : <>Passwords don&apos;t match yet</>}
@@ -164,7 +166,7 @@ function ResetPasswordForm() {
                 )}
 
                 {error && (
-                    <p className="text-[11px] font-bold text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+                    <p role="alert" className="text-[11px] font-bold text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
                         {error}
                     </p>
                 )}

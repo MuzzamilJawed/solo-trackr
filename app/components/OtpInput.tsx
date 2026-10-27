@@ -59,7 +59,7 @@ export default function OtpInput({
     };
 
     return (
-        <div className="flex justify-between gap-1.5 sm:gap-2" onPaste={onPaste}>
+        <div role="group" aria-label="Verification code" className="flex justify-between gap-1.5 sm:gap-2" onPaste={onPaste}>
             {digits.map((digit, i) => (
                 <input
                     key={i}
@@ -71,7 +71,7 @@ export default function OtpInput({
                     disabled={disabled}
                     inputMode="numeric"
                     autoComplete={i === 0 ? "one-time-code" : "off"}
-                    aria-label={`Digit ${i + 1}`}
+                    aria-label={`Digit ${i + 1} of ${length}`}
                     maxLength={1}
                     className="w-full min-w-0 aspect-square max-h-14 text-center rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-lg sm:text-xl font-black font-mono tabular-nums text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 transition-all"
                 />
