@@ -63,19 +63,19 @@ export default function CurrencyConverter() {
             {/* Card */}
             <button
                 onClick={() => setOpen(true)}
-                className="w-full text-left bg-white dark:bg-zinc-900/40 rounded-[1.5rem] sm:rounded-[2rem] border border-zinc-200 dark:border-white/5 shadow-xl p-4 hover:border-blue-500/40 transition-all group"
+                className="card w-full text-left p-4 hover:border-blue-500/40 transition-all group"
             >
                 <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                         <span className="w-7 h-7 rounded-lg bg-blue-600/10 text-blue-600 dark:text-blue-400 flex items-center justify-center"><ArrowRightLeft className="w-4 h-4" strokeWidth={2} /></span>
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white">Converter</h2>
+                        <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white">Converter</h2>
                     </div>
-                    <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest inline-flex items-center gap-1 group-hover:gap-2 transition-all">Open <ArrowRight className="w-3 h-3" strokeWidth={2.5} /></span>
+                    <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest inline-flex items-center gap-1 group-hover:gap-2 transition-all">Open <ArrowRight className="w-3 h-3" strokeWidth={2.5} /></span>
                 </div>
                 <div className="space-y-1.5">
                     {quick.map(q => (
                         <div key={q.code} className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">1 USD =</span>
+                            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">1 USD =</span>
                             <span className="text-[11px] font-mono font-black tabular-nums text-zinc-900 dark:text-white">{fmt(q.val)} <span className="text-zinc-400">{q.code}</span></span>
                         </div>
                     ))}
@@ -86,13 +86,13 @@ export default function CurrencyConverter() {
             {mounted && open && createPortal(
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setOpen(false)} />
-                    <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-[1.75rem] sm:rounded-[2rem] border border-zinc-200 dark:border-white/10 shadow-2xl p-5 sm:p-6 space-y-5 animate-in zoom-in-95 fade-in duration-200">
+                    <div className="card relative w-full max-w-md p-5 sm:p-6 space-y-5 animate-in zoom-in-95 fade-in duration-200">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
                                 <span className="w-9 h-9 rounded-xl bg-blue-600/10 text-blue-600 dark:text-blue-400 flex items-center justify-center"><ArrowRightLeft className="w-5 h-5" strokeWidth={2} /></span>
                                 <div>
                                     <h3 className="text-sm font-black uppercase italic tracking-tight text-zinc-900 dark:text-white leading-none">Currency Converter</h3>
-                                    <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Live cross rates</p>
+                                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Live cross rates</p>
                                 </div>
                             </div>
                             <button onClick={() => setOpen(false)} aria-label="Close converter" className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors"><X className="w-4 h-4" strokeWidth={2.5} /></button>
@@ -100,7 +100,7 @@ export default function CurrencyConverter() {
 
                         {/* Amount */}
                         <div>
-                            <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Amount</label>
+                            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Amount</label>
                             <input
                                 type="number"
                                 inputMode="decimal"
@@ -120,17 +120,17 @@ export default function CurrencyConverter() {
                         {/* Result */}
                         <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-5 text-white relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full blur-2xl -translate-y-8 translate-x-8 pointer-events-none" />
-                            <p className="relative text-[10px] font-black uppercase tracking-widest text-blue-100/80">{fmt(amt)} {from} =</p>
+                            <p className="relative text-[11px] font-black uppercase tracking-widest text-blue-100/80">{fmt(amt)} {from} =</p>
                             <p className="relative text-2xl sm:text-3xl font-black font-mono tabular-nums leading-tight mt-1 break-words">
                                 {fmt(result, 2)} <span className="text-lg text-blue-100">{to}</span>
                             </p>
-                            <div className="relative mt-4 pt-3 border-t border-white/15 flex flex-wrap items-center justify-between gap-2 text-[10px] font-bold text-blue-100/90">
+                            <div className="relative mt-4 pt-3 border-t border-white/15 flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-blue-100/90">
                                 <span>1 {from} = {fmt(rate, 4)} {to}</span>
                                 <span>1 {to} = {fmt(inverse, 4)} {from}</span>
                             </div>
                         </div>
 
-                        <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest text-center">Indicative mid-market rates · not for settlement</p>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-center">Indicative mid-market rates · not for settlement</p>
                     </div>
                 </div>,
                 document.body
@@ -142,7 +142,7 @@ export default function CurrencyConverter() {
 function CurrencySelect({ label, value, onChange, codes }: { label: string; value: string; onChange: (v: string) => void; codes: string[] }) {
     return (
         <div className="min-w-0">
-            <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">{label}</label>
+            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{label}</label>
             <div className="relative mt-1.5">
                 <CircleDollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" strokeWidth={2} />
                 <select

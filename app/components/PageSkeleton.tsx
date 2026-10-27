@@ -32,7 +32,7 @@ const Header = () => (
 const StatRow = ({ n = 4, cols = "grid-cols-2 lg:grid-cols-4" }: { n?: number; cols?: string }) => (
     <div className={`grid ${cols} gap-3 sm:gap-6`}>
         {Array.from({ length: n }).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-zinc-900/40 rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-6 border border-zinc-200 dark:border-white/5 space-y-4">
+            <div key={i} className="card p-5 sm:p-6 space-y-4">
                 <div className="flex justify-between items-start">
                     <Box className="w-10 h-10 rounded-xl" />
                     <Box className="h-5 w-14 rounded-full" />
@@ -47,7 +47,7 @@ const StatRow = ({ n = 4, cols = "grid-cols-2 lg:grid-cols-4" }: { n?: number; c
 const CardGrid = ({ n = 10, cols = "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" }: { n?: number; cols?: string }) => (
     <div className={`grid grid-cols-1 ${cols} gap-3 sm:gap-6`}>
         {Array.from({ length: n }).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-zinc-900 rounded-[1.2rem] sm:rounded-xl p-3 sm:p-4 border border-zinc-200 dark:border-zinc-800 space-y-3">
+            <div key={i} className="card p-3 sm:p-4 space-y-3">
                 <div className="flex justify-between items-start">
                     <Box className="h-4 w-16" />
                     <Box className="h-4 w-10" />
@@ -67,7 +67,7 @@ const CardGrid = ({ n = 10, cols = "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4
 );
 
 const TableBlock = ({ rows = 8, colsHead = 5 }: { rows?: number; colsHead?: number }) => (
-    <div className="bg-white dark:bg-zinc-900 rounded-[1.5rem] sm:rounded-[2.5rem] border border-zinc-200 dark:border-white/5 overflow-hidden">
+    <div className="card overflow-hidden">
         <div className="p-4 sm:p-6 border-b border-zinc-100 dark:border-white/5 flex justify-between items-center">
             <Box className="h-5 w-40" />
             <Box className="h-8 w-24 rounded-xl" />
@@ -86,7 +86,7 @@ const TableBlock = ({ rows = 8, colsHead = 5 }: { rows?: number; colsHead?: numb
 );
 
 const Chart = ({ h = "h-[400px] sm:h-[560px]" }: { h?: string }) => (
-    <div className={`bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-[2.5rem] border border-zinc-200 dark:border-white/5 p-4 sm:p-8 ${h}`}>
+    <div className={`card p-4 sm:p-8 ${h}`}>
         <div className="flex justify-between items-center mb-6">
             <Box className="h-5 w-40" />
             <Box className="h-8 w-40 rounded-xl" />
@@ -96,7 +96,7 @@ const Chart = ({ h = "h-[400px] sm:h-[560px]" }: { h?: string }) => (
 );
 
 const Filters = () => (
-    <div className="bg-white dark:bg-zinc-900/50 rounded-[1.5rem] sm:rounded-[2.5rem] p-4 sm:p-8 border border-zinc-200 dark:border-white/5 space-y-6">
+    <div className="card p-4 sm:p-8 space-y-6">
         <div className="flex justify-between items-center">
             <Box className="h-6 w-48" />
             <Box className="h-9 w-40 rounded-2xl" />
@@ -186,7 +186,7 @@ function Body({ variant }: { variant: Variant }) {
                 <div className="space-y-6">
                     <StatRow n={4} />
                     {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="bg-white dark:bg-zinc-900 rounded-[2rem] border border-zinc-200 dark:border-white/5 p-6 space-y-4">
+                        <div key={i} className="card p-6 space-y-4">
                             <Box className="h-5 w-40" />
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                 {Array.from({ length: 4 }).map((_, j) => <Box key={j} className="h-14 rounded-xl" />)}
@@ -201,14 +201,14 @@ function Body({ variant }: { variant: Variant }) {
                     {/* Summary metric cards */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="bg-white dark:bg-zinc-900/50 rounded-2xl sm:rounded-[1.75rem] p-4 sm:p-5 border border-zinc-200 dark:border-white/5 space-y-2.5">
+                            <div key={i} className="card p-4 sm:p-5 space-y-2.5">
                                 <Box className="h-2.5 w-16" />
                                 <Box className="h-6 w-24" />
                             </div>
                         ))}
                     </div>
                     {/* Analytics panel */}
-                    <div className="bg-white dark:bg-zinc-900/50 rounded-2xl sm:rounded-[2rem] border border-zinc-200 dark:border-white/5 p-4 sm:p-6">
+                    <div className="card p-4 sm:p-6">
                         <div className="flex justify-between items-center mb-6">
                             <Box className="h-5 w-40" />
                             <Box className="h-8 w-56 rounded-xl" />
@@ -223,7 +223,7 @@ function Body({ variant }: { variant: Variant }) {
             return (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                     {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="bg-white dark:bg-zinc-900 rounded-[2rem] border border-zinc-200 dark:border-white/5 p-6 space-y-4">
+                        <div key={i} className="card p-6 space-y-4">
                             <Box className="h-5 w-32" />
                             {Array.from({ length: 4 }).map((_, j) => <Box key={j} className="h-10 rounded-xl" />)}
                         </div>
@@ -235,7 +235,7 @@ function Body({ variant }: { variant: Variant }) {
 
 export default function PageSkeleton({ variant = "cards" }: { variant?: Variant }) {
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-[#050505]">
+        <div className="min-h-screen bg-zinc-50 dark:bg-app-dark">
             <Header />
             <div className="page-shell mx-auto p-4 sm:p-8">
                 <Body variant={variant} />

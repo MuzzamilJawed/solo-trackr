@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Star, Target } from "lucide-react";
 import { computeSignals, toneClasses, type Signal } from "../lib/stockSignals";
@@ -70,7 +71,7 @@ export default function WatchlistAlerts({ stocks, watchlists = [], onSelect }: W
     }, [stocks, watchlists, targets]);
 
     return (
-        <div className="bg-white dark:bg-zinc-900/40 backdrop-blur-sm rounded-[1.5rem] sm:rounded-[2rem] border border-zinc-200 dark:border-white/5 overflow-hidden flex flex-col">
+        <div className="card backdrop-blur-sm overflow-hidden flex flex-col">
             <div className="flex items-center justify-between gap-2 px-4 sm:px-5 py-2.5 border-b border-zinc-100 dark:border-white/5">
                 <div className="flex items-center gap-2">
                     <Star className="w-4 h-4 text-amber-500 shrink-0" strokeWidth={2.25} />
@@ -78,11 +79,11 @@ export default function WatchlistAlerts({ stocks, watchlists = [], onSelect }: W
                 </div>
                 <div className="flex items-center gap-2.5 shrink-0">
                     {total > 0 && (
-                        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${alertCount > 0 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : 'text-zinc-400'}`}>
+                        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${alertCount > 0 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : 'text-zinc-400'}`}>
                             {alertCount > 0 ? `${alertCount} alert${alertCount > 1 ? 's' : ''}` : `${total} tracked`}
                         </span>
                     )}
-                    <a href="/watchlist" className="text-[9px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors">Manage →</a>
+                    <Link href="/watchlist" className="min-h-10 inline-flex items-center text-[11px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors">Manage →</Link>
                 </div>
             </div>
 
@@ -90,9 +91,9 @@ export default function WatchlistAlerts({ stocks, watchlists = [], onSelect }: W
                 {total === 0 ? (
                     <div className="py-16 px-4 text-center">
                         <Target className="w-8 h-8 mx-auto mb-3 text-zinc-300 dark:text-zinc-600" strokeWidth={2} />
-                        <p className="text-zinc-500 font-black uppercase tracking-widest text-[10px] mb-1">No watchlist symbols</p>
-                        <p className="text-zinc-400 text-[10px] leading-relaxed mb-4">Add scrips to a watchlist and set price targets to get circuit &amp; target alerts here.</p>
-                        <a href="/stocks" className="inline-block text-[9px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest border-b border-blue-500/40">Build a watchlist →</a>
+                        <p className="text-zinc-500 font-black uppercase tracking-widest text-[11px] mb-1">No watchlist symbols</p>
+                        <p className="text-zinc-400 text-[11px] leading-relaxed mb-4">Add scrips to a watchlist and set price targets to get circuit &amp; target alerts here.</p>
+                        <a href="/stocks" className="inline-block text-[10px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest border-b border-blue-500/40">Build a watchlist →</a>
                     </div>
                 ) : (
                     rows.slice(0, 4).map(({ stock, signals, alerting }) => {
@@ -125,17 +126,17 @@ export default function WatchlistAlerts({ stocks, watchlists = [], onSelect }: W
                                             </span>
                                         ))}
                                     </div>
-                                    <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-wide truncate">{stock.name}</p>
+                                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide truncate">{stock.name}</p>
                                 </div>
                                 <div className="text-right shrink-0">
                                     <p className="text-[11px] sm:text-xs font-mono font-black text-zinc-900 dark:text-zinc-100 tabular-nums leading-tight">
                                         {stock.currentPrice?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
-                                    <p className={`text-[9px] sm:text-[10px] font-black tabular-nums leading-tight ${isPos ? 'text-green-500' : 'text-red-500'}`}>
+                                    <p className={`text-[10px] sm:text-[11px] font-black tabular-nums leading-tight ${isPos ? 'text-green-500' : 'text-red-500'}`}>
                                         {isPos ? '▲' : '▼'}{Math.abs(stock.changePercent || 0).toFixed(2)}%
                                     </p>
                                     {hasTarget && awayPct != null && (
-                                        <p className="inline-flex items-center gap-0.5 text-[8px] font-black text-blue-600 dark:text-blue-400 tabular-nums leading-tight mt-0.5">
+                                        <p className="inline-flex items-center gap-0.5 text-[10px] font-black text-blue-600 dark:text-blue-400 tabular-nums leading-tight mt-0.5">
                                             <Target className="w-2 h-2 shrink-0" strokeWidth={2} /> {awayPct >= 0 ? `${awayPct.toFixed(1)}% to go` : 'hit'}
                                         </p>
                                     )}
@@ -145,7 +146,7 @@ export default function WatchlistAlerts({ stocks, watchlists = [], onSelect }: W
                     })
                 )}
                 {total > 4 && (
-                    <a href="/watchlist" className="block text-center py-1.5 text-[9px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest">
+                    <a href="/watchlist" className="block text-center py-1.5 text-[10px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest">
                         + {total - 4} more · View all →
                     </a>
                 )}

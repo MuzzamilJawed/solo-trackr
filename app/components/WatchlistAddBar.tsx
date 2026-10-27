@@ -98,11 +98,11 @@ export default function WatchlistAddBar({ watchlists, activeId, book, onAdd, onS
     const ctrl = "px-3 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm font-black text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 shrink-0";
 
     return (
-        <div className="bg-white dark:bg-zinc-900/50 rounded-2xl sm:rounded-[1.75rem] border border-zinc-200 dark:border-white/5 shadow-sm p-3 sm:p-4">
+        <div className="card p-3 sm:p-4">
             <div className="flex items-center gap-2 mb-3">
                 <FolderPlus className="w-4 h-4 text-blue-500 shrink-0" strokeWidth={2} />
                 <h2 className="text-sm font-black uppercase tracking-tighter italic text-zinc-900 dark:text-white">Add to Watchlist</h2>
-                <p className="hidden md:block text-[9px] font-black text-zinc-400 uppercase tracking-widest">Pick category · market type · lands as a card below</p>
+                <p className="hidden md:block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Pick category · market type · lands as a card below</p>
             </div>
 
             <div className="flex flex-wrap items-stretch gap-2">
@@ -142,7 +142,7 @@ export default function WatchlistAddBar({ watchlists, activeId, book, onAdd, onS
                         <div className="absolute left-0 right-0 top-full mt-1.5 z-[60] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-2xl shadow-black/10 dark:shadow-black/50">
                             {filtered.length === 0 ? (
                                 <div className="px-3 py-3 text-center">
-                                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                                    <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">
                                         {query.trim() ? `No match — press Enter to add “${query.trim()}”` : `No ${TYPE_LABEL[effectiveType]} symbols loaded yet`}
                                     </p>
                                 </div>
@@ -161,12 +161,12 @@ export default function WatchlistAddBar({ watchlists, activeId, book, onAdd, onS
                                                 <span className="flex items-center gap-2 min-w-0">
                                                     <span className={`text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded shrink-0 ${TYPE_BADGE[effectiveType]}`}>{effectiveType}</span>
                                                     <span className="text-xs font-black tracking-tight text-zinc-900 dark:text-white shrink-0">{s.symbol}</span>
-                                                    {s.name && s.name !== s.symbol && <span className="text-[10px] text-zinc-400 font-bold truncate">{s.name}</span>}
+                                                    {s.name && s.name !== s.symbol && <span className="text-[11px] text-zinc-400 font-bold truncate">{s.name}</span>}
                                                 </span>
                                                 {already ? (
-                                                    <span className="inline-flex items-center gap-1 text-[8px] font-black text-green-500 uppercase tracking-widest shrink-0"><Check className="w-3 h-3" strokeWidth={3} /> Added</span>
+                                                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-green-500 uppercase tracking-widest shrink-0"><Check className="w-3 h-3" strokeWidth={3} /> Added</span>
                                                 ) : (
-                                                    <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest shrink-0 flex items-center gap-0.5"><Plus className="w-3 h-3" strokeWidth={3} />Add</span>
+                                                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest shrink-0 flex items-center gap-0.5"><Plus className="w-3 h-3" strokeWidth={3} />Add</span>
                                                 )}
                                             </button>
                                         );
@@ -177,7 +177,7 @@ export default function WatchlistAddBar({ watchlists, activeId, book, onAdd, onS
                     )}
                 </div>
 
-                <button onClick={() => add()} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-1 shrink-0"><Plus className="w-3.5 h-3.5" strokeWidth={3} />Add</button>
+                <button onClick={() => add()} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-1 shrink-0"><Plus className="w-3.5 h-3.5" strokeWidth={3} />Add</button>
             </div>
         </div>
     );

@@ -203,7 +203,7 @@ export default function StockCard({
     const compactRow = compact ? (
         <div
             onClick={onClick}
-            className={`sm:hidden relative flex flex-col gap-2 px-3 py-2.5 bg-white dark:bg-zinc-900 border rounded-2xl cursor-pointer active:bg-zinc-50 dark:active:bg-zinc-800/60 transition-colors ${selected ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-zinc-200 dark:border-zinc-800'}`}
+            className={`card sm:hidden flex flex-col gap-2 px-3 py-2.5 cursor-pointer active:bg-zinc-50 dark:active:bg-zinc-800/60 transition-colors ${selected ? 'border-blue-500 ring-2 ring-blue-500/30' : ''}`}
         >
             <div className="flex items-center gap-3 min-h-[44px]">
                 {selectable && (
@@ -246,9 +246,10 @@ export default function StockCard({
             {/* Session detail — the phone list used to stop at price + change, so
                 the range, liquidity and gap were only reachable by opening the
                 stock. Four terse columns fit even at 320px. */}
-            <div className="pt-2 border-t border-zinc-100 dark:border-white/5 grid grid-cols-4 gap-2">
+            <div className="pt-2 border-t border-zinc-100 dark:border-white/5 grid grid-cols-5 gap-2">
                 {[
                     { label: "Low", value: low > 0 ? dp(low) : "—", tone: "" },
+                    { label: "Open", value: open > 0 ? dp(open) : "—", tone: "" },
                     { label: "High", value: high > 0 ? dp(high) : "—", tone: "" },
                     { label: "Vol", value: volumeNum > 0 ? compactNum(volumeNum) : "—", tone: "" },
                     {
@@ -281,7 +282,7 @@ export default function StockCard({
             {compactRow}
             <div
                 onClick={onClick}
-                className={`${compact ? 'hidden sm:flex' : 'flex'} relative bg-white dark:bg-zinc-900 rounded-[1.2rem] sm:rounded-xl shadow-sm hover:shadow-md transition-all p-3 sm:p-4 border flex-col h-full cursor-pointer group/card ${selected ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-zinc-200 dark:border-zinc-800'}`}
+                className={`card ${compact ? 'hidden sm:flex' : 'flex'} hover:shadow-md transition-all p-3 sm:p-4 flex-col h-full cursor-pointer group/card ${selected ? 'border-blue-500 ring-2 ring-blue-500/30' : ''}`}
             >
                 {/* Compare selection checkbox */}
                 {selectable && (
@@ -414,7 +415,7 @@ export default function StockCard({
                         {/* Target / note editor */}
                         {showMeta && (
                             <div
-                                className="absolute right-0 top-8 w-[min(14rem,85vw)] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 z-50 p-3 space-y-2 animate-in fade-in slide-in-from-top-2"
+                                className="card-float absolute right-0 top-8 w-[min(14rem,85vw)] z-50 p-3 space-y-2 animate-in fade-in slide-in-from-top-2"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Target Price ({currencySymbol})</p>
@@ -455,7 +456,7 @@ export default function StockCard({
 
                         {showWatchlistMenu && (
                             <div
-                                className="absolute right-0 top-8 w-[min(12rem,80vw)] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 z-50 py-2 animate-in fade-in slide-in-from-top-2"
+                                className="card-float absolute right-0 top-8 w-[min(12rem,80vw)] z-50 py-2 animate-in fade-in slide-in-from-top-2"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <p className="px-3 py-1 text-[9px] font-black text-zinc-400 uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-800 mb-1">Manage Watchlists</p>

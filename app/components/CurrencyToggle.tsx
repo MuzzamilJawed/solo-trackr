@@ -49,7 +49,7 @@ export default function CurrencyToggle({ className = "" }: { className?: string 
                 <div className="shrink-0 pt-2.5 pb-1 flex justify-center">
                     <span className="w-10 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
                 </div>
-                <p className="shrink-0 px-5 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+                <p className="shrink-0 px-5 pb-2 pt-1 text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">
                     Display currency
                 </p>
                 <div className="overflow-y-auto px-2 pb-2">
@@ -75,7 +75,7 @@ export default function CurrencyToggle({ className = "" }: { className?: string 
                                     <span className={`block text-sm font-black uppercase tracking-widest truncate ${active ? "text-blue-600 dark:text-blue-400" : "text-zinc-900 dark:text-white"}`}>
                                         {code}
                                     </span>
-                                    <span className="block text-[10px] font-bold text-zinc-400 truncate">{nameOf(code)}</span>
+                                    <span className="block text-[11px] font-bold text-zinc-400 truncate">{nameOf(code)}</span>
                                 </span>
                                 {active && <Check className="w-5 h-5 shrink-0 text-blue-600 dark:text-blue-400" strokeWidth={3} />}
                             </button>
@@ -110,7 +110,7 @@ export default function CurrencyToggle({ className = "" }: { className?: string 
                     onChange={(e) => setCurrency(e.target.value)}
                     aria-label="Display currency"
                     title="Display currency"
-                    className={`hidden sm:block px-3 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all ${className}`}
+                    className={`hidden sm:block px-3 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all ${className}`}
                 >
                     {options.map(code => <option key={code} value={code}>{code}</option>)}
                 </select>
@@ -125,7 +125,7 @@ export default function CurrencyToggle({ className = "" }: { className?: string 
                             key={code}
                             onClick={() => setCurrency(code)}
                             aria-pressed={currency === code}
-                            className={`px-4 py-1.5 text-[10px] font-black rounded-lg transition-all uppercase tracking-widest ${currency === code
+                            className={`px-4 py-1.5 text-[11px] font-black rounded-lg transition-all uppercase tracking-widest ${currency === code
                                 ? "bg-white dark:bg-zinc-700 shadow text-blue-600 dark:text-blue-400"
                                 : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200"
                                 }`}

@@ -106,15 +106,15 @@ export default function UniversalWatchlist() {
     const inputCls = "px-3 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm font-bold text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500";
 
     return (
-        <div className="bg-white dark:bg-zinc-900/50 rounded-2xl sm:rounded-[2rem] border border-zinc-200 dark:border-white/5 shadow-sm overflow-hidden">
+        <div className="card overflow-hidden">
             <div className="px-4 sm:px-6 py-4 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between gap-2">
                 <div>
                     <h2 className="text-sm font-black uppercase tracking-tighter italic flex items-center gap-2"><Globe className="w-4 h-4 text-blue-500 shrink-0" strokeWidth={2} /> Watch Any Asset</h2>
-                    <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">Stocks · Crypto · Forex · Commodities</p>
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">Stocks · Crypto · Forex · Commodities</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                     <CurrencyToggle />
-                    <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">{loading ? "Pricing…" : book.updated}</span>
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{loading ? "Pricing…" : book.updated}</span>
                 </div>
             </div>
 
@@ -141,7 +141,7 @@ export default function UniversalWatchlist() {
                         <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-2xl shadow-black/10 dark:shadow-black/50 overflow-hidden">
                             {filtered.length === 0 ? (
                                 <div className="px-3 py-3 text-center">
-                                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                                    <p className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">
                                         {symbol.trim() ? `No match — press Enter to add “${symbol.trim()}”` : "Start typing to search"}
                                     </p>
                                 </div>
@@ -161,12 +161,12 @@ export default function UniversalWatchlist() {
                                                 <span className="flex items-center gap-2 min-w-0">
                                                     <span className={`text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded shrink-0 ${badge(assetType)}`}>{assetType}</span>
                                                     <span className="text-xs font-black tracking-tight text-zinc-900 dark:text-white shrink-0">{s}</span>
-                                                    {nm && <span className="text-[10px] text-zinc-400 font-bold truncate">{nm}</span>}
+                                                    {nm && <span className="text-[11px] text-zinc-400 font-bold truncate">{nm}</span>}
                                                 </span>
                                                 {already ? (
-                                                    <span className="inline-flex items-center gap-1 text-[8px] font-black text-green-500 uppercase tracking-widest shrink-0"><Check className="w-3 h-3" strokeWidth={3} /> Added</span>
+                                                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-green-500 uppercase tracking-widest shrink-0"><Check className="w-3 h-3" strokeWidth={3} /> Added</span>
                                                 ) : (
-                                                    <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest shrink-0 flex items-center gap-0.5"><Plus className="w-3 h-3" strokeWidth={3} />Add</span>
+                                                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest shrink-0 flex items-center gap-0.5"><Plus className="w-3 h-3" strokeWidth={3} />Add</span>
                                                 )}
                                             </button>
                                         );
@@ -177,14 +177,14 @@ export default function UniversalWatchlist() {
                     )}
                 </div>
 
-                <button onClick={() => add()} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-1 shrink-0"><Plus className="w-3.5 h-3.5" strokeWidth={3} />Watch</button>
+                <button onClick={() => add()} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-1 shrink-0"><Plus className="w-3.5 h-3.5" strokeWidth={3} />Watch</button>
             </div>
 
             {/* List */}
             {items.length === 0 ? (
                 <div className="py-12 text-center px-4">
                     <Globe className="w-8 h-8 mx-auto mb-2 text-zinc-400" strokeWidth={1.5} />
-                    <p className="text-zinc-500 font-black uppercase tracking-widest text-[10px]">Watch anything — pick a market above and add a symbol</p>
+                    <p className="text-zinc-500 font-black uppercase tracking-widest text-[11px]">Watch anything — pick a market above and add a symbol</p>
                 </div>
             ) : (
                 <div className="divide-y divide-zinc-100 dark:divide-white/5 max-h-[420px] overflow-y-auto custom-scrollbar">
@@ -198,7 +198,7 @@ export default function UniversalWatchlist() {
                                     <span className={`text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded shrink-0 ${badge(it.assetType)}`}>{it.assetType}</span>
                                     <div className="min-w-0">
                                         <div className="text-xs font-black tracking-tight truncate">{it.symbol}</div>
-                                        <div className="text-[9px] text-zinc-400 font-bold truncate max-w-[180px]">{info?.name || (loading ? "…" : "Not found in feed")}</div>
+                                        <div className="text-[10px] text-zinc-400 font-bold truncate max-w-[180px]">{info?.name || (loading ? "…" : "Not found in feed")}</div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 shrink-0">
