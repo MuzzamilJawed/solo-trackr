@@ -24,6 +24,9 @@ const config: CapacitorConfig = {
     // Allow plain-HTTP only for LAN development against http:// URLs.
     cleartext: !isHttps,
     androidScheme: 'https',
+    // If server.url can't load (offline, server down) show mobile-shell/index.html
+    // — a retry screen — instead of the WebView's raw error page.
+    errorPath: 'index.html',
   },
   backgroundColor: '#050505',
   android: {
