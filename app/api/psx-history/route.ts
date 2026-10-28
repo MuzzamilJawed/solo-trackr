@@ -221,21 +221,41 @@ export async function GET(request: Request) {
                         const hi = Math.max(high ?? close, close);
                         const lo = Math.min(low && low > 0 ? low : close, close);
                         const last = formattedData[formattedData.length - 1];
-                        const prev = formattedData[formattedData.length - 2];
-                        // LDCP is the previous session's close. If it equals Yahoo's latest
-                        // close, Yahoo is missing today; if it equals the one before, Yahoo
-                        // already has today's (partial) bar.
-                        const yahooMissingToday = ldcp !== null && Math.abs(ldcp - last.close) < 0.01;
-                        const yahooHasToday = ldcp !== null && prev && Math.abs(ldcp - prev.close) < 0.01;
-                        const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(new Date());
+                        // The page shows the latest session: today once PSX opens (09:15 PKT),
+                        // otherwise the previous weekday. Exchange holidays aren't modelled.
+                        const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+                        const parts = Object.fromEntries(fmt.formatToParts(new Date()).map((p) => [p.type, p.value]));
+                        const day = new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00Z`);
+                        const isWeekday = (d: Date) => d.getUTCDay() !== 0 && d.getUTCDay() !== 6;
+                        const prevWeekday = (d: Date) => { const x = new Date(d); do { x.setUTCDate(x.getUTCDate() - 1); } while (!isWeekday(x)); return x; };
+                        let session = day;
+                        if (!isWeekday(session) || Number(parts.hour) * 60 + Number(parts.minute) < 9 * 60 + 15) session = prevWeekday(session);
+                        const iso = (d: Date) => d.toISOString().slice(0, 10);
+                        const sessionDate = iso(session);
+                        const prevDate = iso(prevWeekday(session));
 
-                        if (yahooMissingToday && timeframe === '1D' && String(last.time) < today) {
-                            formattedData.push({ time: today, open: open ?? ldcp, high: hi, low: lo, close, volume: vol });
-                        } else if (yahooMissingToday || yahooHasToday) {
+                        if (String(last.time) >= sessionDate) {
+                            // Yahoo already has the current (partial) bar.
                             last.close = close;
                             last.high = Math.max(last.high, hi);
                             last.low = Math.min(last.low, lo);
                             if (timeframe === '1D' && vol > last.volume) last.volume = vol;
+                        } else if (timeframe === '1D') {
+                            // Yahoo lags: fill the previous session from LDCP (close only), then add the live bar.
+                            if (ldcp && String(last.time) === prevDate) {
+                                last.close = ldcp;
+                                last.high = Math.max(last.high, ldcp);
+                                last.low = Math.min(last.low, ldcp);
+                            } else if (ldcp && String(last.time) < prevDate) {
+                                formattedData.push({ time: prevDate, open: last.close, high: Math.max(last.close, ldcp), low: Math.min(last.close, ldcp), close: ldcp, volume: 0 });
+                            }
+                            const base = formattedData[formattedData.length - 1];
+                            formattedData.push({ time: sessionDate, open: open ?? ldcp ?? base.close, high: hi, low: lo, close, volume: vol });
+                        } else {
+                            // Weekly/monthly bars are bucketed by Yahoo: just roll the live price into the latest bar.
+                            last.close = close;
+                            last.high = Math.max(last.high, hi);
+                            last.low = Math.min(last.low, lo);
                         }
                         if (high && low) { dayHigh = high; dayLow = low; }
                     }
